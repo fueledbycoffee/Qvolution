@@ -4,7 +4,7 @@
 - [x] QV-002: Define exactly 20 application targets, workflow gates and reproducible run records.
 - [x] QV-003: Establish a clean pinned build, staged runtime and repeated CLI bootstrap.
 - [x] QV-004: Fix the reproduced Wayland absolute-socket autodetection bug with a failing-before/passing-after regression.
-- [ ] QV-005: Make TextEdit edit/save/reopen reliable under GNOME/Mutter.
+- [ ] QV-005: Make TextEdit edit/save/reopen reliable under GNOME/Mutter. Diagnostic ASCII save/quit/reopen and flicker correction are user-confirmed; normal Swift startup and remaining acceptance checks are pending.
 - [ ] QV-006: Make Terminal PTY input, resize, multiple windows and clean exit reliable.
 - [ ] QV-007: Repair menu mutation, validation, removed-item IDs, toggle state and panel-disappearance fallback.
 - [ ] QV-008: Separate D-Bus menu export from X11 registration; implement native Wayland focus/application association with a specific GNOME extension.

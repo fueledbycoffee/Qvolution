@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "source_commit": "4ae663ef3141b3272bee1f46e15c770c42ac1b3b",
+  "component_commit": "bd0582741d065003413dd47470d42a0e0c437fee",
+  "diagnostic_swift_override_required": true,
+  "parent": {
+    "exit": 1,
+    "stdout": "",
+    "stderr": "2026-10-30 23:32:59.966 qvolution_presentation_atomicity[697402:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: NSWindow reports drawing enabled at depth=2\nFAIL: pending Wayland presentation reads pixels during paused drawing (depth=2)\nFAIL: NSWindow reports drawing enabled at depth=1\nFAIL: pending Wayland presentation reads pixels during paused drawing (depth=1)\n",
+    "seconds": 1.774264020001283,
+    "shutdown_exit": 0,
+    "diagnostic_swift_override": true
+  },
+  "candidate": {
+    "exit": 0,
+    "stdout": "PASS: pending presentation waits for nested drawing pauses to finish\n",
+    "stderr": "2026-10-30 23:34:48.220 qvolution_presentation_atomicity[707026:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+    "seconds": 1.9450007810009993,
+    "shutdown_exit": 0,
+    "diagnostic_swift_override": true
+  },
+  "full_build": "passed",
+  "ninja_dry_run": "no work to do",
+  "workspace_staging": "passed",
+  "host_regression_steps": 13,
+  "cli_boot_shutdown_cycles": 3,
+  "save_panel_followup": {
+    "exit": 0,
+    "seconds": 5.408143348002341,
+    "shutdown_exit": 0,
+    "outline_rows": 57309,
+    "displayed_seconds": 3.053
+  },
+  "user_save_confirmation": "saved, but still flickers or lags before this rendering change",
+  "saved_test_file": {
+    "path": "/tmp/Qvolution-test.txt",
+    "bytes": 19,
+    "contains_exact_test_text": true
+  },
+  "user_flicker_scope": "every menu change and scrolling, per user screenshot/report",
+  "visual_after_fix": "user confirmed: Text visible; flickering gone",
+  "save_reopen": "pass diagnostic ASCII save/quit/reopen; user confirmed reopened text visible",
+  "normal_swift_loading": "still blocked",
+  "responsiveness_after_fix": "user confirmed: Seems a lot more responsive too"
+}

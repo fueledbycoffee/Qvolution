@@ -38,9 +38,11 @@
         "wayland_connected": true,
         "single_title_bar_user_confirmed": true,
         "typing_user_confirmed": true,
-        "save_reopen": "failed_snapshot_only_retry; followup_manual_retry_pending",
+        "save_reopen": "pass_ASCII_test; user_confirmed_reopened_text_visible",
         "normal_swift_loading": "blocked",
-        "save_panel_expansion": "pass_source_fixture_full_panel; 56193_rows_displayed_in_2.973s"
+        "save_panel_expansion": "pass_source_fixture_full_panel; 56193_rows_displayed_in_2.973s",
+        "save": "user_confirmed; file_content_verified",
+        "menus_scrolling": "user_confirmed_flicker_gone_and_more_responsive_after_drawing_pause_fix"
       }
     },
     {
