@@ -32,8 +32,15 @@
         "Edit, undo, copy and paste",
         "Save, quit, reopen and compare contents"
       ],
-      "notes": "Darling-built open-source TextEdit is the first fixture; test an unmodified Apple-distributed build separately. Source fixture compiles and stages. Normal load fails on __swift_classIsSwiftMask from the mixed Swift overlay/runtime. A flat-namespace compatibility-library diagnostic connects to Wayland and the user confirmed a window with typed text, but duplicate title bars remain under correction. This is not a normal compatibility pass.",
-      "tested_variant": "Darling source fixture"
+      "notes": "Darling-built open-source TextEdit is the first fixture; test an unmodified Apple-distributed build separately. Source fixture compiles and stages. Normal load fails on __swift_classIsSwiftMask from the mixed Swift overlay/runtime. A flat-namespace compatibility-library diagnostic connects to Wayland and the user confirmed a window with typed text, and the corrected backend now shows one title bar with typing confirmed by the user. This is not a normal compatibility pass.",
+      "tested_variant": "Darling source fixture",
+      "diagnostic_results": {
+        "wayland_connected": true,
+        "single_title_bar_user_confirmed": true,
+        "typing_user_confirmed": true,
+        "save_reopen": "not_yet_verified",
+        "normal_swift_loading": "blocked"
+      }
     },
     {
       "id": "terminal",

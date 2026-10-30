@@ -20,4 +20,4 @@
 Each runtime change needs a focused regression, its source/provenance and an observed workflow result. A missing-symbol fix is a load milestone, not a usable application. Preserve upstream clean-room boundaries and component licenses. Shared human review should be independent; do not invent reviewers or approvals. No upstream contribution or public issue is implied by local work.
 
 - [ ] QV-017: Connect and validate Swift compatibility for normal two-level loading; remove the diagnostic flat-namespace override before claiming TextEdit works.
-- [ ] QV-018: Validate single title-bar ownership on Wayland, preserve X11 layout, and confirm the corrected window with the user.
+- [x] QV-018: Validate single title-bar ownership on Wayland, preserve X11 layout, and confirm the corrected window with the user.

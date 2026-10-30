@@ -28,3 +28,5 @@ Create a run record with `python3 qvolution/qv.py new-run textedit`. Fill in act
 The source fixture at `b85f62f309a4b1bc655d056df4d4a72f9083cbe2` builds and stages. Normal loading fails because libswiftFoundation requests `__swift_classIsSwiftMask` from libswiftCore. The repository supplies the symbol in a separate compatibility library, but it does not satisfy this normal two-level bind.
 
 A diagnostic launch with `DYLD_FORCE_FLAT_NAMESPACE=1` and `DYLD_INSERT_LIBRARIES=/usr/lib/swift/libswiftCoreCompat.dylib` gets past that loader failure. Wayland connects, and the user supplied a screenshot showing rendered text and confirmed that the window looks broken. It has duplicate title bars from WaylandWindow and NSThemeFrame. Record this as diagnostic progress, not working app compatibility. Save/reopen and normal loading have not passed.
+
+The title-bar correction is now verified: guest layout checks pass on Wayland and X11, and the user supplied an after screenshot and confirmed one title bar with working typing. The source fixture remains a diagnostic launch because the Swift loader override is still required. Save/reopen is pending.

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "source_commit": "f32f5d36c09913a60f6a54bf74ab74ee040de832",
+  "component_commit": "1b0108b95951079fae6e26e2bf8dacb6f4c7fdce",
+  "host_architecture": "x86_64",
+  "full_build": "passed",
+  "ninja_dry_run": "no work to do",
+  "staging": "passed in workspace",
+  "pre_fix_wayland": {"exit_code": 1, "reserved_title_height": 28, "expected": 0},
+  "post_fix_wayland": {"exit_code": 0, "reserved_title_height": 0, "prefix_shutdown_exit": 0},
+  "post_fix_x11": {"exit_code": 0, "reserved_title_height": 28, "prefix_shutdown_exit": 0},
+  "checks": ["title-bar ownership", "borderless title height", "frame/content round trip"],
+  "diagnostic_swift_override_required": true,
+  "cli_boot_and_shutdown_cycles_after_staging": 3,
+  "host_regression_steps_after_staging": 13,
+  "textedit_visual_confirmation": "user screenshot and report: one title bar, typing works",
+  "save_reopen": "not yet verified",
+  "normal_swift_loading": "still blocked"
+}
