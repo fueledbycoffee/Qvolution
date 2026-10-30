@@ -34,6 +34,8 @@ DESTDIR="$(realpath ../Qvolution-work)/stage" cmake --install ../Qvolution-work/
 DPREFIX="$(realpath ../Qvolution-work)/prefixes/cli-smoke" DARLING_INSTALL_PREFIX="$(realpath ../Qvolution-work)/stage/usr/local"   ../Qvolution-work/build/src/startup/darling shell /bin/echo Qvolution
 ```
 
+Run `python3 qvolution/cli-smoke.py` after staging to check three nonroot boot/shutdown cycles in the dedicated `cli-smoke` prefix. It records stdout, errors and cleanup results in the sibling workspace.
+
 Use the build tree's non-setuid launcher. Stop that exact prefix with the same environment and `darling shutdown`. Do not use process-name kill loops or treat a timeout as clean shutdown. Check the source manifest, repeated startup and shutdown before GUI testing.
 
 ## Application results
