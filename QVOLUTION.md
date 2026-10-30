@@ -8,7 +8,7 @@ The first objective is a reliable TextEdit workflow with native GNOME integratio
 - [Work queue](qvolution/ROADMAP.md)
 - [Build and run guide](qvolution/BUILD.md)
 - [Machine-readable target list](qvolution/apps.json)
-- [Original upstream README](README.md)
+- [Original upstream README](https://github.com/VibeDarling/darling/blob/1972ae4bc79b96f3dbb952d3bc658beb96752103/README.md)
 
 ## Local commands
 
