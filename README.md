@@ -2,7 +2,7 @@
 
 Experimental macOS application compatibility for Linux and GNOME, based on [VibeDarling](https://github.com/VibeDarling/darling) and [Darling](https://github.com/darlinghq/darling).
 
-The first objective is a reliable TextEdit workflow with native GNOME integration. Terminal follows. Mac Electron compatibility is a separate gate before Discord; Dia needs an ARM64 execution path. None of the 20 target apps has yet been tested by Qvolution.
+The first objective is a reliable TextEdit workflow with native GNOME integration. Terminal follows. Mac Electron compatibility is a separate gate before Discord; Dia needs an ARM64 execution path. The source-built TextEdit fixture has user-confirmed ASCII save/reopen and menu/scroll flicker corrections, and now opens normally without diagnostic loader flags. Unicode editing, undo, clipboard, global menus and extended stability remain separate checks; vendor Mac app bundles are not yet validated.
 
 - [20-app matrix](qvolution/APP-MATRIX.md)
 - [Work queue](qvolution/ROADMAP.md)

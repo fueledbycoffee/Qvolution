@@ -1,6 +1,6 @@
 # TextEdit
 
-Status: **source fixture built; normal loading blocked**. Wave 1; priority 1.
+Status: **source fixture starts normally; ASCII save/reopen verified; remaining acceptance checks pending**. Wave 1; priority 1.
 
 Source: https://support.apple.com/guide/textedit/welcome/mac
 
@@ -25,9 +25,9 @@ Create a run record with `python3 qvolution/qv.py new-run textedit`. Fill in act
 
 ## First runtime checkpoint
 
-The source fixture at `b85f62f309a4b1bc655d056df4d4a72f9083cbe2` builds and stages. Normal loading fails because libswiftFoundation requests `__swift_classIsSwiftMask` from libswiftCore. The repository supplies the symbol in a separate compatibility library, but it does not satisfy this normal two-level bind.
+The source fixture at `b85f62f309a4b1bc655d056df4d4a72f9083cbe2` builds and stages. At the initial checkpoint, normal loading failed because libswiftFoundation requested `__swift_classIsSwiftMask` from libswiftCore. The repository supplies the symbol in a separate compatibility library, but it does not satisfy this normal two-level bind.
 
-A diagnostic launch with `DYLD_FORCE_FLAT_NAMESPACE=1` and `DYLD_INSERT_LIBRARIES=/usr/lib/swift/libswiftCoreCompat.dylib` gets past that loader failure. Wayland connects, and the user supplied a screenshot showing rendered text and confirmed that the window looks broken. It has duplicate title bars from WaylandWindow and NSThemeFrame. Record this as diagnostic progress, not working app compatibility. Save/reopen and normal loading have not passed.
+A diagnostic launch with `DYLD_FORCE_FLAT_NAMESPACE=1` and `DYLD_INSERT_LIBRARIES=/usr/lib/swift/libswiftCoreCompat.dylib` gets past that loader failure. Wayland connects, and the user supplied a screenshot showing rendered text and confirmed that the window looks broken. It has duplicate title bars from WaylandWindow and NSThemeFrame. Record this as diagnostic progress, not working app compatibility. Save/reopen and normal loading had not passed at that point.
 
 The title-bar correction is now verified: guest layout checks pass on Wayland and X11, and the user supplied an after screenshot and confirmed one title bar with working typing. The source fixture remains a diagnostic launch because the Swift loader override is still required. Save/reopen subsequently failed: expanding `/tmp` produced flickering, an unresponsive dialog and runtime termination. The directory data source reread and sorted the full listing for every child row.
 
@@ -38,3 +38,10 @@ The snapshot-only retry also failed: the user reported freezing/closure and supp
 The user subsequently confirmed saving succeeds, with flicker/lag remaining on every menu change and while scrolling. `/tmp/Qvolution-test.txt` was verified as 19 bytes containing exactly `Qvolution save test`. The user later confirmed the saved text is visible after reopening.
 
 A separate rendering regression found that `isFlushWindowDisabled` returned an unused flag instead of the active nesting counter and the Wayland pending-presentation gate ignored drawing pauses. The corrected runtime passes nested-pause/resume checks; the parent fails both state and premature-pixel-access checks. The real `/tmp` panel diagnostic, 13 host steps and three CLI cycles still pass. The user confirmed the reopened text is visible, flickering is gone, and the app seems much more responsive. This confirms the diagnostic ASCII save/quit/reopen and visual menu/scroll milestone; Unicode, undo, clipboard, extended stability and normal Swift startup remain outside this result. See `qvolution/verification/presentation-atomicity.json`.
+
+
+## Normal Objective-C startup
+
+Foundation commit `cbde81c88373c1417c9bfece7f45e68c56834518` makes the incompatible legacy x86 Swift overlay re-export opt-in. The previous Foundation-only client failed before main; the candidate passes normal initialization and a Unicode JSON round trip. Wayland titlebar, rendering-pause, snapshot and full save-panel tests also pass with all `DYLD_*` overrides removed, along with 13 host steps and three CLI cycles.
+
+The user confirmed the saved text opens normally, typing and menus respond, and supplied a screenshot. Earlier ASCII saving/reopening and flicker corrections remain recorded separately. Normal Swift ABI compatibility is not fixed: applications that need the legacy Swift overlay still require a matching source-built overlay/runtime. Unicode JSON passing does not establish Unicode TextEdit editing, and undo, clipboard, global-menu integration and extended stability remain unverified.

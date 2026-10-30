@@ -4,7 +4,7 @@
 - [x] QV-002: Define exactly 20 application targets, workflow gates and reproducible run records.
 - [x] QV-003: Establish a clean pinned build, staged runtime and repeated CLI bootstrap.
 - [x] QV-004: Fix the reproduced Wayland absolute-socket autodetection bug with a failing-before/passing-after regression.
-- [ ] QV-005: Make TextEdit edit/save/reopen reliable under GNOME/Mutter. Diagnostic ASCII save/quit/reopen and flicker correction are user-confirmed; normal Swift startup and remaining acceptance checks are pending.
+- [ ] QV-005: Make TextEdit edit/save/reopen reliable under GNOME/Mutter. ASCII save/quit/reopen and flicker correction are user-confirmed; normal Objective-C startup and typing/menus are confirmed. Unicode editing, undo, clipboard and extended stability remain pending.
 - [ ] QV-006: Make Terminal PTY input, resize, multiple windows and clean exit reliable.
 - [ ] QV-007: Repair menu mutation, validation, removed-item IDs, toggle state and panel-disappearance fallback.
 - [ ] QV-008: Separate D-Bus menu export from X11 registration; implement native Wayland focus/application association with a specific GNOME extension.
@@ -19,5 +19,5 @@
 
 Each runtime change needs a focused regression, its source/provenance and an observed workflow result. A missing-symbol fix is a load milestone, not a usable application. Preserve upstream clean-room boundaries and component licenses. Shared human review should be independent; do not invent reviewers or approvals. No upstream contribution or public issue is implied by local work.
 
-- [ ] QV-017: Connect and validate Swift compatibility for normal two-level loading; remove the diagnostic flat-namespace override before claiming TextEdit works.
+- [ ] QV-017: Build matching x86 Swift overlays/runtime and validate Swift ABI behavior. Normal Objective-C TextEdit startup no longer requires diagnostic overrides; Swift-based apps remain unsupported on this legacy-overlay path.
 - [x] QV-018: Validate single title-bar ownership on Wayland, preserve X11 layout, and confirm the corrected window with the user.

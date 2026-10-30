@@ -31,7 +31,7 @@ After committing intended source changes and recording a source manifest:
 
 ```sh
 DESTDIR="$(realpath ../Qvolution-work)/stage" cmake --install ../Qvolution-work/build
-DPREFIX="$(realpath ../Qvolution-work)/prefixes/cli-smoke" DARLING_INSTALL_PREFIX="$(realpath ../Qvolution-work)/stage/usr/local"   ../Qvolution-work/build/src/startup/darling shell /bin/echo Qvolution
+DPREFIX="$(realpath ../Qvolution-work)/prefixes/cli-smoke" DARLING_INSTALL_PREFIX="$(realpath ../Qvolution-work)/stage/usr/local" DARLING_NONROOT=1 ../Qvolution-work/build/src/startup/darling shell /bin/echo Qvolution
 ```
 
 Run `python3 qvolution/cli-smoke.py` after staging to check three nonroot boot/shutdown cycles in the dedicated `cli-smoke` prefix. It records stdout, errors and cleanup results in the sibling workspace.
@@ -47,3 +47,14 @@ The existing sandbox entry points do not establish Mac-equivalent confinement. T
 ## Source TextEdit fixture
 
 `QVOLUTION_BUILD_TEXTEDIT` defaults OFF and requires AppKit/the gui component when enabled. The target builds the pinned open-source TextEdit submodule, not a current Apple-distributed binary. Its staged executable is `/Applications/TextEdit.app/Contents/MacOS/TextEdit`. Keep fixture results separate from vendor-bundle compatibility.
+
+
+Normal x86_64 Objective-C startup leaves `DARLING_ENABLE_LEGACY_X86_SWIFT_FOUNDATION_OVERLAY` OFF (the default). The bundled x86 Swift 5.2.2 overlay cannot be eagerly re-exported against the 6.3.3 runtime. This does not implement Swift ABI compatibility; apps that explicitly need that overlay remain unsupported. The arm64 overlay path is unchanged and was not runtime-tested here.
+
+After staging, launch the source fixture from your desktop session without any `DYLD_*` overrides:
+
+```sh
+DPREFIX="$(realpath ../Qvolution-work)/prefixes/textedit-normal" DARLING_INSTALL_PREFIX="$(realpath ../Qvolution-work)/stage/usr/local" DARLING_NONROOT=1 DARLING_APPKIT_BACKEND=wayland ../Qvolution-work/build/src/startup/darling shell /Applications/TextEdit.app/Contents/MacOS/TextEdit
+```
+
+The focused normal-startup target is `foundation_objc_startup`, under `build/src/external/foundation/test/objc-startup/`. Run it inside the guest via `/Volumes/SystemRoot` followed by its absolute host path, with all `DYLD_*` overrides removed. It rejects diagnostic overrides and checks normal Foundation initialization and a Unicode JSON round trip. `qvolution_titlebar_policy 0`, `qvolution_presentation_atomicity`, `qvolution_save_browser_snapshot FIXTURE_DIRECTORY` and `qvolution_save_browser_expansion` have also passed on Wayland without diagnostic overrides; their component test notes describe fixtures and cleanup. These are framework and source-fixture results, not a Swift-app compatibility claim.

@@ -15,24 +15,24 @@
       "catalog_source": null,
       "catalog_checked": null,
       "architecture": "select-and-record-artifact",
-      "status": "source_fixture_blocked_loading",
+      "status": "source_fixture_partial_workflow",
       "tested_version": "source b85f62f309a4b1bc655d056df4d4a72f9083cbe2",
       "artifact_sha256": null,
       "milestones": {
         "acquire": "pass_source_fixture",
         "install": "pass_source_fixture",
-        "load": "fail_normal_configuration",
-        "launch": "not_tested",
-        "workflow": "not_tested",
-        "gnome": "not_tested",
-        "stability": "not_tested"
+        "load": "pass_source_fixture_normal_loading",
+        "launch": "pass_source_fixture_user_confirmed",
+        "workflow": "partial_ASCII_save_reopen",
+        "gnome": "partial_native_wayland_visual_checks",
+        "stability": "not_tested_extended"
       },
       "workflow": [
         "Create a Unicode document",
         "Edit, undo, copy and paste",
         "Save, quit, reopen and compare contents"
       ],
-      "notes": "Darling-built open-source TextEdit is the first fixture; test an unmodified Apple-distributed build separately. Source fixture compiles and stages. Normal load fails on __swift_classIsSwiftMask from the mixed Swift overlay/runtime. A flat-namespace compatibility-library diagnostic connects to Wayland and the user confirmed a window with typed text, and the corrected backend now shows one title bar with typing confirmed by the user. This is not a normal compatibility pass.",
+      "notes": "Darling-built open-source fixture, not a vendor-bundle pass. ASCII saving/reopening, single title bar and flicker correction are user-confirmed. Normal Objective-C startup no longer uses DYLD overrides; the user confirmed reopened text, typing and menus. Unicode editing, undo, clipboard, GNOME global menus and extended stability remain unverified. Swift ABI compatibility with the legacy x86 overlay is not fixed.",
       "tested_variant": "Darling source fixture",
       "diagnostic_results": {
         "wayland_connected": true,
@@ -43,6 +43,13 @@
         "save_panel_expansion": "pass_source_fixture_full_panel; 56193_rows_displayed_in_2.973s",
         "save": "user_confirmed; file_content_verified",
         "menus_scrolling": "user_confirmed_flicker_gone_and_more_responsive_after_drawing_pause_fix"
+      },
+      "normal_results": {
+        "startup_without_dyld_overrides": true,
+        "saved_text_visible_user_confirmed": true,
+        "typing_and_menus_user_confirmed": true,
+        "foundation_commit": "cbde81c88373c1417c9bfece7f45e68c56834518",
+        "swift_abi": "legacy_x86_overlay_unsupported"
       }
     },
     {

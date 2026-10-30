@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "tested_local_superproject": "3a021efa2e55d469f8371ad162fed60fe5d1d3f7",
+  "tested_local_foundation": "e4ad9e1ba9ba093617f81ead0c56598a673fa82d",
+  "published_foundation_commit": "cbde81c88373c1417c9bfece7f45e68c56834518",
+  "source_tree_identical": true,
+  "cocotron_commit": "bd0582741d065003413dd47470d42a0e0c437fee",
+  "full_build": "passed",
+  "ninja_dry_run": "no work to do",
+  "workspace_staging": "passed",
+  "host_regression_steps": 13,
+  "cli_boot_shutdown_cycles": 3,
+  "records": [
+    {
+      "check": "foundation-before",
+      "exit": 139,
+      "shutdown_exit": 0,
+      "seconds": 3.5758476320042973,
+      "diagnostic_swift_override": false,
+      "result": "abort_with_payload: reason: Symbol not found: __swift_classIsSwiftMask"
+    },
+    {
+      "check": "foundation-after",
+      "exit": 0,
+      "shutdown_exit": 0,
+      "seconds": 1.6363183519933955,
+      "diagnostic_swift_override": false,
+      "result": "PASS: normal Objective-C Foundation startup and Unicode JSON round trip"
+    },
+    {
+      "check": "titlebar-wayland",
+      "exit": 0,
+      "shutdown_exit": 0,
+      "seconds": 1.6755466030008392,
+      "diagnostic_swift_override": false,
+      "result": "PASS: title-bar ownership, borderless layout and frame conversion"
+    },
+    {
+      "check": "presentation",
+      "exit": 0,
+      "shutdown_exit": 0,
+      "seconds": 1.6908832729968708,
+      "diagnostic_swift_override": false,
+      "result": "PASS: pending presentation waits for nested drawing pauses to finish"
+    },
+    {
+      "check": "snapshot",
+      "exit": 0,
+      "shutdown_exit": 0,
+      "seconds": 1.6369508440038771,
+      "diagnostic_swift_override": false,
+      "result": "PASS: 1024-file listing reuse, interleaving, refresh, identity and bounds"
+    },
+    {
+      "check": "expansion",
+      "exit": 0,
+      "shutdown_exit": 0,
+      "seconds": 5.2012130380026065,
+      "diagnostic_swift_override": false,
+      "result": "PASS: real save-panel nib, root and /tmp expansion and display"
+    }
+  ],
+  "user_normal_textedit": "Text visible; controls respond normally; screenshot supplied",
+  "scope": "normal Objective-C startup; Swift ABI compatibility remains unsupported",
+  "arm64": "build behavior preserved; runtime not tested"
+}
