@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "source_commit": "47909156d9d49fe5d43199ce92ffc04bd9c4e4db",
+  "component_commit": "b6dcc069037b8c63afe86fabebf3d1bb0be0a4a8",
+  "fixture_files": 1024,
+  "before": {
+    "exit": 1,
+    "stdout": "",
+    "stderr": "FAIL: first child must reuse the count query listing (directory reads=2)\n",
+    "seconds": 1.809343696993892,
+    "shutdown_exit": 0,
+    "diagnostic_swift_override": true
+  },
+  "after": {
+    "exit": 0,
+    "stdout": "PASS: 1024-file listing reuse, interleaving, refresh, identity and bounds\n",
+    "stderr": "",
+    "seconds": 2.2370726160006598,
+    "shutdown_exit": 0,
+    "diagnostic_swift_override": true
+  },
+  "full_build": "passed",
+  "ninja_dry_run": "no work to do",
+  "workspace_staging": "passed",
+  "cli_boot_shutdown_cycles": 3,
+  "host_regression_steps": 13,
+  "interactive_save_reopen": "failed before fix; candidate awaiting user test",
+  "flicker": "unresolved until interactive verification",
+  "normal_swift_loading": "still blocked"
+}
