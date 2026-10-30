@@ -586,6 +586,10 @@ if (QVOLUTION_BUILD_TEXTEDIT)
 	endif ()
 	set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "gui")
 	add_subdirectory(external/TextEdit)
+	if (ENABLE_TESTS)
+		add_darling_executable(qvolution_titlebar_policy ${CMAKE_CURRENT_SOURCE_DIR}/external/cocotron/tests/appkit-titlebar-ownership.m)
+		target_link_libraries(qvolution_titlebar_policy AppKit)
+	endif ()
 endif ()
 
 # Subprojects after this line need C++ headers

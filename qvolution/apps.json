@@ -15,13 +15,13 @@
       "catalog_source": null,
       "catalog_checked": null,
       "architecture": "select-and-record-artifact",
-      "status": "not_tested",
-      "tested_version": null,
+      "status": "source_fixture_blocked_loading",
+      "tested_version": "source b85f62f309a4b1bc655d056df4d4a72f9083cbe2",
       "artifact_sha256": null,
       "milestones": {
-        "acquire": "not_tested",
-        "install": "not_tested",
-        "load": "not_tested",
+        "acquire": "pass_source_fixture",
+        "install": "pass_source_fixture",
+        "load": "fail_normal_configuration",
         "launch": "not_tested",
         "workflow": "not_tested",
         "gnome": "not_tested",
@@ -32,7 +32,8 @@
         "Edit, undo, copy and paste",
         "Save, quit, reopen and compare contents"
       ],
-      "notes": "Darling-built open-source TextEdit is the first fixture; test an unmodified Apple-distributed build separately."
+      "notes": "Darling-built open-source TextEdit is the first fixture; test an unmodified Apple-distributed build separately. Source fixture compiles and stages. Normal load fails on __swift_classIsSwiftMask from the mixed Swift overlay/runtime. A flat-namespace compatibility-library diagnostic connects to Wayland and the user confirmed a window with typed text, but duplicate title bars remain under correction. This is not a normal compatibility pass.",
+      "tested_variant": "Darling source fixture"
     },
     {
       "id": "terminal",
