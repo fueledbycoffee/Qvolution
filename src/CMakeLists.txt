@@ -591,6 +591,8 @@ if (QVOLUTION_BUILD_TEXTEDIT)
 		target_link_libraries(qvolution_titlebar_policy AppKit)
 		add_darling_executable(qvolution_save_browser_snapshot ${CMAKE_CURRENT_SOURCE_DIR}/external/cocotron/tests/appkit-save-browser-snapshot.m)
 		target_link_libraries(qvolution_save_browser_snapshot AppKit)
+		add_darling_executable(qvolution_save_browser_expansion ${CMAKE_CURRENT_SOURCE_DIR}/external/cocotron/tests/appkit-save-browser-expansion.m)
+		target_link_libraries(qvolution_save_browser_expansion AppKit)
 	endif ()
 endif ()
 
