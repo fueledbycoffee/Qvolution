@@ -1,0 +1,1128 @@
+{
+  "coteditor": {
+    "token": "coteditor",
+    "name": [
+      "CotEditor"
+    ],
+    "homepage": "https://coteditor.com/",
+    "version": "7.1.3",
+    "url": "https://github.com/coteditor/CotEditor/releases/download/7.1.3/CotEditor_7.1.3.dmg",
+    "sha256": "c8cbe6437434516bb23f93efe057fd058ad56ded5523ac113081a8ae68dab184",
+    "depends_on": {
+      "macos": {}
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "quit": "com.coteditor.CotEditor"
+          }
+        ]
+      },
+      {
+        "app": [
+          "CotEditor.app"
+        ],
+        "target": "/Applications/CotEditor.app"
+      },
+      {
+        "binary": [
+          "$APPDIR/CotEditor.app/Contents/SharedSupport/bin/cot"
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/cot"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Scripts/com.coteditor.CotEditor",
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.coteditor.coteditor.sfl*",
+              "~/Library/Caches/com.apple.helpd/Generated/com.coteditor.CotEditor.help*",
+              "~/Library/Caches/com.apple.helpd/SDMHelpData/Other/English/HelpSDMIndexFile/com.coteditor.CotEditor.help*",
+              "~/Library/Caches/com.apple.helpd/SDMHelpData/Other/Japanese/HelpSDMIndexFile/com.coteditor.CotEditor.help*",
+              "~/Library/Caches/com.coteditor.CotEditor",
+              "~/Library/Containers/com.coteditor.CotEditor",
+              "~/Library/Preferences/com.coteditor.CotEditor.plist"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {
+      "sequoia": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/7.0.9/CotEditor_7.0.9.dmg",
+        "version": "7.0.9",
+        "skip_livecheck": true,
+        "sha256": "b1cd481dd8f1271ffc7478dcc65d7e3a1f17893a3bc1f4afa38a9a93beaf5877"
+      },
+      "arm64_sequoia": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/7.0.9/CotEditor_7.0.9.dmg",
+        "version": "7.0.9",
+        "skip_livecheck": true,
+        "sha256": "b1cd481dd8f1271ffc7478dcc65d7e3a1f17893a3bc1f4afa38a9a93beaf5877"
+      },
+      "sonoma": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/5.2.3/CotEditor_5.2.3.dmg",
+        "version": "5.2.3",
+        "skip_livecheck": true,
+        "sha256": "c01fa87e31d7aafd475f72bb41a340e1e34db27cc8afb73ba2f5e2ad316739a9"
+      },
+      "arm64_sonoma": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/5.2.3/CotEditor_5.2.3.dmg",
+        "version": "5.2.3",
+        "skip_livecheck": true,
+        "sha256": "c01fa87e31d7aafd475f72bb41a340e1e34db27cc8afb73ba2f5e2ad316739a9"
+      },
+      "ventura": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/4.8.7/CotEditor_4.8.7.dmg",
+        "version": "4.8.7",
+        "skip_livecheck": true,
+        "sha256": "9c439ace99d6b74cf94738d24368ccc39c579902c7062f8e107c596061a58dda"
+      },
+      "arm64_ventura": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/4.8.7/CotEditor_4.8.7.dmg",
+        "version": "4.8.7",
+        "skip_livecheck": true,
+        "sha256": "9c439ace99d6b74cf94738d24368ccc39c579902c7062f8e107c596061a58dda"
+      },
+      "monterey": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/4.5.9/CotEditor_4.5.9.dmg",
+        "version": "4.5.9",
+        "skip_livecheck": true,
+        "sha256": "fa3e4a1fdf7edfc109c5588292906d864d430d2e8bd3d84161b1f0a7892163f6"
+      },
+      "arm64_monterey": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/4.5.9/CotEditor_4.5.9.dmg",
+        "version": "4.5.9",
+        "skip_livecheck": true,
+        "sha256": "fa3e4a1fdf7edfc109c5588292906d864d430d2e8bd3d84161b1f0a7892163f6"
+      },
+      "big_sur": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/4.3.6/CotEditor_4.3.6.dmg",
+        "version": "4.3.6",
+        "skip_livecheck": true,
+        "sha256": "8c1ecf6fd66a9885d428a6303d9d1c5ecb811c1c35c97bdbccdad72359d96ad9"
+      },
+      "arm64_big_sur": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download/4.3.6/CotEditor_4.3.6.dmg",
+        "version": "4.3.6",
+        "skip_livecheck": true,
+        "sha256": "8c1ecf6fd66a9885d428a6303d9d1c5ecb811c1c35c97bdbccdad72359d96ad9"
+      },
+      "x86_64_linux": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download//CotEditor_.dmg",
+        "version": null,
+        "sha256": null
+      },
+      "arm64_linux": {
+        "url": "https://github.com/coteditor/CotEditor/releases/download//CotEditor_.dmg",
+        "version": null,
+        "sha256": null
+      }
+    }
+  },
+  "transmission": {
+    "token": "transmission",
+    "name": [
+      "Transmission"
+    ],
+    "homepage": "https://transmissionbt.com/",
+    "version": "4.1.4",
+    "url": "https://github.com/transmission/transmission/releases/download/4.1.4/Transmission-4.1.4.dmg",
+    "sha256": "495c5d21d515c8deb859b0db6692fd5606644a1613c2cac87c1d3e7672755a59",
+    "depends_on": {
+      "macos": {
+        ">=": [
+          "12"
+        ]
+      }
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "quit": "org.m0k.transmission"
+          }
+        ]
+      },
+      {
+        "app": [
+          "Transmission.app"
+        ],
+        "target": "/Applications/Transmission.app"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/org.m0k.transmission.sfl*",
+              "~/Library/Application Support/Transmission",
+              "~/Library/Caches/com.apple.helpd/SDMHelpData/Other/English/HelpSDMIndexFile/org.m0k.transmission.help",
+              "~/Library/Caches/com.apple.helpd/SDMHelpData/Other/English/HelpSDMIndexFile/Transmission Help*",
+              "~/Library/Caches/org.m0k.transmission",
+              "~/Library/Cookies/org.m0k.transmission.binarycookies",
+              "~/Library/Preferences/org.m0k.transmission.LSSharedFileList.plist",
+              "~/Library/Preferences/org.m0k.transmission.plist",
+              "~/Library/Saved Application State/org.m0k.transmission.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {}
+  },
+  "vlc": {
+    "token": "vlc",
+    "name": [
+      "VLC media player"
+    ],
+    "homepage": "https://www.videolan.org/vlc/",
+    "version": "3.0.24",
+    "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-arm64.dmg",
+    "sha256": "64a89d93cdd30b0e97131743e246373db82d6826ea882d265d46d74b136da2b7",
+    "depends_on": {
+      "macos": {}
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "quit": "org.videolan.vlc"
+          }
+        ]
+      },
+      {
+        "app": [
+          "VLC.app"
+        ],
+        "target": "/Applications/VLC.app"
+      },
+      {
+        "command_wrapper": [
+          "vlc",
+          {
+            "executable": "$APPDIR/VLC.app/Contents/MacOS/VLC"
+          }
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/vlc"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/org.videolan.vlc.sfl*",
+              "~/Library/Application Support/org.videolan.vlc",
+              "~/Library/Application Support/VLC",
+              "~/Library/Caches/org.videolan.vlc",
+              "~/Library/HTTPStorages/org.videolan.vlc",
+              "~/Library/Preferences/org.videolan.vlc",
+              "~/Library/Preferences/org.videolan.vlc.plist",
+              "~/Library/Saved Application State/org.videolan.vlc.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {
+      "golden_gate": {
+        "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "sha256": "1ef6c903e2dc026d4e58ddf7b2a9ed0eb6f8caf80a9a9f46f96490340b962707"
+      },
+      "tahoe": {
+        "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "sha256": "1ef6c903e2dc026d4e58ddf7b2a9ed0eb6f8caf80a9a9f46f96490340b962707"
+      },
+      "sequoia": {
+        "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "sha256": "1ef6c903e2dc026d4e58ddf7b2a9ed0eb6f8caf80a9a9f46f96490340b962707"
+      },
+      "sonoma": {
+        "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "sha256": "1ef6c903e2dc026d4e58ddf7b2a9ed0eb6f8caf80a9a9f46f96490340b962707"
+      },
+      "ventura": {
+        "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "sha256": "1ef6c903e2dc026d4e58ddf7b2a9ed0eb6f8caf80a9a9f46f96490340b962707"
+      },
+      "monterey": {
+        "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "sha256": "1ef6c903e2dc026d4e58ddf7b2a9ed0eb6f8caf80a9a9f46f96490340b962707"
+      },
+      "big_sur": {
+        "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "sha256": "1ef6c903e2dc026d4e58ddf7b2a9ed0eb6f8caf80a9a9f46f96490340b962707"
+      },
+      "x86_64_linux": {
+        "url": "https://get.videolan.org/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "sha256": null
+      },
+      "arm64_linux": {
+        "sha256": null
+      }
+    }
+  },
+  "iina": {
+    "token": "iina",
+    "name": [
+      "IINA"
+    ],
+    "homepage": "https://iina.io/",
+    "version": "1.5.0",
+    "url": "https://dl.iina.io/IINA.v1.5.0.dmg",
+    "sha256": "8fad50479b10e09645053457cec46bd53d054ced2242cfe68f74586735a20dc7",
+    "depends_on": {
+      "macos": {
+        ">=": [
+          "12"
+        ]
+      }
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "quit": "com.colliderli.iina"
+          }
+        ]
+      },
+      {
+        "app": [
+          "IINA.app"
+        ],
+        "target": "/Applications/IINA.app"
+      },
+      {
+        "binary": [
+          "$APPDIR/IINA.app/Contents/MacOS/iina-cli",
+          {
+            "target": "iina"
+          }
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/iina"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Scripts/com.colliderli.iina.OpenInIINA",
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.colliderli.iina.sfl*",
+              "~/Library/Application Support/com.colliderli.iina",
+              "~/Library/Application Support/CrashReporter/IINA*.plist",
+              "~/Library/Caches/com.colliderli.iina",
+              "~/Library/Containers/com.colliderli.iina.OpenInIINA",
+              "~/Library/Cookies/com.colliderli.iina.binarycookies",
+              "~/Library/HTTPStorages/com.colliderli.iina",
+              "~/Library/Logs/com.colliderli.iina",
+              "~/Library/Logs/DiagnosticReports/IINA*.crash",
+              "~/Library/Preferences/com.colliderli.iina.plist",
+              "~/Library/Safari/Extensions/Open in IINA*.safariextz",
+              "~/Library/Saved Application State/com.colliderli.iina.savedState",
+              "~/Library/WebKit/com.colliderli.iina"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {
+      "golden_gate": {
+        "depends_on": {
+          "macos": {}
+        }
+      },
+      "tahoe": {
+        "depends_on": {
+          "macos": {}
+        }
+      },
+      "sequoia": {
+        "depends_on": {
+          "macos": {}
+        }
+      },
+      "sonoma": {
+        "depends_on": {
+          "macos": {}
+        }
+      },
+      "ventura": {
+        "depends_on": {
+          "macos": {}
+        }
+      },
+      "monterey": {
+        "depends_on": {
+          "macos": {}
+        }
+      },
+      "big_sur": {
+        "depends_on": {
+          "macos": {}
+        }
+      },
+      "x86_64_linux": {
+        "depends_on": {
+          "macos": {}
+        }
+      },
+      "arm64_linux": {
+        "depends_on": {
+          "macos": {}
+        }
+      }
+    }
+  },
+  "keka": {
+    "token": "keka",
+    "name": [
+      "Keka"
+    ],
+    "homepage": "https://www.keka.io/",
+    "version": "1.6.8",
+    "url": "https://github.com/aonez/Keka/releases/download/v1.6.8/Keka-1.6.8.dmg",
+    "sha256": "25a4daf0492b7e3bca043c8a7ba1ae97507dd8dbf872811daf74b01f16a12125",
+    "depends_on": {
+      "macos": {}
+    },
+    "artifacts": [
+      {
+        "app": [
+          "Keka.app"
+        ],
+        "target": "/Applications/Keka.app"
+      },
+      {
+        "command_wrapper": [
+          "keka",
+          {
+            "executable": "$APPDIR/Keka.app/Contents/MacOS/Keka",
+            "args": [
+              "--cli"
+            ]
+          }
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/keka"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Scripts/*.group.com.aone.keka",
+              "~/Library/Application Scripts/com.aone.keka",
+              "~/Library/Application Scripts/com.aone.keka.KekaFinderIntegration",
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.aone.keka.sfl*",
+              "~/Library/Application Support/Keka",
+              "~/Library/Caches/com.aone.keka",
+              "~/Library/Containers/com.aone.keka",
+              "~/Library/Containers/com.aone.keka.KekaFinderIntegration",
+              "~/Library/Group Containers/*.group.com.aone.keka",
+              "~/Library/Preferences/com.aone.keka.plist",
+              "~/Library/Saved Application State/com.aone.keka.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {}
+  },
+  "cyberduck": {
+    "token": "cyberduck",
+    "name": [
+      "Cyberduck"
+    ],
+    "homepage": "https://cyberduck.io/",
+    "version": "9.5.4,45528",
+    "url": "https://update.cyberduck.io/Cyberduck-9.5.4.45528.zip",
+    "sha256": "9398777ad01bfac7228db3990aed1c834437a599664e0f3e27a68feb53cbcebf",
+    "depends_on": {
+      "macos": {}
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "quit": "ch.sudo.cyberduck"
+          }
+        ]
+      },
+      {
+        "app": [
+          "Cyberduck.app"
+        ],
+        "target": "/Applications/Cyberduck.app"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Scripts/G69SCX94XU.duck",
+              "~/Library/Application Support/Cyberduck",
+              "~/Library/Caches/ch.sudo.cyberduck",
+              "~/Library/Group Containers/G69SCX94XU.duck",
+              "~/Library/HTTPStorages/ch.sudo.cyberduck",
+              "~/Library/Logs/Cyberduck",
+              "~/Library/Preferences/ch.sudo.cyberduck.plist",
+              "~/Library/Saved Application State/ch.sudo.cyberduck.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {}
+  },
+  "keepassxc": {
+    "token": "keepassxc",
+    "name": [
+      "KeePassXC"
+    ],
+    "homepage": "https://keepassxc.org/",
+    "version": "2.8.0,2.8.0-1",
+    "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-arm64.dmg",
+    "sha256": "85f0e75e258ef513f0fc7f5bf470cad0943b7d7e8191b2171f9898ad32e62b9c",
+    "depends_on": {
+      "macos": {
+        ">=": [
+          "12"
+        ]
+      }
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "quit": "org.keepassxc.keepassxc"
+          }
+        ]
+      },
+      {
+        "app": [
+          "KeePassXC.app"
+        ],
+        "target": "/Applications/KeePassXC.app"
+      },
+      {
+        "binary": [
+          "$APPDIR/KeePassXC.app/Contents/MacOS/keepassxc-cli"
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/keepassxc-cli"
+      },
+      {
+        "manpage": [
+          "$APPDIR/KeePassXC.app/Contents/Resources/man/man1/keepassxc.1"
+        ],
+        "target": "$HOMEBREW_PREFIX/share/man/man1/keepassxc.1"
+      },
+      {
+        "manpage": [
+          "$APPDIR/KeePassXC.app/Contents/Resources/man/man1/keepassxc-cli.1"
+        ],
+        "target": "$HOMEBREW_PREFIX/share/man/man1/keepassxc-cli.1"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/.keepassxc",
+              "~/Library/Application Support/CrashReporter/KeePassXC_*.plist",
+              "~/Library/Application Support/keepassxc",
+              "~/Library/Caches/org.keepassx.keepassxc",
+              "~/Library/Logs/DiagnosticReports/KeePassXC_*.crash",
+              "~/Library/Preferences/keepassxc.keepassxc.plist",
+              "~/Library/Preferences/org.keepassx.keepassxc.plist",
+              "~/Library/Saved Application State/org.keepassx.keepassxc.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {
+      "golden_gate": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",
+        "sha256": "28492c5535570020179150b2871b3c54abd032cbb8cdee2f1b3fa7c46cdba43e"
+      },
+      "tahoe": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",
+        "sha256": "28492c5535570020179150b2871b3c54abd032cbb8cdee2f1b3fa7c46cdba43e"
+      },
+      "sequoia": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",
+        "sha256": "28492c5535570020179150b2871b3c54abd032cbb8cdee2f1b3fa7c46cdba43e"
+      },
+      "sonoma": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",
+        "sha256": "28492c5535570020179150b2871b3c54abd032cbb8cdee2f1b3fa7c46cdba43e"
+      },
+      "ventura": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",
+        "sha256": "28492c5535570020179150b2871b3c54abd032cbb8cdee2f1b3fa7c46cdba43e"
+      },
+      "monterey": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",
+        "sha256": "28492c5535570020179150b2871b3c54abd032cbb8cdee2f1b3fa7c46cdba43e"
+      },
+      "big_sur": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",
+        "sha256": "28492c5535570020179150b2871b3c54abd032cbb8cdee2f1b3fa7c46cdba43e"
+      },
+      "x86_64_linux": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.AppImage",
+        "sha256": "3ab1bfbb422272334b48057e6bfc984c839375d9a1cd9350c4ea62ca0b55ca5f",
+        "artifacts": [
+          {
+            "app_image": [
+              "KeePassXC-2.8.0-1-x86_64.AppImage",
+              {
+                "target": "KeePassXC.AppImage"
+              }
+            ],
+            "target": "/$HOME/Applications/KeePassXC.AppImage"
+          },
+          {
+            "zap": [
+              {
+                "trash": [
+                  "~/.cache/keepassxc",
+                  "~/.config/keepassxc"
+                ]
+              }
+            ]
+          }
+        ],
+        "depends_on": {
+          "arch": [
+            {
+              "type": "intel",
+              "bits": 64
+            }
+          ]
+        }
+      },
+      "arm64_linux": {
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-arm64.AppImage",
+        "sha256": null,
+        "artifacts": [
+          {
+            "app_image": [
+              "KeePassXC-2.8.0-1-arm64.AppImage",
+              {
+                "target": "KeePassXC.AppImage"
+              }
+            ],
+            "target": "/$HOME/Applications/KeePassXC.AppImage"
+          },
+          {
+            "zap": [
+              {
+                "trash": [
+                  "~/.cache/keepassxc",
+                  "~/.config/keepassxc"
+                ]
+              }
+            ]
+          }
+        ],
+        "depends_on": {
+          "arch": [
+            {
+              "type": "intel",
+              "bits": 64
+            }
+          ]
+        }
+      }
+    }
+  },
+  "visual-studio-code": {
+    "token": "visual-studio-code",
+    "name": [
+      "Microsoft Visual Studio Code",
+      "VS Code"
+    ],
+    "homepage": "https://code.visualstudio.com/",
+    "version": "1.144.0",
+    "url": "https://update.code.visualstudio.com/1.144.0/darwin-arm64/stable",
+    "sha256": "cf2a21dbcb23c4213b91243e3cdd37197e9169f905652587113f16329fc92b87",
+    "depends_on": {
+      "macos": {}
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "launchctl": "com.microsoft.VSCode.ShipIt",
+            "quit": "com.microsoft.VSCode"
+          }
+        ]
+      },
+      {
+        "app": [
+          "Visual Studio Code.app"
+        ],
+        "target": "/Applications/Visual Studio Code.app"
+      },
+      {
+        "binary": [
+          "$APPDIR/Visual Studio Code.app/Contents/Resources/app/bin/code"
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/code"
+      },
+      {
+        "binary": [
+          "$APPDIR/Visual Studio Code.app/Contents/Resources/app/bin/code-tunnel"
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/code-tunnel"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/.vscode",
+              "~/Library/Application Support/Code",
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.microsoft.vscode.sfl*",
+              "~/Library/Caches/com.microsoft.VSCode",
+              "~/Library/Caches/com.microsoft.VSCode.ShipIt",
+              "~/Library/HTTPStorages/com.microsoft.VSCode",
+              "~/Library/Preferences/ByHost/com.microsoft.VSCode.ShipIt.*.plist",
+              "~/Library/Preferences/com.microsoft.VSCode.helper.plist",
+              "~/Library/Preferences/com.microsoft.VSCode.plist",
+              "~/Library/Saved Application State/com.microsoft.VSCode.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {
+      "golden_gate": {
+        "url": "https://update.code.visualstudio.com/1.144.0/darwin/stable",
+        "sha256": "a15a04aaa109641bfbe5d1d6204fa96e7ff14e9fd7c495d89fa2376c3edc580b"
+      },
+      "tahoe": {
+        "url": "https://update.code.visualstudio.com/1.144.0/darwin/stable",
+        "sha256": "a15a04aaa109641bfbe5d1d6204fa96e7ff14e9fd7c495d89fa2376c3edc580b"
+      },
+      "sequoia": {
+        "url": "https://update.code.visualstudio.com/1.144.0/darwin/stable",
+        "sha256": "a15a04aaa109641bfbe5d1d6204fa96e7ff14e9fd7c495d89fa2376c3edc580b"
+      },
+      "sonoma": {
+        "url": "https://update.code.visualstudio.com/1.144.0/darwin/stable",
+        "sha256": "a15a04aaa109641bfbe5d1d6204fa96e7ff14e9fd7c495d89fa2376c3edc580b"
+      },
+      "ventura": {
+        "url": "https://update.code.visualstudio.com/1.144.0/darwin/stable",
+        "sha256": "a15a04aaa109641bfbe5d1d6204fa96e7ff14e9fd7c495d89fa2376c3edc580b"
+      },
+      "monterey": {
+        "url": "https://update.code.visualstudio.com/1.144.0/darwin/stable",
+        "sha256": "a15a04aaa109641bfbe5d1d6204fa96e7ff14e9fd7c495d89fa2376c3edc580b"
+      },
+      "big_sur": {
+        "url": "https://update.code.visualstudio.com/1.106.3/darwin/stable",
+        "version": "1.106.3",
+        "skip_livecheck": true,
+        "sha256": "c41872149a205f3a3be3e5d3a8f04920407a0762531e607f78dc93f4d4813cda"
+      },
+      "arm64_big_sur": {
+        "url": "https://update.code.visualstudio.com/1.106.3/darwin-arm64/stable",
+        "version": "1.106.3",
+        "skip_livecheck": true,
+        "sha256": "35dd438808dde1dd1f65490ffe7713ed64102324c0809efbec0b4eb2809b218b"
+      },
+      "x86_64_linux": {
+        "url": "https://update.code.visualstudio.com//darwin/stable",
+        "version": null,
+        "sha256": null
+      },
+      "arm64_linux": {
+        "url": "https://update.code.visualstudio.com//darwin-arm64/stable",
+        "version": null,
+        "sha256": null
+      }
+    }
+  },
+  "obsidian": {
+    "token": "obsidian",
+    "name": [
+      "Obsidian"
+    ],
+    "homepage": "https://obsidian.md/",
+    "version": "1.14.5",
+    "url": "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.14.5/Obsidian-1.14.5.dmg",
+    "sha256": "be79e6410d80fa705218aa4e8cb24ce8418cf16e13be4036227a5659b1f6aab2",
+    "depends_on": {
+      "macos": {
+        ">=": [
+          "12"
+        ]
+      }
+    },
+    "artifacts": [
+      {
+        "app": [
+          "Obsidian.app"
+        ],
+        "target": "/Applications/Obsidian.app"
+      },
+      {
+        "binary": [
+          "$APPDIR/Obsidian.app/Contents/MacOS/obsidian-cli",
+          {
+            "target": "obsidian"
+          }
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/obsidian"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/md.obsidian.sfl*",
+              "~/Library/Application Support/obsidian",
+              "~/Library/Preferences/md.obsidian.plist",
+              "~/Library/Saved Application State/md.obsidian.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {
+      "x86_64_linux": {
+        "url": "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.14.5/Obsidian-1.14.5.AppImage",
+        "sha256": "306815f60d15dea8610d72886ef5e50ef4b7e7185e952ffc3bb21bee1582d952",
+        "artifacts": [
+          {
+            "app_image": [
+              "Obsidian-1.14.5.AppImage",
+              {
+                "target": "Obsidian.AppImage"
+              }
+            ],
+            "target": "/$HOME/Applications/Obsidian.AppImage"
+          }
+        ],
+        "depends_on": {}
+      },
+      "arm64_linux": {
+        "url": "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.14.5/Obsidian-1.14.5-arm64.AppImage",
+        "sha256": "378d88c6c01c26783d3565c4b7a8de865e163e67c8ffb447ae06675d52623665",
+        "artifacts": [
+          {
+            "app_image": [
+              "Obsidian-1.14.5-arm64.AppImage",
+              {
+                "target": "Obsidian.AppImage"
+              }
+            ],
+            "target": "/$HOME/Applications/Obsidian.AppImage"
+          }
+        ],
+        "depends_on": {}
+      }
+    }
+  },
+  "firefox": {
+    "token": "firefox",
+    "name": [
+      "Mozilla Firefox"
+    ],
+    "homepage": "https://www.mozilla.org/firefox/",
+    "version": "159.0",
+    "url": "https://download-installer.cdn.mozilla.net/pub/firefox/releases/159.0/mac/en-US/Firefox%20159.0.dmg",
+    "sha256": "0772404ae6e068d7cc03cecf4bb06a855f10287a77b624ffa41c6d092a64ea13",
+    "depends_on": {
+      "macos": {}
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "quit": "org.mozilla.firefox"
+          }
+        ]
+      },
+      {
+        "app": [
+          "Firefox.app"
+        ],
+        "target": "/Applications/Firefox.app"
+      },
+      {
+        "command_wrapper": [
+          "firefox",
+          {
+            "executable": "$APPDIR/Firefox.app/Contents/MacOS/firefox"
+          }
+        ],
+        "target": "$HOMEBREW_PREFIX/bin/firefox"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "/Library/Logs/DiagnosticReports/firefox_*",
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/org.mozilla.firefox.sfl*",
+              "~/Library/Application Support/CrashReporter/firefox_*",
+              "~/Library/Application Support/Firefox",
+              "~/Library/Caches/Firefox",
+              "~/Library/Caches/Mozilla/updates/Applications/Firefox",
+              "~/Library/Caches/org.mozilla.crashreporter",
+              "~/Library/Caches/org.mozilla.firefox",
+              "~/Library/Preferences/org.mozilla.crashreporter.plist",
+              "~/Library/Preferences/org.mozilla.firefox.plist",
+              "~/Library/Saved Application State/org.mozilla.firefox.savedState",
+              "~/Library/WebKit/org.mozilla.firefox"
+            ],
+            "rmdir": [
+              "~/Library/Application Support/Mozilla",
+              "~/Library/Caches/Mozilla",
+              "~/Library/Caches/Mozilla/updates",
+              "~/Library/Caches/Mozilla/updates/Applications"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {}
+  },
+  "spotify": {
+    "token": "spotify",
+    "name": [
+      "Spotify"
+    ],
+    "homepage": "https://www.spotify.com/",
+    "version": "1.3.6.1921",
+    "url": "https://download.scdn.co/SpotifyARM64.dmg",
+    "sha256": "no_check",
+    "depends_on": {
+      "macos": {
+        ">=": [
+          "13"
+        ]
+      }
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "launchctl": [
+              "*.spotify.client.*",
+              "com.spotify.client.startuphelper",
+              "com.spotify.webhelper"
+            ],
+            "quit": "com.spotify.client"
+          }
+        ]
+      },
+      {
+        "app": [
+          "Spotify.app"
+        ],
+        "target": "/Applications/Spotify.app"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.spotify.client.startuphelper.sfl*",
+              "~/Library/Application Support/Spotify",
+              "~/Library/Caches/com.spotify.client",
+              "~/Library/Caches/com.spotify.client.helper",
+              "~/Library/Cookies/com.spotify.client.binarycookies",
+              "~/Library/HTTPStorages/com.spotify.client",
+              "~/Library/HTTPStorages/com.spotify.client.helper",
+              "~/Library/Logs/Spotify",
+              "~/Library/Preferences/com.spotify.client.helper.plist",
+              "~/Library/Preferences/com.spotify.client.plist",
+              "~/Library/Saved Application State/com.spotify.client.savedState",
+              "~/Library/WebKit/com.spotify.client"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {
+      "golden_gate": {
+        "url": "https://download.scdn.co/Spotify.dmg"
+      },
+      "tahoe": {
+        "url": "https://download.scdn.co/Spotify.dmg"
+      },
+      "sequoia": {
+        "url": "https://download.scdn.co/Spotify.dmg"
+      },
+      "sonoma": {
+        "url": "https://download.scdn.co/Spotify.dmg"
+      },
+      "ventura": {
+        "url": "https://download.scdn.co/Spotify.dmg"
+      },
+      "x86_64_linux": {
+        "url": "https://download.scdn.co/Spotify.dmg"
+      }
+    }
+  },
+  "whatsapp": {
+    "token": "whatsapp",
+    "name": [
+      "WhatsApp"
+    ],
+    "homepage": "https://www.whatsapp.com/",
+    "version": "26.43.27",
+    "url": "https://web.whatsapp.com/desktop/mac_native/release/?version=2.26.43.27&extension=zip&configuration=Release&branch=master&is_buck=true",
+    "sha256": "fcd3415e8aafa420d9cc9b58574ade194ff616592998661a22db8061bcfdafb0",
+    "depends_on": {
+      "macos": {
+        ">=": [
+          "12"
+        ]
+      }
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "quit": "net.whatsapp.WhatsApp"
+          }
+        ]
+      },
+      {
+        "app": [
+          "WhatsApp.app"
+        ],
+        "target": "/Applications/WhatsApp.app"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Scripts/group.net.whatsapp.family",
+              "~/Library/Application Scripts/group.net.whatsapp.WhatsApp.private",
+              "~/Library/Application Scripts/group.net.whatsapp.WhatsApp.shared",
+              "~/Library/Application Scripts/group.net.whatsapp.WhatsAppSMB.shared",
+              "~/Library/Application Scripts/net.whatsapp.WhatsApp*",
+              "~/Library/Caches/net.whatsapp.WhatsApp",
+              "~/Library/Containers/net.whatsapp.WhatsApp*",
+              "~/Library/Group Containers/group.com.facebook.family",
+              "~/Library/Group Containers/group.net.whatsapp*",
+              "~/Library/Saved Application State/net.whatsapp.WhatsApp.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {}
+  },
+  "thebrowsercompany-dia": {
+    "token": "thebrowsercompany-dia",
+    "name": [
+      "Dia"
+    ],
+    "homepage": "https://www.diabrowser.com/",
+    "version": "1.55.1,89833",
+    "url": "https://releases.diabrowser.com/release/Dia-1.55.1-89833.zip",
+    "sha256": "2fe54a63439bc29c5e02c09d063a5dc8bf72eb0c07462cf94c2173ea172496c3",
+    "depends_on": {
+      "arch": [
+        {
+          "type": "arm",
+          "bits": 64
+        }
+      ],
+      "macos": {
+        ">=": [
+          "14"
+        ]
+      }
+    },
+    "artifacts": [
+      {
+        "app": [
+          "Dia.app"
+        ],
+        "target": "/Applications/Dia.app"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Support/Dia",
+              "~/Library/Caches/company.thebrowser.dia",
+              "~/Library/HttpStorages/company.thebrowser.dia",
+              "~/Library/HttpStorages/company.thebrowser.dia.binarycookies",
+              "~/Library/Preferences/company.thebrowser.dia.plist"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {}
+  },
+  "discord": {
+    "token": "discord",
+    "name": [
+      "Discord"
+    ],
+    "homepage": "https://discord.com/",
+    "version": "0.0.420",
+    "url": "https://dl.discordapp.net/apps/osx/0.0.420/Discord.dmg",
+    "sha256": "f1f809f79873a375ebaff8dd09858bf1cd9ac91167853a928f747b9f891c8dc8",
+    "depends_on": {
+      "macos": {
+        ">=": [
+          "13"
+        ]
+      }
+    },
+    "artifacts": [
+      {
+        "uninstall": [
+          {
+            "launchctl": "com.discord.discord.ShipIt",
+            "quit": [
+              "com.hnc.Discord",
+              "com.hnc.Discord.helper.Plugin",
+              "com.hnc.Discord.helper.Renderer"
+            ]
+          }
+        ]
+      },
+      {
+        "app": [
+          "Discord.app"
+        ],
+        "target": "/Applications/Discord.app"
+      },
+      {
+        "zap": [
+          {
+            "trash": [
+              "~/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.ApplicationRecentDocuments/com.hnc.discord.sfl*",
+              "~/Library/Application Support/discord",
+              "~/Library/Application%20Support/discord",
+              "~/Library/Caches/com.hnc.Discord",
+              "~/Library/Caches/com.hnc.Discord.ShipIt",
+              "~/Library/Cookies/com.hnc.Discord.binarycookies",
+              "~/Library/HTTPStorages/com.hnc.Discord",
+              "~/Library/HTTPStorages/com.hnc.Discord.binarycookies",
+              "~/Library/Preferences/ByHost/com.discord.discord.ShipIt.*.plist",
+              "~/Library/Preferences/com.hnc.Discord.helper.plist",
+              "~/Library/Preferences/com.hnc.Discord.plist",
+              "~/Library/Saved Application State/com.hnc.Discord.savedState"
+            ]
+          }
+        ]
+      }
+    ],
+    "variations": {
+      "x86_64_linux": {
+        "url": "https://dl.discordapp.net/apps/osx//Discord.dmg",
+        "version": null,
+        "sha256": null
+      },
+      "arm64_linux": {
+        "url": "https://dl.discordapp.net/apps/osx//Discord.dmg",
+        "version": null,
+        "sha256": null
+      }
+    }
+  }
+}

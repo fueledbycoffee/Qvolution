@@ -1,0 +1,3 @@
+# Qvolution project tooling
+
+Read the repository root AGENTS.md for clean-room and provenance requirements. This directory owns Qvolution's local compatibility queue; it is not an instruction to post issues or comments to upstream. Keep app artifacts unmodified and record each milestone separately. Do not report an app as working without the recorded workflow being exercised. Runtime implementation changes belong to their component and need a focused regression. Keep local runs, prefixes, build outputs and secrets in the sibling Qvolution-work directory. Preserve explicit app version/architecture/runtime provenance. Do not initiate agents or parallel builds merely because upstream documentation describes a fleet.

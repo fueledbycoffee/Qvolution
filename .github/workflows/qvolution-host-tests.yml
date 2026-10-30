@@ -1,0 +1,33 @@
+name: Qvolution host regressions
+on:
+  push:
+    branches: ['qvolution/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  host-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Fetch pinned UI source
+        run: |
+          git config submodule.src/external/cocotron.url https://github.com/VibeDarling/darling-cocotron.git
+          git submodule update --init --depth=1 src/external/cocotron
+      - name: Install host-test prerequisites
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang cmake ninja-build ruby
+      - name: Validate app queue
+        run: python3 qvolution/qv.py validate
+      - name: Run host regressions
+        run: python3 qvolution/qv.py host-tests
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qvolution-host-results
+          path: ../Qvolution-work/host-tests.json
+          if-no-files-found: error

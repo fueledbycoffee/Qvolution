@@ -1,0 +1,817 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/VibeDarling/darling",
+  "superproject": "1972ae4bc79b96f3dbb952d3bc658beb96752103",
+  "submodules": [
+    {
+      "path": "src/external/AvailabilityVersions",
+      "commit": "e28c029a8fa46fa933cbf6d6d9a1c00978c5fad1",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/BerkeleyDB",
+      "commit": "46c60eb8bea78235bf8dbdb37721e3b15c757761",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/DSTools",
+      "commit": "ca8b6793547fd1ee2cacf77a9ad0b6eca5a6b263",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/DirectoryService",
+      "commit": "feb9742f574ab812a210634fd3997f19b645095f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/Heimdal",
+      "commit": "eecbfeb63e9a2af9afed518f78d65e6c21ee3d87",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/IOKitTools",
+      "commit": "df58be2f134f7adbdd3c760a165ad3501ee82fb5",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/IOKitUser",
+      "commit": "0b989e3ad71f96fcd28b842ef8ea9bb8214dc7cd",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/IOKitUser/darling/submodules/IOGraphics",
+      "commit": "905186151d713259296f3ae9458195a7097ea323",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/IOKitUser/darling/submodules/IOHIDFamily",
+      "commit": "189e98e32092d5f5a2c365cc85fd36ac7da2d371",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/IONetworkingFamily",
+      "commit": "28afb431947b8e8dbbb120db7632ba6de229bf23",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/IOStorageFamily",
+      "commit": "33178aef923d9c99f1819db2ada253054f4dd812",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/JavaScriptCore",
+      "commit": "a9bd4242a6f9a3f32553f50f5017637a7a533b4e",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/Libinfo",
+      "commit": "b9356d8c7da01d7a433153de3f26e855d0c1a1d9",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/MITKerberosShim",
+      "commit": "39c014d0c54f9ae922be0d697aa6cc1b19c117b6",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/OpenAL",
+      "commit": "7c60cf7109b7a3a8f5d41ed8b84d340a8d768525",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/OpenDirectory",
+      "commit": "bc90d03be3f2cd3ad46e842bb11816139d77ff29",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/OpenLDAP",
+      "commit": "8f62a909a25bd13fcc7a8e1d3c1e4d44e6a51c70",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/SecurityTokend",
+      "commit": "c826860db4061667af6f0c3aa55282aab0924e1a",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/SmartCardServices",
+      "commit": "ec53ce56972565047a716ab166176f203f520393",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/TextEdit",
+      "commit": "b85f62f309a4b1bc655d056df4d4a72f9083cbe2",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/WTF",
+      "commit": "88a36e496a6f285a9e15140c2c431b817bae353b",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/WebCore",
+      "commit": "47fac4c8130ea9afc9b9df68c81ade56ca7ea57e",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/adv_cmds",
+      "commit": "56dcf5ebeb822650d7929f666be58544b2391f6e",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/apr",
+      "commit": "c1f53db7997ffbec5c0d2ad4091333b9764f5f57",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/architecture",
+      "commit": "63162c4744e9bd07673d4c29f8825f105f670e44",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/awk",
+      "commit": "5d46e527461bce5fa10b89320a1c6ce5f1ae38b6",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/bash",
+      "commit": "b0bdb0390f27309d6325486872f3f2956c2f0df2",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/basic_cmds",
+      "commit": "b1ed4f0f6a981590542071d8b36535cf3e441be0",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/bc",
+      "commit": "666e93c8223f509ae9c3c69e3c20af45d49a749c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/bind9",
+      "commit": "1d1934b94ee634744f6e01e1268f153ae80e4184",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/bmalloc",
+      "commit": "66c88bc0b977ef843a9eaa706d586d9cec2608da",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/bomutils",
+      "commit": "e6b979ce89881f85ba64d77b4952877bf7ebf75b",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/bootstrap_cmds",
+      "commit": "0f07c8af544e44b5271749979b3c0d4a47701e8f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/bsm",
+      "commit": "9c7de631d0546df8c9bef47165107f742b4593f0",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/bzip2",
+      "commit": "058bb974c14de387f04daf16010c00182556e18d",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/cctools",
+      "commit": "aebc0a7c509eb8e0d428cb45d3d7d257fbd36f6f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/cctools-port",
+      "commit": "dd8af1d2a7a6179fe0a08a15aca471697383d82e",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/cfnetwork",
+      "commit": "0f5b77177a1cd1e0557990330b48084ab00d075a",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/cocotron",
+      "commit": "96c65b147737a118e3229bbf59a78d14cfa44038",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/commoncrypto",
+      "commit": "2434540f41a5f94f149cfddd67da244961b716e5",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/compiler-rt",
+      "commit": "5fd9bc0effa307b99b35da59ce579e8e031c22da",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/configd",
+      "commit": "940d020ae25b10f6c1b1659bb2be6020199b68c6",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/copyfile",
+      "commit": "09878b8edf8ed6ea5355a57d91a481f54a7486d9",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/corecrypto",
+      "commit": "482bd63603e9b93b6a28c39c5a4bc15c22090210",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/corecrypto/tests/ctest",
+      "commit": "4c49efda86692f5cad36bb32b53be63efcea6664",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/corefoundation",
+      "commit": "80cb5438fc73aa6ed1bc07af76711b09f219ba3a",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/corefoundation/submodules/swift-corelibs-foundation",
+      "commit": "a656bb7b3d3fbf33ff273e37dd4a78c9011bd4fa",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/coretls",
+      "commit": "b61a4f075726e7d5ef4652033f8d7b829c008d06",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/crontabs",
+      "commit": "a137b7624b01391d620ce0973acc53452c888bcf",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/csu",
+      "commit": "93b25cf0930a727b44fa50893bffd71056ad032f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/cups",
+      "commit": "320e77925883d15cfffd4b0e0052171287fe154c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/curl",
+      "commit": "59e2c57db7fdc34e3481a1639bae28a8f52ca7d5",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/darling-dmg",
+      "commit": "ff658828cdc60ac249e2f4feb232b34a2b47048c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/darlingserver",
+      "commit": "9353d34ea77df8b34c6f9c23a67e1894eb7d2811",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/dbuskit",
+      "commit": "b5848ab3756894bf403d4c1a86a82ee129b26f22",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/doc_cmds",
+      "commit": "60c6a2b858abe1f27b441f479aad2b0a9d0f9ba2",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/dtrace",
+      "commit": "fd2a404c772e8ce1d29f210032e9831fa845f688",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/dyld",
+      "commit": "3c5a00a94c7bf56aaeb43aa7cca1adfd44c4637c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/energytrace",
+      "commit": "e277fcfd430ddab2d8b52187cf480f2857629104",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/expat",
+      "commit": "cd80c8fa2b87a1377042273cc8675582e4f5e340",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/file",
+      "commit": "c6ee65265d253d24b1a496f8ca54b5e449fe108c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/file_cmds",
+      "commit": "cc9f8d83686452a37d8ea1872ac76bdb9abeda84",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/files",
+      "commit": "1c45a50ae0d6ca5bbb8b01d2b588f52bc0e39263",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/fmdb",
+      "commit": "ad2fdd660d02c24b262d64d7d23d3d4645768f44",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/foundation",
+      "commit": "0af5b8eac53cc4249b5456bc8225529325d8319d",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/glut",
+      "commit": "b53a2d8f0c6dc0c2052aef410a120d14ee553056",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/gnudiff",
+      "commit": "184d317a6a8c0d3167c1e733a432593a06032943",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/gnutar",
+      "commit": "e0d594d823b2693ab810098dcdd8146eee30caa2",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/gpatch",
+      "commit": "7d758e5e801010818e69cc6c2e61f1cef2d77a2a",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/grep",
+      "commit": "1a1235605da9ddfd43a820e2a3df1384b0b89d11",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/groff",
+      "commit": "10dd5a6be4915a99065bc15dfc6b6b1e9e1a2714",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/icu",
+      "commit": "fc7ba5311945721e2dc2895877a27ce0f9054f7c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/installer",
+      "commit": "88764e6149f92f1747442c27ab00231f40de278c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/iokitd",
+      "commit": "fd9b343eace23d6366988bc5e833337e5c38697f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/keymgr",
+      "commit": "43b4230aec2e9018b0ffd3069b8b23a34ba257fb",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/less",
+      "commit": "a6bc77c8e72aaa35da92b903172a70eaa4ef78fa",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libarchive",
+      "commit": "1113a88dd64d2caebce12d71405e25643f1c7068",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libauto",
+      "commit": "2be7312b25736a8e9fc12058d63cbb79eb5f4e25",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libc",
+      "commit": "3455e1fba785bd639e40baa861dee528c08ee120",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libclosure",
+      "commit": "58f279f61671189c40fff8c1a396e343b536f36a",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libcxx",
+      "commit": "810bd895ce38781c7430d1d7e1c90dd2f74c7163",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libcxxabi",
+      "commit": "25d92f11f09922e9988a39989d4ddbb1dc52c37e",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libdispatch",
+      "commit": "675b8e7b1591a6641ac724c20d39cefca6940123",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libedit",
+      "commit": "f9b44b8541614e33b09451fc2847f7e30bfb9b70",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libffi",
+      "commit": "e67f81120eb1bcc14c21cd64862e15eca8062d79",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libiconv",
+      "commit": "15defbdec411b1d9be061bfae567c7851866a36f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libkqueue",
+      "commit": "a0ea536be8740f9ab3c6ff799d1b28af03fa864a",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/liblzma",
+      "commit": "64e1d8192054726776690488c7036d143795137e",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libmalloc",
+      "commit": "668461dee243e6dcd6ceab0898d967b9573c0920",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libnetwork",
+      "commit": "a6edb0ad01487116e77a539920504dd9665e710c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libnotify",
+      "commit": "fc72b9ef6d99eb15ce40325ef56f2337efdbe4b3",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libplatform",
+      "commit": "28f10ec34a1c5e475edf8be0db8e61f061ed3d49",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libpthread",
+      "commit": "99902928259e2305bef1db61fa455db5c171cb1b",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libresolv",
+      "commit": "46892d7e2f6082730354b4ad93aa42a5eeee991f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libressl-2.2.9",
+      "commit": "229602a2cac0fddf2c4badade04ba5099fe73f95",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libressl-2.5.5",
+      "commit": "08c6913619d59f0a361bb3afe808d9b4606df2dc",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libressl-2.6.5",
+      "commit": "8127d922b0764a192d5e699a24f3b7da2fae766c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libressl-2.8.3",
+      "commit": "470abfc79fc4c5c704c5cc1a978b8d88a1461ebc",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/librpcsvc",
+      "commit": "0cc1d42e53c61446616719597e96b29aeda51eb3",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libstdcxx",
+      "commit": "73eb757fe23170c372bef17d6de41787c1271c80",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libsystem",
+      "commit": "d81149be3f3515e3c52d2644a94a670c7c66d595",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libtelnet",
+      "commit": "1ebd4eef48d06e6411ed2a0f60ba5d3fce5ab455",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libtrace",
+      "commit": "e126309bcca82075cbb9e8039ecda6afe27726e3",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libunwind",
+      "commit": "e2c502cf1d64ef03a12a88b460dc7a34363cd025",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libutil",
+      "commit": "1dc606a2e6f3a24922a1cc47c46358e11ea2147f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libxml2",
+      "commit": "d4f2967c8ca84a23a886978098c0520fe2963b92",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libxpc",
+      "commit": "1c2d8f8f435c25b2f299c5a805b27e4e5050de33",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libxpc/test/ctest",
+      "commit": "cd46041baf3f131fe74032967566c7321adcaa01",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/libxslt",
+      "commit": "d48f22b0df97110c203c62345b47946a8d5c2141",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/lzfse",
+      "commit": "451f291743bb919cb1b78ced4110402fca52cf97",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/mDNSResponder",
+      "commit": "b8b83ec42937ecd0b96f8093e454d1da79b9583d",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/mail_cmds",
+      "commit": "4afbcf4b9b8a6c33acaf7e9025e51ce72b3725a7",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/man",
+      "commit": "e621880cbf67ccafd2ed61b2954036a6a0882a62",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/metal",
+      "commit": "215e8aef7994c2fa95c668be5991eb75e9e75765",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/metal/deps/indium",
+      "commit": "c641be2472221b2329fdd32e7d18f067ddc560aa",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/metal/deps/mslc",
+      "commit": "9d69aa3d4df4ec5716624062def35daa564a42f6",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/misc_cmds",
+      "commit": "85b24ec0e2625d75e7ee75b597b9134a49d18b1f",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/nano",
+      "commit": "7514f5f1115fffedd8fc2095107ca86ff82c54d6",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/ncurses",
+      "commit": "a26bfd0a3b3ea75712d6f772b02e794cd06919f2",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/netcat",
+      "commit": "fd29177d56d84f88406e33784c327ebabfe7be58",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/network_cmds",
+      "commit": "9a0a90e2021ecdde91986b91f65a236eda158023",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/nghttp2",
+      "commit": "1a1853837b4350d4393bd25e1e4cb6018ab2d918",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/nghttp2/third-party/mruby",
+      "commit": "7c91efc1ffda769a5f1a872c646c82b00698f1b8",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/nghttp2/third-party/neverbleed",
+      "commit": "b967ca054f48a36f82d8fcdd32e54ec5144f2751",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/objc4",
+      "commit": "ba9fcbe600902bc9ae87a686d6df49a7ba31aa07",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/openjdk",
+      "commit": "1bc85a2ec63fbbf09a88e84f22e995be670e759b",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/openpam",
+      "commit": "dbcb10a6ffe7c328b3aa7e14ec187945538e6f69",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/openpam/darling/submodules/pam_modules",
+      "commit": "241bbee0da845d1dfebc747b16a62aaed22f165b",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/openssh",
+      "commit": "5f1686a22d21dd251de6857adb9a3096fab73cf4",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/openssl",
+      "commit": "53ddec943852b8edb4c685080b1de9eafbc61822",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/openssl_certificates",
+      "commit": "69908cadb827ba8c504fd3968d5a82a631274ef7",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/passwordserver_sasl",
+      "commit": "fb3aad5fef9081fb35eeb82d028b96894f25fc5b",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/patch_cmds",
+      "commit": "3dcdf71035220a74952cec8d429117bd6b0bbfbc",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/pcre",
+      "commit": "f4d5a388de65deff615667e8d3dfe93f50c48563",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/perl",
+      "commit": "61fec2d5b0e2341d63f0d2f7d82e75ba9be76018",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/pyobjc",
+      "commit": "ba9e525705754336bf9ff0918984275cb610d3e1",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/python",
+      "commit": "956a4992705bd9c1bdb2b871f9047dfc11eeface",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/python_modules",
+      "commit": "24d01b41cb38fafc810cdd27562224c4014a4761",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/remote_cmds",
+      "commit": "3bb9f88724726d0d3073c04dfdc4785564113341",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/removefile",
+      "commit": "3cd493871f27130f9cf64c31daab9cca2ee17726",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/rsync",
+      "commit": "de4f244b5ae1bfe594e414adf9458e665ff071cd",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/ruby",
+      "commit": "833d5385f5c3c2a463253338844b17d10816dbbb",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/screen",
+      "commit": "4bed52587563ede850bf9ff834567478ac1e616b",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/security",
+      "commit": "f9bfc7a8d33e180953fc1025b94094199d5782b1",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/shell_cmds",
+      "commit": "918b757ce709f0deb36d29259369c0436759c741",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/sqlite",
+      "commit": "194e5e1990dfcc8ce01ae68e293361963c62808a",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/swift",
+      "commit": "78a04e469481027bf4294022a4bffc71a41886d0",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/syslog",
+      "commit": "250ecbea6793f6cf0919052b119a3765136f6201",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/system_cmds",
+      "commit": "b01129f3dc0ecab524dbd0fd08e29ec9f0e18196",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/tcsh",
+      "commit": "327d21c70bdd7f038e6e157538b6b5338a2adae0",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/text_cmds",
+      "commit": "3edd740c82b8b87c17ec9cfaae7606f6176626df",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/top",
+      "commit": "4e27f81b5cfeef9d31d8fe5d938a80d26cca9ab5",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/usertemplate",
+      "commit": "5f8cca97aa03ff9290d6ccc0a4d185aa1a913875",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/vim",
+      "commit": "7f8da1dd66fc8f0654ebfa597b6013c8cf15185a",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/xar",
+      "commit": "272234eeaebd1394b898819fefc3fc09e61c0f81",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/xcbuild",
+      "commit": "a903c6952fc5617816113cbb7b551ac701dba2ff",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/xcbuild/ThirdParty/googletest",
+      "commit": "a2b8a8e07628e5fd60644b6dd99c1b5e7d7f1f47",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/xcbuild/ThirdParty/linenoise",
+      "commit": "c894b9e59f02203dbe4e2be657572cf88c4230c3",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/xnu",
+      "commit": "c78886ab8e79f8a2e28f745bc9330d11bbe6d949",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/zip",
+      "commit": "caf41ebbc3ebab0250e4d13aa42221ef91a9802c",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/zlib",
+      "commit": "0789b2e9c34887745b48794eaa3860d737638795",
+      "checkout_state": " "
+    },
+    {
+      "path": "src/external/zsh",
+      "commit": "9e813f75b57a378e8968a273f8d77688f03c861d",
+      "checkout_state": " "
+    }
+  ]
+}

@@ -1,0 +1,712 @@
+{
+  "schema_version": 1,
+  "project": "Qvolution",
+  "apps": [
+    {
+      "id": "textedit",
+      "name": "TextEdit",
+      "priority": 1,
+      "wave": 1,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://support.apple.com/guide/textedit/welcome/mac",
+      "catalog_version": null,
+      "catalog_requirements": null,
+      "catalog_source": null,
+      "catalog_checked": null,
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Create a Unicode document",
+        "Edit, undo, copy and paste",
+        "Save, quit, reopen and compare contents"
+      ],
+      "notes": "Darling-built open-source TextEdit is the first fixture; test an unmodified Apple-distributed build separately."
+    },
+    {
+      "id": "terminal",
+      "name": "Terminal",
+      "priority": 2,
+      "wave": 1,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://support.apple.com/guide/terminal/welcome/mac",
+      "catalog_version": null,
+      "catalog_requirements": null,
+      "catalog_source": null,
+      "catalog_checked": null,
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Open a shell and run pwd and printf",
+        "Test PTY input, Unicode and resize",
+        "Open a second window and exit cleanly"
+      ],
+      "notes": "Requires an acquired Mac application bundle; a shell prompt alone does not prove PTY correctness."
+    },
+    {
+      "id": "stickies",
+      "name": "Stickies",
+      "priority": 3,
+      "wave": 1,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://support.apple.com/guide/stickies/welcome/mac",
+      "catalog_version": null,
+      "catalog_requirements": null,
+      "catalog_source": null,
+      "catalog_checked": null,
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Create and edit two notes",
+        "Copy and paste between windows",
+        "Quit and verify note persistence after relaunch"
+      ],
+      "notes": "Acquire an exact Mac application version."
+    },
+    {
+      "id": "calculator",
+      "name": "Calculator",
+      "priority": 4,
+      "wave": 1,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://support.apple.com/guide/calculator/welcome/mac",
+      "catalog_version": null,
+      "catalog_requirements": null,
+      "catalog_source": null,
+      "catalog_checked": null,
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Compute known arithmetic results",
+        "Use keyboard input and mode/menu changes",
+        "Copy a result to TextEdit"
+      ],
+      "notes": "Framework requirements depend strongly on the chosen macOS release."
+    },
+    {
+      "id": "preview",
+      "name": "Preview",
+      "priority": 5,
+      "wave": 1,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://support.apple.com/guide/preview/welcome/mac",
+      "catalog_version": null,
+      "catalog_requirements": null,
+      "catalog_source": null,
+      "catalog_checked": null,
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Open a local PNG and a multipage PDF",
+        "Zoom, navigate and select text",
+        "Annotate a disposable PDF, save and reopen"
+      ],
+      "notes": "Use test documents; record fidelity and rendering failures."
+    },
+    {
+      "id": "chess",
+      "name": "Chess",
+      "priority": 6,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://support.apple.com/guide/chess/welcome/mac",
+      "catalog_version": null,
+      "catalog_requirements": null,
+      "catalog_source": null,
+      "catalog_checked": null,
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Render the board",
+        "Play several legal moves",
+        "Save and reopen a game"
+      ],
+      "notes": "A deliberate graphics and framework stretch target; not an early easy win."
+    },
+    {
+      "id": "coteditor",
+      "name": "CotEditor",
+      "priority": 7,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": "coteditor",
+      "official_url": "https://coteditor.com/",
+      "catalog_version": "7.1.3",
+      "catalog_requirements": {
+        "macos": {}
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/coteditor.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Open and edit a UTF-8 source file",
+        "Find, replace, undo and save",
+        "Reopen and compare exact contents"
+      ],
+      "notes": "Modern Apple framework coverage needs validation."
+    },
+    {
+      "id": "transmission",
+      "name": "Transmission",
+      "priority": 8,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": "transmission",
+      "official_url": "https://transmissionbt.com/",
+      "catalog_version": "4.1.4",
+      "catalog_requirements": {
+        "macos": {
+          ">=": [
+            "12"
+          ]
+        }
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/transmission.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Open a local test torrent",
+        "Transfer a self-authored fixture on an isolated peer setup",
+        "Pause, resume and verify downloaded bytes"
+      ],
+      "notes": "Use a controlled transfer fixture."
+    },
+    {
+      "id": "keka",
+      "name": "Keka",
+      "priority": 9,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": "keka",
+      "official_url": "https://www.keka.io/",
+      "catalog_version": "1.6.8",
+      "catalog_requirements": {
+        "macos": {}
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/keka.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Create an archive of known fixture files",
+        "Extract into a fresh directory",
+        "Compare file hashes and test a Unicode filename"
+      ],
+      "notes": "Test the official Mac bundle."
+    },
+    {
+      "id": "cyberduck",
+      "name": "Cyberduck",
+      "priority": 10,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": "cyberduck",
+      "official_url": "https://cyberduck.io/",
+      "catalog_version": "9.5.4,45528",
+      "catalog_requirements": {
+        "macos": {}
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/cyberduck.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Connect to a local test SFTP server",
+        "Upload and download a fixture",
+        "Compare hashes and save a test bookmark"
+      ],
+      "notes": "Use local test credentials, not personal servers."
+    },
+    {
+      "id": "vlc",
+      "name": "VLC",
+      "priority": 11,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": "vlc",
+      "official_url": "https://www.videolan.org/vlc/",
+      "catalog_version": "3.0.24",
+      "catalog_requirements": {
+        "macos": {}
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/vlc.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Play a local sample with audio",
+        "Seek, pause and toggle fullscreen",
+        "Open a second media file and exit cleanly"
+      ],
+      "notes": "Measure A/V behavior, not just a visible player window."
+    },
+    {
+      "id": "iina",
+      "name": "IINA",
+      "priority": 12,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": "iina",
+      "official_url": "https://iina.io/",
+      "catalog_version": "1.5.0",
+      "catalog_requirements": {
+        "macos": {
+          ">=": [
+            "12"
+          ]
+        }
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/iina.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Play a local sample with audio",
+        "Seek and render subtitles",
+        "Resize, enter fullscreen and exit cleanly"
+      ],
+      "notes": "Graphics, media backend and Swift dependencies need testing."
+    },
+    {
+      "id": "keepassxc",
+      "name": "KeePassXC",
+      "priority": 13,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": "keepassxc",
+      "official_url": "https://keepassxc.org/",
+      "catalog_version": "2.8.0,2.8.0-1",
+      "catalog_requirements": {
+        "macos": {
+          ">=": [
+            "12"
+          ]
+        }
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/keepassxc.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Create a dummy vault",
+        "Add and copy a dummy password",
+        "Save, lock, reopen and verify the dummy entry"
+      ],
+      "notes": "Use synthetic vault contents only during compatibility testing."
+    },
+    {
+      "id": "vscode",
+      "name": "Visual Studio Code",
+      "priority": 14,
+      "wave": 3,
+      "platform": "macOS",
+      "cask": "visual-studio-code",
+      "official_url": "https://code.visualstudio.com/",
+      "catalog_version": "1.144.0",
+      "catalog_requirements": {
+        "macos": {}
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/visual-studio-code.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Open a fixture folder and edit a file",
+        "Use search and save/reopen",
+        "Open the integrated terminal and verify output"
+      ],
+      "notes": "Mac Electron candidate after an independent minimal Electron fixture passes."
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian",
+      "priority": 15,
+      "wave": 3,
+      "platform": "macOS",
+      "cask": "obsidian",
+      "official_url": "https://obsidian.md/",
+      "catalog_version": "1.14.5",
+      "catalog_requirements": {
+        "macos": {
+          ">=": [
+            "12"
+          ]
+        }
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/obsidian.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Create a disposable local vault",
+        "Edit and link two notes",
+        "Restart and verify note contents"
+      ],
+      "notes": "Mac Electron candidate; disable optional community plugins in baseline tests."
+    },
+    {
+      "id": "firefox",
+      "name": "Firefox",
+      "priority": 16,
+      "wave": 3,
+      "platform": "macOS",
+      "cask": "firefox",
+      "official_url": "https://www.mozilla.org/firefox/",
+      "catalog_version": "159.0",
+      "catalog_requirements": {
+        "macos": {}
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/firefox.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Open a local HTML fixture and an HTTPS page",
+        "Type, scroll and open a second tab",
+        "Download a fixture and verify bytes"
+      ],
+      "notes": "Separate browser/multiprocess target; keep sandbox limitations explicit."
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "priority": 17,
+      "wave": 4,
+      "platform": "macOS",
+      "cask": "spotify",
+      "official_url": "https://www.spotify.com/download/mac/",
+      "catalog_version": "1.3.6.1921",
+      "catalog_requirements": {
+        "macos": {
+          ">=": [
+            "13"
+          ]
+        }
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/spotify.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Render the login flow",
+        "Authenticate interactively when ready",
+        "Play, pause, seek and verify sustained audio"
+      ],
+      "notes": "Authentication and media-service behavior are separate gates; do not record account tokens."
+    },
+    {
+      "id": "whatsapp",
+      "name": "WhatsApp",
+      "priority": 18,
+      "wave": 4,
+      "platform": "macOS",
+      "cask": "whatsapp",
+      "official_url": "https://www.whatsapp.com/download/",
+      "catalog_version": "26.43.27",
+      "catalog_requirements": {
+        "macos": {
+          ">=": [
+            "12"
+          ]
+        }
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/whatsapp.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Render the account-linking flow",
+        "Link interactively and exchange an authorized test message",
+        "Test a fixture attachment, notifications and separately a call"
+      ],
+      "notes": "Requires user interaction and an explicitly chosen test contact for message/call tests."
+    },
+    {
+      "id": "dia",
+      "name": "Dia",
+      "priority": 19,
+      "wave": 4,
+      "platform": "macOS",
+      "cask": "thebrowsercompany-dia",
+      "official_url": "https://www.diabrowser.com/",
+      "catalog_version": "1.55.1,89833",
+      "catalog_requirements": {
+        "arch": [
+          {
+            "type": "arm",
+            "bits": 64
+          }
+        ],
+        "macos": {
+          ">=": [
+            "14"
+          ]
+        }
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/thebrowsercompany-dia.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "arm64",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Launch on a matching ARM64 runtime/host",
+        "Open tabs and render local/HTTPS pages",
+        "Authenticate interactively and test an authorized assistant action"
+      ],
+      "notes": "Assumed to mean The Browser Company Dia. Catalog requires ARM64 and macOS 14+. Not directly runnable as x86_64 code."
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "priority": 20,
+      "wave": 4,
+      "platform": "macOS",
+      "cask": "discord",
+      "official_url": "https://discord.com/download",
+      "catalog_version": "0.0.420",
+      "catalog_requirements": {
+        "macos": {
+          ">=": [
+            "13"
+          ]
+        }
+      },
+      "catalog_source": "https://formulae.brew.sh/api/cask/discord.json",
+      "catalog_checked": "2026-10-30",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Render login and authenticate interactively",
+        "Navigate servers and exchange an authorized test message",
+        "Test voice, then camera, then screen share as separate gates"
+      ],
+      "notes": "Use the unmodified official Mac client. Passing login is not working Discord; capture APIs are currently incomplete."
+    }
+  ]
+}
