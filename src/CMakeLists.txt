@@ -589,6 +589,8 @@ if (QVOLUTION_BUILD_TEXTEDIT)
 	if (ENABLE_TESTS)
 		add_darling_executable(qvolution_titlebar_policy ${CMAKE_CURRENT_SOURCE_DIR}/external/cocotron/tests/appkit-titlebar-ownership.m)
 		target_link_libraries(qvolution_titlebar_policy AppKit)
+		add_darling_executable(qvolution_save_browser_snapshot ${CMAKE_CURRENT_SOURCE_DIR}/external/cocotron/tests/appkit-save-browser-snapshot.m)
+		target_link_libraries(qvolution_save_browser_snapshot AppKit)
 	endif ()
 endif ()
 
