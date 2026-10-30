@@ -26,6 +26,7 @@ def main():
     env.pop('DARLING_PROFILE', None)
     env.update(DPREFIX=str(prefix), DARLING_INSTALL_PREFIX=str(stage), DARLING_NONROOT='1')
     WORK.mkdir(exist_ok=True)
+    prefix.parent.mkdir(parents=True, exist_ok=True)
     records = []
     for attempt in range(1, 4):
         marker = 'QVOLUTION_CLI_' + uuid.uuid4().hex
