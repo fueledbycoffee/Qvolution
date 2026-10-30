@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "source_commit": "36390a385afd23f544fdff8362d6c0ad117c14d0",
+  "component_commit": "354ef0226d01bd49dff2969e56cf50a1b484eed5",
+  "diagnostic_swift_override_required": true,
+  "snapshot_only_interactive_retry": "failed: user reported freeze/closure and supplied GNOME unresponsive dialog screenshot",
+  "parent_real_panel": {
+    "timeout_seconds": 35,
+    "last_phase": "automatic column sizing",
+    "tmp_entries": 55495
+  },
+  "parent_regression": {
+    "exit": 1,
+    "seconds": 1.9582563639996806,
+    "shutdown_exit": 0
+  },
+  "candidate_real_panel": {
+    "exit": 0,
+    "seconds": 5.259286500004237,
+    "shutdown_exit": 0,
+    "tmp_expanded_seconds": 2.879,
+    "panel_displayed_seconds": 2.973,
+    "outline_rows": 56193
+  },
+  "candidate_snapshot_regression": {
+    "exit": 0,
+    "stdout": "PASS: 1024-file listing reuse, interleaving, refresh, identity and bounds\n",
+    "stderr": "",
+    "seconds": 1.8936788130013156,
+    "shutdown_exit": 0,
+    "diagnostic_swift_override": true
+  },
+  "full_build": "passed",
+  "ninja_dry_run": "no work to do",
+  "workspace_staging": "passed",
+  "host_regression_steps": 13,
+  "cli_boot_shutdown_cycles": 3,
+  "interactive_save_reopen": "awaiting retry on candidate",
+  "flicker": "not yet verified on candidate",
+  "normal_swift_loading": "still blocked"
+}

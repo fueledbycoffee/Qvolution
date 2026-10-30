@@ -38,8 +38,9 @@
         "wayland_connected": true,
         "single_title_bar_user_confirmed": true,
         "typing_user_confirmed": true,
-        "save_reopen": "not_yet_verified",
-        "normal_swift_loading": "blocked"
+        "save_reopen": "failed_snapshot_only_retry; followup_manual_retry_pending",
+        "normal_swift_loading": "blocked",
+        "save_panel_expansion": "pass_source_fixture_full_panel; 56193_rows_displayed_in_2.973s"
       }
     },
     {
