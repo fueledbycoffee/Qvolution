@@ -21,3 +21,5 @@ Each runtime change needs a focused regression, its source/provenance and an obs
 
 - [ ] QV-017: Build matching x86 Swift overlays/runtime and validate Swift ABI behavior. Normal Objective-C TextEdit startup no longer requires diagnostic overrides; Swift-based apps remain unsupported on this legacy-overlay path.
 - [x] QV-018: Validate single title-bar ownership on Wayland, preserve X11 layout, and confirm the corrected window with the user.
+
+- [ ] QV-019: Implement NSTextView rich-text inspector controls. TextEdit 1.9 requests the inspector in rich mode, but setUsesInspectorBar currently stores only a flag. Verify rich/plain visibility and real formatting actions; this is a functional compatibility gap, separate from theme polish.

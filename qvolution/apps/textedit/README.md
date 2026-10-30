@@ -45,3 +45,10 @@ A separate rendering regression found that `isFlushWindowDisabled` returned an u
 Foundation commit `cbde81c88373c1417c9bfece7f45e68c56834518` makes the incompatible legacy x86 Swift overlay re-export opt-in. The previous Foundation-only client failed before main; the candidate passes normal initialization and a Unicode JSON round trip. Wayland titlebar, rendering-pause, snapshot and full save-panel tests also pass with all `DYLD_*` overrides removed, along with 13 host steps and three CLI cycles.
 
 The user confirmed the saved text opens normally, typing and menus respond, and supplied a screenshot. Earlier ASCII saving/reopening and flicker corrections remain recorded separately. Normal Swift ABI compatibility is not fixed: applications that need the legacy Swift overlay still require a matching source-built overlay/runtime. Unicode JSON passing does not establish Unicode TextEdit editing, and undo, clipboard, global-menu integration and extended stability remain unverified.
+
+
+## Known interface gaps
+
+The source fixture identifies itself as TextEdit 1.9 (2013 copyright), so its layout is not the current macOS TextEdit interface. The existing plain-text test document should not have rich-text controls. In rich-text mode, however, `DocumentWindowController` requests `setUsesInspectorBar:YES`; Cocotron's `NSTextView` implementation currently stores the flag without creating a bar. The formatting controls are missing functionality (QV-019), not solely a theme difference. `NSLayoutManager` also returns nil for the ruler accessory view.
+
+Native Wayland windows currently keep the application menu in the window. The existing `X11GlobalMenu` registration path is used by `X11Window`, with no corresponding registration in `WaylandWindow`. GNOME top-bar menu integration remains QV-008; an installed desktop menu extension alone does not complete Qvolution's missing backend connection. No global-menu success is claimed.

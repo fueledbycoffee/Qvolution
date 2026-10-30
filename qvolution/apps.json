@@ -49,7 +49,9 @@
         "saved_text_visible_user_confirmed": true,
         "typing_and_menus_user_confirmed": true,
         "foundation_commit": "cbde81c88373c1417c9bfece7f45e68c56834518",
-        "swift_abi": "legacy_x86_overlay_unsupported"
+        "swift_abi": "legacy_x86_overlay_unsupported",
+        "rich_text_inspector_bar": "missing_implementation; setter_stores_flag_only",
+        "gnome_global_menu": "not_integrated_native_wayland"
       }
     },
     {
