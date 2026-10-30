@@ -579,7 +579,14 @@ add_subdirectory(frameworks)
 add_subdirectory(private-frameworks)
 
 # /Applications
-#add_subdirectory(external/TextEdit)
+option(QVOLUTION_BUILD_TEXTEDIT "Build the source TextEdit compatibility fixture" OFF)
+if (QVOLUTION_BUILD_TEXTEDIT)
+	if (NOT TARGET AppKit)
+		message(FATAL_ERROR "QVOLUTION_BUILD_TEXTEDIT requires the gui component")
+	endif ()
+	set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "gui")
+	add_subdirectory(external/TextEdit)
+endif ()
 
 # Subprojects after this line need C++ headers
 

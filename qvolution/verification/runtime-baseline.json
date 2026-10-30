@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "source_commit": "cb169bdb1e1b558aba7e1e4a95284719ba7b35cd",
+  "cocotron_commit": "ff38ae04c9eb66c3020b96aa5f49d541ba30bb14",
+  "host_architecture": "x86_64",
+  "enable_tests": true,
+  "full_build": "passed",
+  "ninja_dry_run": "no work to do",
+  "staging": "passed in project workspace",
+  "install_capability_warning": "unprivileged setcap warning; no privileged runtime claim",
+  "cli_runtime_mode": "nonroot",
+  "cli_boot_cycles_passed": 3,
+  "cli_shutdown_cycles_passed": 3,
+  "host_suite": "13 compile/run steps passed",
+  "wayland_selector": "9 cases passed; 2 absolute-path cases failed on parent",
+  "gui_workflows": "not yet established",
+  "scope": "Runtime bootstrap baseline before enabling the source TextEdit fixture. Full logs remain in the local Qvolution-work workspace."
+}

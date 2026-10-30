@@ -18,7 +18,7 @@ python3 qvolution/qv.py host-tests
 Run from the repository root. The sibling workspace keeps build artifacts and prefixes outside the source tree:
 
 ```sh
-cmake -S . -B ../Qvolution-work/build -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_TESTS=ON
+cmake -S . -B ../Qvolution-work/build -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_TESTS=ON -DQVOLUTION_BUILD_TEXTEDIT=ON
 cmake --build ../Qvolution-work/build --parallel 8
 ninja -C ../Qvolution-work/build -n
 ```
@@ -43,3 +43,7 @@ Use the build tree's non-setuid launcher. Stop that exact prefix with the same e
 Use `python3 qvolution/qv.py new-run APP_ID` for an evidence template. Acquisition/install/load/launch/workflow/GNOME/stability are independent gates. Store exact bundle hashes and architecture. App-specific reports start under `qvolution/apps/`. A source-built fixture and an unmodified vendor artifact are different results. Never publish app binaries or credentials with the source repository.
 
 The existing sandbox entry points do not establish Mac-equivalent confinement. Track browser sandbox behavior explicitly and use disposable test data until it is understood. Authentication and message/call actions remain interactive and require a chosen test destination.
+
+## Source TextEdit fixture
+
+`QVOLUTION_BUILD_TEXTEDIT` defaults OFF and requires AppKit/the gui component when enabled. The target builds the pinned open-source TextEdit submodule, not a current Apple-distributed binary. Its staged executable is `/Applications/TextEdit.app/Contents/MacOS/TextEdit`. Keep fixture results separate from vendor-bundle compatibility.
