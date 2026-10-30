@@ -3,7 +3,7 @@
 - [x] QV-001: Fork VibeDarling, preserve provenance and create an independent local checkout.
 - [x] QV-002: Define exactly 20 application targets, workflow gates and reproducible run records.
 - [ ] QV-003: Establish a clean pinned build, staged runtime and repeated CLI bootstrap.
-- [ ] QV-004: Fix the reproduced Wayland absolute-socket autodetection bug with a failing-before/passing-after regression.
+- [x] QV-004: Fix the reproduced Wayland absolute-socket autodetection bug with a failing-before/passing-after regression.
 - [ ] QV-005: Make TextEdit edit/save/reopen reliable under GNOME/Mutter.
 - [ ] QV-006: Make Terminal PTY input, resize, multiple windows and clean exit reliable.
 - [ ] QV-007: Repair menu mutation, validation, removed-item IDs, toggle state and panel-disappearance fallback.

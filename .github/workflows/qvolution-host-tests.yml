@@ -16,7 +16,6 @@ jobs:
           submodules: false
       - name: Fetch pinned UI source
         run: |
-          git config submodule.src/external/cocotron.url https://github.com/VibeDarling/darling-cocotron.git
           git submodule update --init --depth=1 src/external/cocotron
       - name: Install host-test prerequisites
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang cmake ninja-build ruby

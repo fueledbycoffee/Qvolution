@@ -67,6 +67,7 @@ def host_tests():
         ('colorsync-constants', [sys.executable, 'tests/colorsync-device-constants.py']),
         ('cfnetwork-bootstrap', [sys.executable, 'tests/cfnetwork-bootstrap.py']),
         ('roon-links', [sys.executable, '-m', 'unittest', 'discover', '-s', 'tests/roon-assembly-links']),
+        ('wayland-backend-selection', [sys.executable, 'src/external/cocotron/tests/wayland-backend-selection.py']),
     ]
     def run(name, args):
         try:

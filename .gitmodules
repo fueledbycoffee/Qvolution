@@ -238,7 +238,7 @@
 	url = ../darling-Heimdal.git
 [submodule "src/external/cocotron"]
 	path = src/external/cocotron
-	url = ../darling-cocotron.git
+	url = https://github.com/fueledbycoffee/Qvolution-cocotron.git
 [submodule "src/external/libtelnet"]
 	path = src/external/libtelnet
 	url = ../darling-libtelnet.git
