@@ -107,6 +107,9 @@ if (TARGET AppKit)
             ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-${fixture}.m)
         target_link_libraries(qvolution_${target_suffix} AppKit CoreGraphics)
     endforeach()
+    add_darling_executable(qvolution_window_display_flush
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-window-display-flush.m)
+    target_link_libraries(qvolution_window_display_flush AppKit CoreGraphics)
     add_darling_executable(qvolution_accessibility_custom_action
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-custom-action.m
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-custom-action-header.m)
