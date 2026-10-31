@@ -3,16 +3,6 @@ project(native)
 include(wrap_elf)
 find_package(PkgConfig QUIET)
 
-if(COMPONENT_gui_stubs)
-	find_package(ICU QUIET COMPONENTS uc)
-	find_path(ESPEAK_NG_INCLUDE_DIR espeak-ng/espeak_ng.h)
-	if(ICU_FOUND AND ESPEAK_NG_INCLUDE_DIR)
-		add_subdirectory(voice-catalog)
-	else()
-		message(STATUS "native: voice catalog helper unavailable (requires host ICU and eSpeakNG public development headers)")
-	endif()
-endif()
-
 if (COMPONENT_gui)
 	set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "gui")
 

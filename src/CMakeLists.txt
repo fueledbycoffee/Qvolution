@@ -228,6 +228,17 @@ add_subdirectory(libsimple "${CMAKE_CURRENT_BINARY_DIR}/libsimple-linux")
 add_subdirectory(external/darlingserver)
 add_subdirectory(startup)
 
+# Optional native helper must inherit the host context before Darwin flags below.
+if(COMPONENT_gui_stubs)
+	find_package(ICU QUIET COMPONENTS uc)
+	find_path(ESPEAK_NG_INCLUDE_DIR espeak-ng/espeak_ng.h)
+	if(ICU_FOUND AND ESPEAK_NG_INCLUDE_DIR)
+		add_subdirectory(native/voice-catalog)
+	else()
+		message(STATUS "native: voice catalog helper unavailable (requires host ICU and eSpeakNG public development headers)")
+	endif()
+endif()
+
 include_directories(SYSTEM ${COMPILER_INC_PATH})
 include_directories(${CMAKE_SOURCE_DIR}/basic-headers)
 

@@ -14,7 +14,7 @@ add_library(qv_voice_catalog_model STATIC catalog.c language.c identity.c)
 target_compile_features(qv_voice_catalog_model PRIVATE c_std_11)
 target_link_libraries(qv_voice_catalog_model PUBLIC ICU::uc)
 target_include_directories(qv_voice_catalog_model PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(qv_voice_catalog_client STATIC catalog-decode.c catalog-process.c)
+add_library(qv_voice_catalog_client STATIC EXCLUDE_FROM_ALL catalog-decode.c catalog-process.c)
 target_link_libraries(qv_voice_catalog_client PUBLIC qv_voice_catalog_model)
 
 add_executable(qv-voice-catalog espeak-catalog.c)
