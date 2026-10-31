@@ -2466,7 +2466,7 @@
         "Link interactively and exchange an authorized test message",
         "Test a fixture attachment, notifications and separately a call"
       ],
-      "notes": "Requires user interaction and an explicitly chosen test contact for message/call tests. Stage33 bounded first attempt: Missing Catalyst MobileCoreServices dependency path; exit 139, exact-prefix shutdown 0, main executable unchanged. UI, workflow, GPU and stability remain unqualified. Repeat extractions match each other, but completeness remains unproven; no independent publisher checksum/signature or HFS extraction verification.",
+      "notes": "Requires user interaction and an explicitly chosen test contact for message/call tests. Stage33 bounded first attempt: Missing Catalyst MobileCoreServices dependency path; exit 139, exact-prefix shutdown 0, main executable unchanged. UI, workflow, GPU and stability remain unqualified. Repeat extractions match each other, but completeness remains unproven; no independent publisher checksum/signature or HFS extraction verification. Stage36 real Catalyst UTI reexport passes normal binding and registered PNG lookup; unchanged WhatsApp clears that library and stops at missing CryptoKit. Existing CryptoKit build/output is arm64-only; no x86_64 crypto availability is claimed.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_tested",
@@ -2517,8 +2517,8 @@
         }
       },
       "vendor_results": {
-        "stage_label": "stage33",
-        "evidence_checkpoint": "through_stage33",
+        "stage_label": "stage36",
+        "evidence_checkpoint": "Stage36 original WhatsApp bounded retake",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
         "render": "not_verified",
@@ -2526,21 +2526,52 @@
         "functional_workflow": "not_tested",
         "exit": 139,
         "timeout": false,
-        "seconds": 3.6198533159913495,
+        "seconds": 3.143661270994926,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "2e51c42fd1821aa4e9c13be5775720a3b63a9faade8fdec1d970f9634b5c2e5d",
         "executable_relative": "artifacts/whatsapp/26.43.27/bundle-repeat/WhatsApp Installer/WhatsApp.app/Contents/MacOS/WhatsApp",
         "recorded_runtime": {
-          "superproject": "96f75659b530c6f8b9fd42d239eb4907db8e41af",
-          "built_runtime_superproject": "96f75659b530c6f8b9fd42d239eb4907db8e41af",
-          "cocotron": "7386df2e8ff2d9a0285c5c7720d8a7f42bf6dffc",
-          "launcher_sha256": "f3b700ae6ac4e172e1c620c1b8812e56435a69a44c0638b4a926c9d8ada6ede2"
+          "built_superproject": "860c155db3be5fbf7e80604d420e44fffb9ca205",
+          "components": {
+            "cocotron": "553b54ab7db2db6d20ac4eeaf8ee9233ef0aafda",
+            "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+            "darlingserver": "b646fa534608414486b03aab8c1d9db8ce92938c",
+            "foundation": "ee5600225177d4868d1e1e1b2bec3d658dae68ab",
+            "metal": "d4b5dbf24f7137dcb3c614c32ff234213479c1c1",
+            "compiler-rt": "ce11a0c84a22cb9aa1ac3890932b108c97589e53"
+          }
         },
-        "evidence_record": "whatsapp-launch-20261031T133229503439-5bf5913a.json",
-        "first_concrete_gate": "Missing Catalyst MobileCoreServices dependency path",
-        "missing_library": "/System/iOSSupport/System/Library/Frameworks/MobileCoreServices.framework/Versions/A/MobileCoreServices"
+        "evidence_record": "/home/sean/Documents/Codex/Projects/Qvolution-work/parallel/app-breadth-next/whatsapp-launch-20261031T144608084495-313124b6.json",
+        "first_concrete_gate": "Missing CryptoKit framework",
+        "missing_library": "/System/Library/Frameworks/CryptoKit.framework/Versions/A/CryptoKit",
+        "stage33_first_attempt_preserved": {
+          "stage_label": "stage33",
+          "evidence_checkpoint": "through_stage33",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "not_verified",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "exit": 139,
+          "timeout": false,
+          "seconds": 3.6198533159913495,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "2e51c42fd1821aa4e9c13be5775720a3b63a9faade8fdec1d970f9634b5c2e5d",
+          "executable_relative": "artifacts/whatsapp/26.43.27/bundle-repeat/WhatsApp Installer/WhatsApp.app/Contents/MacOS/WhatsApp",
+          "recorded_runtime": {
+            "superproject": "96f75659b530c6f8b9fd42d239eb4907db8e41af",
+            "built_runtime_superproject": "96f75659b530c6f8b9fd42d239eb4907db8e41af",
+            "cocotron": "7386df2e8ff2d9a0285c5c7720d8a7f42bf6dffc",
+            "launcher_sha256": "f3b700ae6ac4e172e1c620c1b8812e56435a69a44c0638b4a926c9d8ada6ede2"
+          },
+          "evidence_record": "whatsapp-launch-20261031T133229503439-5bf5913a.json",
+          "first_concrete_gate": "Missing Catalyst MobileCoreServices dependency path",
+          "missing_library": "/System/iOSSupport/System/Library/Frameworks/MobileCoreServices.framework/Versions/A/MobileCoreServices"
+        }
       }
     },
     {

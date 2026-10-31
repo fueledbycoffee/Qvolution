@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T14:38:15.449261+00:00",
-  "stage": "Stage 35",
-  "built_source": "579633a54450e3b4e380cc1a1a4207c0dae1c75e",
+  "updated_utc": "2026-10-31T14:56:52.319917+00:00",
+  "stage": "Stage 36",
+  "built_source": "860c155db3be5fbf7e80604d420e44fffb9ca205",
   "qualified_app_ids": [],
   "framework_checks": {
     "Legacy regression suite": {
@@ -49,14 +49,14 @@
       "owner": "Sol high + independent xhigh review",
       "phase": "Model and independent-reader checks pass; installation pending",
       "now": "Stage 35 installed scanner modes pass. Seven corrected model fixtures pass, and the strict independent reader verifies annotation values and preserved content/resources after the trailer fix.",
-      "next": "Integrate real dictionary removal and PDFKit model, then verify normal installed-framework linkage and retry Skim."
+      "next": "Model and dictionary-removal source are integrated; build and verify normal installed PDFKit, then retry Skim."
     },
     {
       "title": "Graphics clipping",
       "owner": "Coordinator + independent merge review",
-      "phase": "Reviewed source merged; installed runtime tests pending",
-      "now": "Public path and mask coverage source is merged with existing guards; three native sanitizer suites pass. This change is not in the installed Stage 35 runtime.",
-      "next": "Finish independent merge review and run 38 frozen public clipping cases after the next exact build."
+      "phase": "Installed public pixel checks pass",
+      "now": "Stage 36 all 38 frozen public clipping cases have passing results, with one initial empty startup timeout and passing retry preserved. All 29 affected float/HLG cases also have passing results, with one separate timeout/retry.",
+      "next": "Continue actual app presentation, font quality, GPU integration and performance qualification."
     },
     {
       "title": "Audio playback",
@@ -64,6 +64,20 @@
       "phase": "Implementation underway",
       "now": "Spotify clears atomic imports and stops at the audio-renderer key. CoreMedia PCM buffers, timing and renderer behavior require real implementation.",
       "next": "Implement typed buffers, renderer queue and synchronizer with the existing audio backend; test actual output and app behavior."
+    },
+    {
+      "title": "Startup reliability",
+      "owner": "Sol high + independent xhigh review",
+      "phase": "Reviewed source integrated; runtime cycles pending",
+      "now": "Server readiness now follows RPC binding, and launcher validates its readiness handshake. Deterministic native before/after and cancellation controls pass.",
+      "next": "Build paired server/launcher changes and measure cold startup/shutdown cycles."
+    },
+    {
+      "title": "Metal counter support",
+      "owner": "Sol high + independent review",
+      "phase": "Identifiers integrated; real timestamps in development",
+      "now": "All 18 identifier model behavior checks pass. Real Vulkan timestamp queries are being implemented separately; no counter capability is claimed from identifier exports.",
+      "next": "Verify normal installed identifier exports and retry Discord, VS Code and Obsidian; review and test real timestamp sampling."
     }
   ],
   "app_checkpoints": {
@@ -80,7 +94,7 @@
     "cyberduck": "Stage 30",
     "obsidian": "Stage 34",
     "spotify": "Stage 34",
-    "whatsapp": "Stage 33",
+    "whatsapp": "Stage 36",
     "hex-fiend": "Stage 33",
     "skim": "Stage 33",
     "keycastr": "Stage 33",
@@ -100,7 +114,7 @@
     "cyberduck": "Startup exit 134; cause unknown. Transfer workflow and desktop rendering remain unverified.",
     "obsidian": "Missing MTLCommonCounterSetTimestamp import; workflow, UI, GPU and stability remain unqualified.",
     "spotify": "Missing AVSampleBufferAudioRendererFlushTimeKey import; workflow, UI, GPU and stability remain unqualified.",
-    "whatsapp": "Missing Catalyst MobileCoreServices framework. Reviewed real UTI reexport wrapper awaits build and original-app retake.",
+    "whatsapp": "Catalyst MobileCoreServices clears; now missing x86_64 CryptoKit. Existing source-built CryptoKit artifact/build path is arm64-only; a genuine source build is required.",
     "hex-fiend": "Bounded launch timed out without captured UI; cause and application entry not established. Exact published file-open route is prepared for testing.",
     "skim": "Missing PDFAnnotationKeyDefaultAppearance. Seven corrected model fixtures and strict independent PDF reader pass; normal installed PDFKit and original-app retake remain pending.",
     "keycastr": "Startup exits 139; cause unknown. Input overlay and host event capture are unverified.",
@@ -109,5 +123,5 @@
   "framework_suite_stage": "Stage 32",
   "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
   "source_label": "Published framework source · Stage 24",
-  "latest_checks": "Stage 32 legacy suite: 54 pass, one obsolete expectation fails; original result retained. Stage 34 installed public atomic ABI and four normal installed Metal fixtures pass, including backend buffer copy/fill; physical GPU/display/app qualification remains open. Stage 35 frozen scanner caller passes all three modes through rebuilt Onyx2D. Seven corrected authored PDF model fixtures pass; strict independent reader verifies actual saved annotation, content and resource persistence. PDFKit is not yet installed. A new common-counter identifier model failed its class-based immutability assertion and is under investigation."
+  "latest_checks": "Stage 36: all 38 public clipping and 29 affected float/HLG modes have passing results; each group retains one initial empty startup timeout and passing retry. Four maintained Scrubber image/coding/lifetime modes pass; replacement source is not yet integrated. Catalyst direct binding and registered PNG lookup pass, with independent database confirmation. Stage 35 PDF model and strict independent reader pass; installed PDFKit is pending. Stage 34 installed atomic ABI and real Metal backend copy/fill pass. Legacy full suite remains Stage32 54/55 until its reviewed replacement and fresh full run."
 }
