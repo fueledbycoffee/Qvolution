@@ -1,13 +1,17 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T16:19:58.801837+00:00",
-  "stage": "Stage 39",
-  "built_source": "f209523c6ca90dd6731ca72b36abf8033e1f4df4",
+  "updated_utc": "2026-10-31T18:27:07.905934+00:00",
+  "stage": "Stage 40",
+  "built_source": "5b58f375e5445ae0ae405e105a29cc8e24b8a6ec",
   "qualified_app_ids": [],
   "framework_checks": {
-    "Legacy regression suite": {
-      "passed": 56,
+    "Stage 39 full suite · initial run": {
+      "passed": 57,
       "total": 58
+    },
+    "Stage 40 targeted acceptance": {
+      "passed": 18,
+      "total": 19
     }
   },
   "cli_cycles": 3,
@@ -25,17 +29,18 @@
     "Compact, scrollable font picker"
   ],
   "open_ui": [
-    "Desktop acceptance of new toolbar icons, persistent states and stable ruler",
-    "Font raster quality and broader macOS UI fidelity",
-    "Remaining editing, clipboard, undo and extended stability workflows"
+    "Severe mapped-window redraw latency: 28–30 seconds in source-owned fixture; optimization under review",
+    "Terminal original app opens blank controls and is unresponsive; functional test failed",
+    "Hide local menu only when working Orbit export is active; candidate under review",
+    "Font quality, macOS appearance, full workflow, GPU presentation and extended stability remain open"
   ],
   "workstreams": [
     {
       "title": "Graphics and Metal",
       "owner": "Runtime team",
-      "phase": "Hardware backend verified; app presentation open",
-      "now": "Stage 39 guest Metal selects NVIDIA GeForce RTX 4070 and passes buffer-fill/readback. Real timestamp and capability-negative controls also pass.",
-      "next": "Verify real application presentation, shared GPU surfaces and stability."
+      "phase": "Native cross-process GPU pixels verified; resource retention open",
+      "now": "Actual RTX 4070 single same-process and cross-exec/reverse image transfers match exact GPU pixel hashes after creator release. Repeated storage import fails the handle-growth gate. Validation layer unavailable.",
+      "next": "Fix measured handle retention and verify repeated runs, then implement guest APIs and accelerated presentation."
     },
     {
       "title": "Atomic ABI",
@@ -47,23 +52,23 @@
     {
       "title": "PDF documents",
       "owner": "Sol high + independent xhigh review",
-      "phase": "Eight installed annotation checks pass",
-      "now": "Stage 39 all eight normal installed PDF annotation controls pass. Independent strict reader verifies escaped Text and empty Stamp names, references and preserved content. Skim clears the icon-name import and now requires Inklist.",
-      "next": "Implement and verify genuine ink-list storage and persistence, then retry Skim."
+      "phase": "Nine installed annotation controls pass",
+      "now": "Stage 40 all nine normal-linked PDF annotation controls pass, including genuine ink-list storage and two reloads.",
+      "next": "Retry original Skim; document display, workflows and macOS UI remain unverified."
     },
     {
       "title": "Graphics clipping",
       "owner": "Coordinator + independent merge review",
-      "phase": "Installed public pixel checks pass",
-      "now": "Stage 36 all 38 frozen public clipping cases have passing results, with one initial empty startup timeout and passing retry preserved. All 29 affected float/HLG cases also have passing results, with one separate timeout/retry.",
-      "next": "Continue actual app presentation, font quality, GPU integration and performance qualification."
+      "phase": "Severe redraw latency measured; candidate under review",
+      "now": "Text editing model is fast, but mapped test window display takes 28–30 seconds. Rectangular clip replay costs 70–276ms. Corrected baseline pixel fixture passes.",
+      "next": "Review and build the scoped optimization in an isolated runtime, then rerun all 67 clip/float checks and actual redraw timings."
     },
     {
       "title": "Audio playback",
       "owner": "Sol high implementation from clean specification",
-      "phase": "Unresolved renderer failures",
-      "now": "The unchanged PCM v2 control exited 139 originally and 132 on Stage 38 retry; a diagnostic variant exited 0. These outcomes do not qualify the original renderer or real playback.",
-      "next": "Investigate both original failures and verify renderer queue, synchronization and actual output before an app retake."
+      "phase": "Reviewed failure/recovery candidate; real playback open",
+      "now": "Frozen v11 source and six controls compile and strong-link. Original renderer failures remain preserved; no real Pulse or Spotify playback qualification.",
+      "next": "Execute six source controls, then verify real device failure/recovery, pause, timing and playback."
     },
     {
       "title": "Startup reliability",
@@ -82,27 +87,34 @@
     {
       "title": "Voice synthesis",
       "owner": "Runtime team",
-      "phase": "Class visible; native helper spawn fails",
-      "now": "Stage 39 normal AVFoundation class-surface check passes after the reexport fix. Catalog and language checks fail because native helper posix_spawn returns error1; the explicit no-CLOEXEC control fails identically.",
-      "next": "Diagnose actual native helper transport, then rerun unchanged catalog, language and NUL controls before Firefox."
+      "phase": "Real helper transport fixed; scalar coverage open",
+      "now": "Stage 40 actual fork/spawn helper control passes; class, partial catalog, language and embedded-NUL controls pass. Full voice scalar control fails.",
+      "next": "Implement genuinely documented scalar support and retry original Firefox."
     },
     {
       "title": "Swift and CryptoKit",
       "owner": "Runtime team",
-      "phase": "Source modules built; runtime qualification pending",
-      "now": "A normal Darwin Swift core and _Concurrency source-module build exited 0. This does not establish a concurrency executable, CryptoKit framework, or WhatsApp qualification.",
-      "next": "Build and test genuine Darwin concurrency and CryptoKit artifacts and retry WhatsApp."
+      "phase": "Matching source runtimes built; runtime vectors open",
+      "now": "Actual normal Swift module/concurrency client and CryptoKit strong linking pass. Matching Foundation and overlay runtimes build from source; original mixed-version runtime fails before vectors.",
+      "next": "Use a reviewed private matching runtime, pass actual crypto vectors, then retry WhatsApp."
     },
     {
       "title": "Shared surfaces for Electron",
       "owner": "Sol xhigh implementation + independent review",
-      "phase": "Installed; first runtime creation fails",
-      "now": "Reviewed paired server, iokitd, CoreVideo and IOSurface source is installed in Stage 39. Strict normal-linked guest fixture builds; its first surface creation returns null and asserts. Cross-process and GPU behavior remain unverified.",
-      "next": "Diagnose real broker creation failure, pass ownership and cross-process security/lifetime gates, then retry Discord, VS Code and Obsidian."
+      "phase": "Mach transfer and task authorization pass; lost-reply reclamation fails",
+      "now": "Actual full Stage 40 CPU fixture passes creation, cross-exec writes, creator release, Mach transfer, imported CV lifetime and genuine foreign-task rejection. It then fails lost queued reply reclamation.",
+      "next": "Fix real reply/right lifetime and cold service registration, pass full controls, then retry Discord, VS Code and Obsidian."
+    },
+    {
+      "title": "Original Apple apps",
+      "owner": "Coordinator + source startup investigation",
+      "phase": "Terminal broken; Calendar missing dependencies",
+      "now": "Original Terminal opens a blank, unresponsive window. Calendar stops at CalendarUI.framework. Neither app passes a workflow.",
+      "next": "Measure own AppKit launch/event/paint boundaries; implement legitimate Calendar dependencies."
     }
   ],
   "app_checkpoints": {
-    "textedit": "Stage 26 · source fixture",
+    "textedit": "Stage 40 · source fixture; severe lag",
     "discord": "Stage 37",
     "vscode": "Stage 37",
     "firefox": "Stage 22",
@@ -119,13 +131,15 @@
     "hex-fiend": "Stage 33",
     "skim": "Stage 39",
     "keycastr": "Stage 33",
-    "blender": "Stage 33"
+    "blender": "Stage 33",
+    "terminal": "Stage 40 · original app failed",
+    "calendar": "Stage 40 · original app loader blocked"
   },
   "blockers": {
-    "textedit": "New toolbar checks pass automatically; desktop acceptance, full editing workflow, macOS UI polish, GPU and stability remain.",
+    "textedit": "Severe lag persists without frame capture. Model edits are fast; mapped redraws take 28–30 seconds. Candidate under review, not installed. Full UI/GPU/stability remain open.",
     "discord": "Original app launch reports missing CVPixelBufferCreateWithIOSurface; workflow, UI, GPU and stability remain unqualified.",
     "vscode": "Original app launch reports missing CVPixelBufferCreateWithIOSurface; workflow, UI, GPU and stability remain unqualified.",
-    "firefox": "AVSpeechSynthesisVoice class is now visible through AVFoundation, but real catalog helper spawning fails with error1; voice metadata/language and original Firefox acceptance remain open.",
+    "firefox": "Native voice helper spawn and partial metadata/language controls now pass; full voice scalar coverage and original Firefox retake remain open.",
     "coteditor": "Missing AppIntents framework.",
     "keepassxc": "Startup failure; cause not established.",
     "keka": "Settings view partially renders; archive workflow, missing icons and duplicate controls remain.",
@@ -135,14 +149,16 @@
     "cyberduck": "Startup exit 134; cause unknown. Transfer workflow and desktop rendering remain unverified.",
     "obsidian": "Original app launch reports missing CVPixelBufferCreateWithIOSurface; workflow, UI, GPU and stability remain unqualified.",
     "spotify": "Missing AVSampleBufferAudioRendererFlushTimeKey at the last app attempt; original PCM v2 controls exited 139 and 132 on retry, while a diagnostic variant exited 0. Playback and app qualification remain open.",
-    "whatsapp": "Catalyst MobileCoreServices clears; x86_64 CryptoKit remains missing. Swift core and _Concurrency source modules built successfully, but no concurrency executable or CryptoKit runtime qualification is established.",
+    "whatsapp": "CryptoKit and matching Swift/Foundation runtimes now build from source. Private matching-runtime vector execution and original WhatsApp retake remain unverified.",
     "hex-fiend": "Bounded launch timed out without captured UI; cause and application entry not established. Exact published file-open route is prepared for testing.",
-    "skim": "Stage 39 original unchanged Skim clears IconName and reports missing PDFAnnotationKeyInklist. Eight installed PDF annotation controls and independent reader pass; document display and app workflow remain unverified.",
+    "skim": "Stage 40 nine installed PDF controls including Inklist pass. Original Skim has not yet been retried; document display and workflows remain open.",
     "keycastr": "Startup exits 139; cause unknown. Input overlay and host event capture are unverified.",
-    "blender": "Startup exits 139; cause unknown. Viewport, render, device acceleration and stability are unverified."
+    "blender": "Startup exits 139; cause unknown. Viewport, render, device acceleration and stability are unverified.",
+    "terminal": "User explicitly confirms blank/broken controls and unresponsive window. A visible window is a failed functional test; no shell/PTY workflow verified.",
+    "calendar": "Original app exits at missing CalendarUI.framework; additional private dependencies are required. No usable window or workflow."
   },
-  "framework_suite_stage": "Stage 37 · initial run",
+  "framework_suite_stage": "Stage 39 full initial suite; Stage 40 targeted controls",
   "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
   "source_label": "Published framework source · Stage 24",
-  "latest_checks": "Stage 39 full build and private install pass. Guest Metal selects NVIDIA GeForce RTX 4070 and passes buffer-fill/readback; real timestamps and capability negatives pass. Eight normal installed PDF annotation controls plus strict independent reader pass. Voice class visibility passes, but native helper spawn fails. First installed shared-surface creation fails before cross-process tests. Stage 37 full suite remains 56/58 initially, with both unchanged retries passing; all 24 app qualification gates remain open. Audio original failures and concurrency runtime qualification remain unresolved."
+  "latest_checks": "Stage 40 full build/install passes. Targeted installed controls: 18/19 pass; full voice scalars fail. CPU shared-surface fixture advances through Mach transfer and task authorization, then fails lost queued reply reclamation. Real native RTX 4070 pixel sharing passes single-process/cross-exec/reverse cases; repeat import fails handle-growth gate. TextEdit remains severely laggy. Terminal is broken and unresponsive; Calendar cannot load CalendarUI. No app is fully qualified."
 }

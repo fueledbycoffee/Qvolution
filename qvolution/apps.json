@@ -25,14 +25,14 @@
         "launch": "pass_source_fixture_user_confirmed",
         "workflow": "partial_ASCII_save_reopen",
         "gnome": "partial_native_wayland_and_Orbit_topbar_menu_open",
-        "stability": "not_tested_extended"
+        "stability": "failed_responsiveness"
       },
       "workflow": [
         "Create a Unicode document",
         "Edit, undo, copy and paste",
         "Save, quit, reopen and compare contents"
       ],
-      "notes": "Darling-built open-source fixture, not a vendor-bundle pass. ASCII saving/reopening, single title bar and flicker correction are user-confirmed. Normal Objective-C startup no longer uses DYLD overrides; the user confirmed reopened text, typing and menus. Unicode editing, undo, clipboard and extended stability remain unverified. Swift ABI compatibility with the legacy x86 overlay is not fixed. Rich-text inspector is implemented with partial user-confirmed formatting. Font/size focus regressions pass and screenshot shows DejaVu Serif size 16 applied. Synthetic popup regressions pass, but real multi-output popup acceptance failed: overflow, slow scrolling, pixelated text and font-change lag remain. Orbit bridge is deployed with backups; the later activation and focused-menu result is recorded below. Follow-up native popup-resize and font-metric fixes pass targeted guest checks; latest real menu acceptance remains pending and pixelation is unresolved. On stage23 the user again reports Ubuntu bold failing and the family picker too long; both remain open. Orbit is now active: its real TextEdit process lookup returns a canonical dbusmenu endpoint with all seven top-level menus, and the user confirms focused top-bar menus appear and open. Action execution, disabled/check state, keyboard shortcuts and fallback/restart acceptance are not yet qualified. Stage24 user confirms Ubuntu bold and compact font picker work. User then reports missing persistent formatting-button state/icons and a temporary ruler/tab-marker change during Bold; those UI defects remain open. Stage26 original runtime checks now pass for persistent toolbar state, distinct normal/selected icons, unchanged ruler geometry and synchronous focus observers. New desktop acceptance remains pending.",
+      "notes": "Darling-built open-source fixture, not a vendor-bundle pass. ASCII saving/reopening, single title bar and flicker correction are user-confirmed. Normal Objective-C startup no longer uses DYLD overrides; the user confirmed reopened text, typing and menus. Unicode editing, undo, clipboard and extended stability remain unverified. Swift ABI compatibility with the legacy x86 overlay is not fixed. Rich-text inspector is implemented with partial user-confirmed formatting. Font/size focus regressions pass and screenshot shows DejaVu Serif size 16 applied. Synthetic popup regressions pass, but real multi-output popup acceptance failed: overflow, slow scrolling, pixelated text and font-change lag remain. Orbit bridge is deployed with backups; the later activation and focused-menu result is recorded below. Follow-up native popup-resize and font-metric fixes pass targeted guest checks; latest real menu acceptance remains pending and pixelation is unresolved. On stage23 the user again reports Ubuntu bold failing and the family picker too long; both remain open. Orbit is now active: its real TextEdit process lookup returns a canonical dbusmenu endpoint with all seven top-level menus, and the user confirms focused top-bar menus appear and open. Action execution, disabled/check state, keyboard shortcuts and fallback/restart acceptance are not yet qualified. Stage24 user confirms Ubuntu bold and compact font picker work. User then reports missing persistent formatting-button state/icons and a temporary ruler/tab-marker change during Bold; those UI defects remain open. Stage26 original runtime checks now pass for persistent toolbar state, distinct normal/selected icons, unchanged ruler geometry and synchronous focus observers. New desktop acceptance remains pending. Stage40 regression: user reports severe lag both with and without frame capture. Source-owned mapped window timing confirms 28–30s display cost; source optimization under independent review, not installed.",
       "tested_variant": "Darling source fixture",
       "diagnostic_results": {
         "wayland_connected": true,
@@ -43,7 +43,8 @@
         "save_panel_expansion": "pass_source_fixture_full_panel; 56193_rows_displayed_in_2.973s",
         "save": "user_confirmed; file_content_verified",
         "menus_scrolling": "user_confirmed_flicker_gone_and_more_responsive_after_drawing_pause_fix",
-        "formatting_toolbar": "stage26 automated state/icons/ruler/transition pass; desktop acceptance pending"
+        "formatting_toolbar": "stage26 automated state/icons/ruler/transition pass; desktop acceptance pending",
+        "stage40_latency": "mapped display28–30s; later redraw120s timeout; no-capture user session still laggy"
       },
       "normal_results": {
         "startup_without_dyld_overrides": true,
@@ -76,30 +77,38 @@
       "catalog_requirements": null,
       "catalog_source": null,
       "catalog_checked": null,
-      "architecture": "select-and-record-artifact",
-      "status": "not_tested",
-      "tested_version": null,
+      "architecture": "x86_64",
+      "status": "partial_launch_unresponsive",
+      "tested_version": "Original app from official OS X Mountain Lion installer; app version not recorded",
       "artifact_sha256": null,
       "milestones": {
-        "acquire": "not_tested",
-        "install": "not_tested",
-        "load": "not_tested",
-        "launch": "not_tested",
-        "workflow": "not_tested",
-        "gnome": "not_tested",
-        "stability": "not_tested"
+        "acquire": "official_installer_bundle_acquired",
+        "install": "isolated_prefix_bundle",
+        "load": "no_missing_loader_dependency_reported",
+        "launch": "window_broken_and_unresponsive_user_confirmed",
+        "workflow": "failed_no_usable_shell",
+        "gnome": "not_verified",
+        "stability": "failed_responsiveness"
       },
       "workflow": [
         "Open a shell and run pwd and printf",
         "Test PTY input, Unicode and resize",
         "Open a second window and exit cleanly"
       ],
-      "notes": "Requires an acquired Mac application bundle; a shell prompt alone does not prove PTY correctness.",
+      "notes": "Stage40 user correction: blank/broken controls and UNRESPONSIVE. Earlier responds checkbox explicitly withdrawn. Window creation does not qualify Terminal. No shell, PTY, resize, input or clean exit workflow has passed.",
       "quality_gates": {
-        "workflow": "not_tested",
-        "ui_ux": "not_tested",
+        "workflow": "not_qualified",
+        "ui_ux": "not_qualified",
         "gpu": "not_qualified",
         "stability": "not_qualified"
+      },
+      "tested_variant": "Official unmodified macOS vendor bundle",
+      "vendor_results": {
+        "stage_label": "stage40",
+        "executable_sha256": "5db042205e36d4951946da134308f5698e49c43dfc5692763b146f2637c290eb",
+        "visible_ui": "broken_unresponsive_user_confirmed",
+        "functional_workflow": "failed",
+        "evidence": "/home/sean/Documents/Codex/Projects/Qvolution-work/parallel/user-stock-apps-stage40/launch-results.json"
       }
     },
     {
@@ -3577,7 +3586,55 @@
         "first_concrete_gate": "Exit 139 during startup; cause unknown",
         "failure_cause": "unknown"
       }
+    },
+    {
+      "id": "calendar",
+      "name": "Calendar",
+      "priority": 25,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://support.apple.com/guide/calendar/welcome/mac",
+      "catalog_version": null,
+      "catalog_requirements": null,
+      "catalog_source": null,
+      "catalog_checked": null,
+      "architecture": "x86_64",
+      "status": "blocked_loading",
+      "tested_version": "Original app from official OS X Mountain Lion installer; app version not recorded",
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "official_installer_bundle_acquired",
+        "install": "isolated_prefix_bundle",
+        "load": "blocked_missing_CalendarUI_framework",
+        "launch": "not_reached",
+        "workflow": "not_tested",
+        "gnome": "not_verified",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Create a local calendar event",
+        "Edit event time and details",
+        "Quit, reopen and verify saved event"
+      ],
+      "notes": "Additional user-requested original Apple app. Stage40 exits139 loading CalendarUI.framework. No window/workflow or private framework implementation verified.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_verified",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      },
+      "tested_variant": "Official unmodified macOS vendor bundle",
+      "vendor_results": {
+        "stage_label": "stage40",
+        "executable_sha256": "048ee453f333f7687df74c9722ab709fcc20d1a7183b61f4b2e866d5daeae024",
+        "visible_ui": "not_reached",
+        "functional_workflow": "not_tested",
+        "evidence": "/home/sean/Documents/Codex/Projects/Qvolution-work/parallel/user-stock-apps-stage40/launch-results.json",
+        "exit": 139,
+        "next_missing_framework": "CalendarUI.framework"
+      }
     }
   ],
-  "target_count": 24
+  "target_count": 25
 }
