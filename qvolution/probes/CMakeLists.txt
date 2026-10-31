@@ -101,7 +101,7 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
-    foreach(fixture IN ITEMS semantic-symbols symbol-rendering)
+    foreach(fixture IN ITEMS semantic-symbols symbol-rendering font-weight-constants)
         string(REPLACE "-" "_" target_suffix "${fixture}")
         add_darling_executable(qvolution_${target_suffix}
             ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-${fixture}.m)
