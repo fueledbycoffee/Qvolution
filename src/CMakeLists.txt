@@ -598,10 +598,6 @@ if (QVOLUTION_BUILD_TEXTEDIT)
 	endif ()
 endif ()
 
-if (ENABLE_TESTS)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/qvolution/probes ${CMAKE_BINARY_DIR}/qvolution/probes)
-endif ()
-
 # Subprojects after this line need C++ headers
 
 include_directories(BEFORE
@@ -644,6 +640,12 @@ if (COMPONENT_dev_gui_common)
 
 	add_subdirectory(external/metal)
 endif()
+
+# Probe optional frameworks only after their targets have been declared.
+if (ENABLE_TESTS)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/qvolution/probes ${CMAKE_BINARY_DIR}/qvolution/probes)
+endif ()
+
 
 if (COMPONENT_jsc OR COMPONENT_webkit)
 	set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "jsc_webkit_common")
