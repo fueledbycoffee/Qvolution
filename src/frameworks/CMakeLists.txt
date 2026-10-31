@@ -13,6 +13,7 @@ if (COMPONENT_cli OR COMPONENT_dev_gui_common)
 	set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "cli_gui_common")
 
 	add_subdirectory(CoreServices)
+	add_subdirectory(MobileCoreServices)
 
 	# these are also stubs, but they're needed for Security
 	add_subdirectory(Accounts)
