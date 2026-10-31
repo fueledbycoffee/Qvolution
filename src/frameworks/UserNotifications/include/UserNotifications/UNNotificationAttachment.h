@@ -19,6 +19,8 @@
 
 #include <Foundation/Foundation.h>
 
+FOUNDATION_EXPORT NSString * const UNNotificationAttachmentOptionsTypeHintKey;
+
 @interface UNNotificationAttachment : NSObject
 
 @end

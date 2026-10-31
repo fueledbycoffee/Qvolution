@@ -58,6 +58,13 @@ if (TARGET LaunchServices)
     target_link_libraries(qvolution_url_handler_locking Foundation LaunchServices sqlite3)
 endif()
 
+if (TARGET UserNotifications)
+    add_darling_executable(qvolution_usernotifications_type_hint_key
+        usernotifications-type-hint-key.m usernotifications-type-hint-key-header.m)
+    target_link_libraries(qvolution_usernotifications_type_hint_key Foundation)
+    add_dependencies(qvolution_usernotifications_type_hint_key UserNotifications)
+endif()
+
 if (TARGET AuthenticationServices)
     add_darling_executable(qvolution_authorization_domain authorization-domain.m)
     target_link_libraries(qvolution_authorization_domain Foundation)

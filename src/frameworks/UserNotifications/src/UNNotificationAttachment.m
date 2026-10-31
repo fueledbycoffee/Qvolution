@@ -19,6 +19,9 @@
 
 #import <UserNotifications/UNNotificationAttachment.h>
 
+// Project full-symbol key spelling; native constant bytes are not independently measured.
+NSString * const UNNotificationAttachmentOptionsTypeHintKey = @"UNNotificationAttachmentOptionsTypeHintKey";
+
 @implementation UNNotificationAttachment
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
