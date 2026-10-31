@@ -290,3 +290,38 @@ if (TARGET AppKit)
         target_link_libraries(qvolution_orbit_registration AppKit dbus)
     endif()
 endif()
+
+if (TARGET Onyx2D)
+    add_darling_executable(qvolution_pdf_token_roundtrip
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/onyx-pdf-token-roundtrip.m)
+    target_include_directories(qvolution_pdf_token_roundtrip PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include)
+    target_compile_options(qvolution_pdf_token_roundtrip PRIVATE
+        -Werror=implicit-function-declaration -Werror=incompatible-pointer-types
+        -Werror=objc-method-access -Werror=int-conversion)
+    target_link_libraries(qvolution_pdf_token_roundtrip Foundation Onyx2D)
+    add_darling_executable(qvolution_pdf_dictionary_remove
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/onyx-pdf-dictionary-remove.m)
+    target_include_directories(qvolution_pdf_dictionary_remove PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include)
+    target_compile_options(qvolution_pdf_dictionary_remove PRIVATE
+        -Werror=implicit-function-declaration -Werror=incompatible-pointer-types
+        -Werror=objc-method-access -Werror=int-conversion)
+    target_link_libraries(qvolution_pdf_dictionary_remove Foundation Onyx2D)
+endif()
+
+if (TARGET PDFKit AND TARGET Onyx2D AND TARGET CoreGraphics)
+    foreach(fixture IN ITEMS roundtrip boundaries properties decimal invalid review optional-nulls)
+        string(REPLACE "-" "_" fixture_suffix "${fixture}")
+        add_darling_executable(qvolution_pdf_annotation_${fixture_suffix}
+            pdfkit/annotation-${fixture}.m)
+        target_include_directories(qvolution_pdf_annotation_${fixture_suffix} PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/frameworks/PDFKit/include
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include)
+        target_compile_options(qvolution_pdf_annotation_${fixture_suffix} PRIVATE
+            -Werror=implicit-function-declaration -Werror=incompatible-pointer-types
+            -Werror=objc-method-access -Werror=int-conversion)
+        target_link_libraries(qvolution_pdf_annotation_${fixture_suffix}
+            PDFKit Foundation CoreGraphics Onyx2D)
+    endforeach()
+endif()

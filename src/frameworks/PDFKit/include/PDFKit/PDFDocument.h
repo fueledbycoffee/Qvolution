@@ -1,3 +1,4 @@
+#pragma once
 /*
  This file is part of Darling.
 
@@ -27,6 +28,19 @@ PDFKIT_EXPORT PDFDocumentAttribute const PDFDocumentCreationDateAttribute;
 PDFKIT_EXPORT PDFDocumentAttribute const PDFDocumentKeywordsAttribute;
 PDFKIT_EXPORT PDFDocumentAttribute const PDFDocumentTitleAttribute;
 
-@interface PDFDocument : NSObject
-
+@class PDFPage;
+@interface PDFDocument : NSObject {
+@package
+    id _qvBackingDocument;
+    NSArray *_qvPages;
+    NSData *_qvData;
+    NSInteger _qvStartXref;
+}
+- (instancetype)initWithData:(NSData *)data;
+- (instancetype)initWithURL:(NSURL *)url;
+@property(readonly) NSUInteger pageCount;
+- (PDFPage *)pageAtIndex:(NSUInteger)index;
+- (NSData *)dataRepresentation;
+- (BOOL)writeToFile:(NSString *)path;
+- (BOOL)writeToURL:(NSURL *)url;
 @end

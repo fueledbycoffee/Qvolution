@@ -17,8 +17,28 @@
  along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Foundation/Foundation.h>
+#ifndef QV_PDF_ANNOTATION_MODEL
+#define QV_PDF_ANNOTATION_MODEL 1
+#import <Foundation/Foundation.h>
+#import <PDFKit/PDFKitExport.h>
 
-@interface PDFAnnotation : NSObject
+@class PDFPage;
+typedef NSString *PDFAnnotationKey;
+typedef NSString *PDFAnnotationSubtype;
+PDFKIT_EXPORT PDFAnnotationKey const PDFAnnotationKeyDefaultAppearance;
 
+@interface PDFAnnotation : NSObject {
+@package
+    id _qvDictionary;
+    id _qvReference;
+    id _qvBackingDocument;
+    PDFPage *_qvPage;
+}
+- (instancetype)initWithBounds:(NSRect)bounds forType:(PDFAnnotationSubtype)type withProperties:(NSDictionary *)properties;
+- (id)valueForAnnotationKey:(PDFAnnotationKey)key;
+- (BOOL)setValue:(id)value forAnnotationKey:(PDFAnnotationKey)key;
+@property NSRect bounds;
+@property(copy) NSString *type;
+@property(assign) PDFPage *page;
 @end
+#endif

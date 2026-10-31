@@ -188,4 +188,7 @@ add_framework(PDFKit
         objc
         Foundation
         AppKit
+        CoreGraphics
+        Onyx2D
+        commonCrypto
 )

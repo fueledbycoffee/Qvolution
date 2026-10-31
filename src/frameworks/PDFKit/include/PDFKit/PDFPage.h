@@ -17,8 +17,20 @@
  along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Foundation/Foundation.h>
-
-@interface PDFPage : NSObject
-
+#ifndef QV_PDF_PAGE_MODEL
+#define QV_PDF_PAGE_MODEL 1
+#import <Foundation/Foundation.h>
+@class PDFAnnotation;
+@interface PDFPage : NSObject {
+@package
+    id _qvDictionary;
+    id _qvBackingDocument;
+    NSMutableArray *_qvAnnotations;
+    NSInteger _qvObjectNumber;
+    NSInteger _qvGeneration;
+}
+@property(readonly, copy) NSArray *annotations;
+- (void)addAnnotation:(PDFAnnotation *)annotation;
+- (void)removeAnnotation:(PDFAnnotation *)annotation;
 @end
+#endif
