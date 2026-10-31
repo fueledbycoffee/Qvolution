@@ -31,7 +31,7 @@ endif ()
 add_darling_executable(qvolution_pty_contract pty-contract.c)
 
 if (TARGET AppKit)
-    foreach(fixture IN ITEMS screen-colorspace graphics-context-nil-state
+    foreach(fixture IN ITEMS screen-colorspace colorspace-icc-profile graphics-context-nil-state
             effective-appearance-inheritance appearance-observer-lifetime
             appearance-reentrancy appearance-direct-lifetime drawing-appearance
             color-dynamic-provider client-capture-window)
