@@ -13,12 +13,15 @@ git clone --branch qvolution/parallel-desktop https://github.com/fueledbycoffee/
 cd Qvolution
 git remote rename origin qvolution
 git remote add origin https://github.com/VibeDarling/darling.git
+git branch --unset-upstream
 ```
 
-The cloned branch keeps tracking the renamed `qvolution` remote. Fetch/pull this
-project from `qvolution`; the upstream `origin` supplies relative dependency URL
-resolution. Do not initialize these relative submodules against a personal fork
-that does not contain their sibling repositories.
+Keep this working branch untracked and update it explicitly with
+`git pull qvolution qvolution/parallel-desktop`. Git resolves relative submodule
+URLs against the current branch tracking remote; with no tracking remote it uses
+`origin`. Merely adding a canonical origin while still tracking the personal
+fork would resolve dependency URLs against the wrong owner. See the
+[Git submodule documentation](https://git-scm.com/docs/git-submodule).
 
 Review and run `bash qvolution/bootstrap-ubuntu.sh`. It uses Ubuntu packages and sudo, and lets apt ask for confirmation. Then:
 
