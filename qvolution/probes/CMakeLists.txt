@@ -15,7 +15,7 @@ if (TARGET Metal)
         ${CMAKE_SOURCE_DIR}/src/external/metal/tests/metal-stage-input.m)
     target_compile_options(qvolution_metal_stage_input PRIVATE -UNDEBUG)
     target_link_libraries(qvolution_metal_stage_input Foundation Metal)
-    if (TARGET Metal_private)
+    if (BUILD_METAL AND TARGET Metal_private)
         add_darling_executable(qvolution_metal_stage_conversion
             ${CMAKE_SOURCE_DIR}/src/external/metal/tests/metal-stage-input-conversion.mm)
         target_compile_options(qvolution_metal_stage_conversion PRIVATE -UNDEBUG)
