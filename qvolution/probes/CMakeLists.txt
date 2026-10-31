@@ -35,6 +35,17 @@ if (TARGET CoreMedia)
     target_link_libraries(qvolution_coremedia_sample_attachment_keys CoreFoundation CoreMedia)
 endif()
 
+if (TARGET LaunchServices)
+    add_darling_executable(qvolution_url_handler_preferences url-handler-preferences.m)
+    target_include_directories(qvolution_url_handler_preferences PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/frameworks/CoreServices/include)
+    target_link_libraries(qvolution_url_handler_preferences Foundation LaunchServices)
+    add_darling_executable(qvolution_url_handler_locking url-handler-locking.m)
+    target_include_directories(qvolution_url_handler_locking PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/frameworks/CoreServices/include)
+    target_link_libraries(qvolution_url_handler_locking Foundation LaunchServices sqlite3)
+endif()
+
 if (TARGET AuthenticationServices)
     add_darling_executable(qvolution_authorization_domain authorization-domain.m)
     target_link_libraries(qvolution_authorization_domain Foundation)
