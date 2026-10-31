@@ -338,11 +338,6 @@ CFStringRef LSCopyDefaultRoleHandlerForContentType(CFStringRef inContentType, LS
 	return NULL;
 }
 
-CFStringRef LSCopyDefaultHandlerForURLScheme(CFStringRef inURLScheme)
-{
-	puts("LSCopyDefaultHandlerForURLScheme STUB");
-	return NULL; // (could also return "" I guess)
-}
 
 OSStatus LSCopyApplicationForMIMEType(CFStringRef inMIMEType, LSRolesMask inRoleMask, CFURLRef *outAppURL)
 {

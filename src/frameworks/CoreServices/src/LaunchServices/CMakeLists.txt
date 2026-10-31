@@ -27,6 +27,7 @@ add_framework(LaunchServices
 		LSHostOpenURL.c
 		LSHostOpenBus.c
 		LSInfo.m
+		LSURLHandlers.c
 		LSOpen.m
 		UTType.m
 
@@ -38,6 +39,7 @@ add_framework(LaunchServices
 		system
 		CarbonCore
 		FMDB
+		sqlite3
 )
 
 add_subdirectory(launchservicesd)
