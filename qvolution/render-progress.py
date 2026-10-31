@@ -48,7 +48,9 @@ data = dict(apps=items, updated=progress['updated_utc'], stage=progress['stage']
             userFeatures=progress['verified_user_features'], openUI=progress['open_ui'],
             cliCycles=progress['cli_cycles'], transportChecks=progress['transport_checks'],
             pngVectors=progress['png_pixel_vectors'], windowPixels=progress['window_pixel_artifacts'],
-            sourceURL=progress['public_component_url'].split('/tree/')[0] + '/tree/' + progress['public_component_commit'])
+            sourceURL=progress['public_component_url'].split('/tree/')[0] + '/tree/' + progress['public_component_commit'],
+            suiteStage=progress['framework_suite_stage'], latestChecks=progress['latest_checks'],
+            independentScope=progress['independent_scope'], sourceLabel=progress['source_label'])
 template = (HERE / 'progress-template.html').read_text()
 assert template.count('__QV_DATA__') == 1
 payload = json.dumps(data, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')

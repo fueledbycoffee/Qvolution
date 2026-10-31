@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T10:59:40.555035+00:00",
-  "stage": "Stage 24",
-  "built_source": "8724f8921b867de334418a468b563cbc396273e0",
+  "updated_utc": "2026-10-31T11:39:23.363710+00:00",
+  "stage": "Stage 26",
+  "built_source": "b7186dfdf89a0ccd81a8c39d7d7475c9fd33ec3e",
   "qualified_app_ids": [],
   "framework_checks": {
     "Focused fixes": 25,
@@ -13,7 +13,7 @@
   },
   "cli_cycles": 3,
   "transport_checks": 2,
-  "window_pixel_artifacts": 9,
+  "window_pixel_artifacts": 4,
   "png_pixel_vectors": 13,
   "public_component_url": "https://github.com/fueledbycoffee/Qvolution-cocotron/tree/qvolution/parallel-desktop",
   "public_component_commit": "b1bd0858fdfa249791661d79e760932265bf5618",
@@ -26,37 +26,37 @@
     "Compact, scrollable font picker"
   ],
   "open_ui": [
-    "Persistent formatting-button states and icons",
-    "Temporary ruler/tab-marker change on Bold",
-    "Font raster quality and broader macOS UI fidelity"
+    "Desktop acceptance of new toolbar icons, persistent states and stable ruler",
+    "Font raster quality and broader macOS UI fidelity",
+    "Remaining editing, clipboard, undo and extended stability workflows"
   ],
   "workstreams": [
     {
-      "title": "Formatting toolbar",
-      "owner": "Inspector agent",
-      "phase": "Implementation",
-      "now": "Persistent B/I/U and alignment states, clearer glyphs, stable ruler context.",
-      "next": "Source review, runtime captures, then your desktop check."
+      "title": "GPU and HDR pipeline",
+      "owner": "HDR agent",
+      "phase": "Float-storage implementation",
+      "now": "HLG metadata and cleanup guards pass; real floating-point surfaces still fail before the storage fix.",
+      "next": "Validate float storage, then managed conversion, rendering and display integration."
     },
     {
-      "title": "Image ownership and archives",
-      "owner": "Image agent",
-      "phase": "Implementation and fault tests",
-      "now": "Independent bitmap copies and lossless image save/restore with safe lifetimes.",
-      "next": "Copy/metadata regressions, archive round trips and malformed-input checks."
+      "title": "Image save and restore",
+      "owner": "Image agent + independent reviewer",
+      "phase": "Codec implementation and review",
+      "now": "Bitmap copy tests pass; implementing object-preserving archives and decoder validation.",
+      "next": "Finish decoder validation, then run round trips, malformed-input and cleanup controls."
     },
     {
-      "title": "Discord / VS Code HDR blocker",
-      "owner": "Fresh HDR agent",
-      "phase": "Implementation",
-      "now": "Typed HLG color-space API, genuine metadata, standard transfer math and safe rendering boundaries.",
-      "next": "Import and metadata tests; complete conversion/display support remains open."
+      "title": "Audio and voices",
+      "owner": "Voice agent + coordinator",
+      "phase": "API and backend design",
+      "now": "Discord and VS Code now reach a missing CoreAudio listener API; Firefox needs a genuine voice catalog.",
+      "next": "Real notification, queue and ownership tests; provider-backed voice discovery."
     }
   ],
   "app_checkpoints": {
-    "textedit": "Stage 24 \u00b7 source fixture",
-    "discord": "Stage 24",
-    "vscode": "Stage 24",
+    "textedit": "Stage 26 · source fixture",
+    "discord": "Stage 26",
+    "vscode": "Stage 26",
     "firefox": "Stage 22",
     "keka": "Stage 22",
     "keepassxc": "Stage 22",
@@ -65,14 +65,18 @@
     "transmission": "Stage 4"
   },
   "blockers": {
-    "textedit": "Toolbar states/icons and the temporary ruler change; remaining workflow, UI, GPU and stability gates.",
-    "discord": "Missing HLG color-space API prevents loading.",
-    "vscode": "Missing HLG color-space API prevents loading.",
+    "textedit": "New toolbar checks pass automatically; desktop acceptance, full editing workflow, macOS UI polish, GPU and stability remain.",
+    "discord": "HLG import cleared; missing CoreAudio property-listener block API prevents loading.",
+    "vscode": "HLG import cleared; missing CoreAudio property-listener block API prevents loading.",
     "firefox": "Missing AVSpeechSynthesisVoice API.",
     "coteditor": "Missing AppIntents framework.",
     "keepassxc": "Startup failure; cause not established.",
     "keka": "Settings view partially renders; archive workflow, missing icons and duplicate controls remain.",
     "vlc": "Partial initialization; video playback and correct rendering not demonstrated.",
     "transmission": "Partial initialization; controlled transfer and correct rendering not demonstrated."
-  }
+  },
+  "framework_suite_stage": "Stage 25",
+  "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
+  "source_label": "Published framework source · Stage 24",
+  "latest_checks": "Stage 26: toolbar state, glyph contrast, ruler and synchronous focus transitions 4/4; typed HDR cleanup transaction passes. Stage 25: bitmap ownership 16/16 (one empty-startup timeout preserved; retry passes), HLG metadata, ABI and explicit render-boundary checks pass."
 }

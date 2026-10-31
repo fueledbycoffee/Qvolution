@@ -6,7 +6,7 @@
   <div class="viz-grid" aria-label="Project progress">
     <div class="card viz-stat"><span>Apps fully qualified</span><span class="viz-stat-value tabular-nums" id="qv-qualified">0 / 20</span><span class="text-small">All four quality gates required</span></div>
     <div class="card viz-stat"><span>Official inputs tried</span><span class="viz-stat-value tabular-nums" id="qv-attempted">8 / 20</span><span class="text-small">Source TextEdit counted separately</span></div>
-    <div class="card viz-stat"><span>Framework checks passed</span><span class="viz-stat-value tabular-nums" id="qv-checks">55 / 55</span><span class="text-small">Current runtime checkpoint</span></div>
+    <div class="card viz-stat"><span>Last full regression suite</span><span class="viz-stat-value tabular-nums" id="qv-checks">55 / 55</span><span class="text-small" id="qv-suite-stage"></span></div>
   </div>
   <div class="nav nav-pills" role="tablist" aria-label="Progress view">
     <button class="nav-link active" id="qv-apps-tab" type="button" role="tab" aria-controls="qv-apps-panel" aria-selected="true">20 apps</button>
@@ -35,7 +35,8 @@
   <div id="qv-proof-panel" role="tabpanel" aria-labelledby="qv-proof-tab" hidden>
     <div class="qv-stack">
       <div class="viz-row"><h3 id="qv-stage">Stage 24</h3><span class="text-small">Built source <code id="qv-build"></code></span></div>
-      <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Runtime check group</th><th class="text-end">Passed</th></tr></thead><tbody id="qv-check-groups"></tbody></table></div>
+      <div class="table-responsive"><table class="table table-sm"><caption id="qv-suite-caption"></caption><thead><tr><th>Runtime check group</th><th class="text-end">Passed</th></tr></thead><tbody id="qv-check-groups"></tbody></table></div>
+      <div class="qv-detail-line"><span class="qv-label">New checks</span><span id="qv-latest-checks"></span></div>
       <div class="qv-detail-line"><span class="qv-label">Independent checks</span><span id="qv-independent"></span></div>
       <div class="qv-detail-line"><span class="qv-label">You confirmed</span><span id="qv-user-proof"></span></div>
       <div class="qv-detail-line"><span class="qv-label">UI still open</span><span id="qv-ui-open"></span></div>
@@ -46,7 +47,7 @@
 </div>
 <style>
 #qvolution-progress { min-width: 0; }
-#qvolution-progress .qv-stack { display: grid; gap: 16px; }
+#qvolution-progress .qv-stack:not([hidden]) { display: grid; gap: 16px; }
 #qvolution-progress.qv-stack { display: grid; gap: 16px; }
 #qvolution-progress .qv-heading { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 12px; padding-inline-end: 90px; }
 #qvolution-progress .qv-heading h2 { margin-block: 0 6px; }
@@ -103,6 +104,9 @@
   find('qv-qualified').textContent = data.qualified + ' / ' + data.apps.length;
   find('qv-attempted').textContent = data.officialAttempted + ' / ' + data.apps.length;
   find('qv-checks').textContent = data.checkCount + ' / ' + data.checkCount;
+  find('qv-suite-stage').textContent = data.suiteStage + ' · latest focused checks below';
+  find('qv-suite-caption').textContent = data.suiteStage + ' full regression suite';
+  find('qv-latest-checks').textContent = data.latestChecks;
   find('qv-updated').textContent = data.stage + ' · ' + new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(data.updated));
   const grid = find('qv-app-grid');
   for (const app of data.apps) {
@@ -127,10 +131,11 @@
     const tr = document.createElement('tr'), name = document.createElement('td'), count = document.createElement('td');
     name.textContent = label; count.className = 'text-end tabular-nums'; count.textContent = value + ' / ' + value; tr.append(name, count); find('qv-check-groups').append(tr);
   }
-  find('qv-independent').textContent = data.cliCycles + ' CLI cycles; ' + data.transportChecks + ' transport checks; ' + data.pngVectors + ' PNG pixel vectors; ' + data.windowPixels + ' window pixel captures.';
+  find('qv-independent').textContent = data.cliCycles + ' CLI cycles; ' + data.transportChecks + ' transport checks; ' + data.pngVectors + ' PNG pixel vectors; ' + data.windowPixels + ' window pixel captures. ' + data.independentScope;
   find('qv-user-proof').textContent = data.userFeatures.join(' · ');
   find('qv-ui-open').textContent = data.openUI.join(' · ');
   find('qv-source-link').href = data.sourceURL;
+  find('qv-source-link').textContent = data.sourceLabel;
   const saved = window.openai?.widgetState;
   choose(saved?.modelContent?.selectedApp || saved?.selectedApp || selected);
   window.addEventListener('openai:set_globals', event => {
