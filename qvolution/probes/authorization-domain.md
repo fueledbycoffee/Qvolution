@@ -1,0 +1,5 @@
+# Authorization error-domain data
+
+Apple publicly declares [ASAuthorizationErrorDomain](https://developer.apple.com/documentation/authenticationservices/asauthorizationerrordomain?language=objc) as NSErrorDomain const (clean-room rung3). [Microsoft Enterprise SSO documentation](https://learn.microsoft.com/en-us/entra/identity-platform/apple-sso-plugin) records the observable domain `com.apple.AuthenticationServices.AuthorizationError`. That public vendor observation supplies the literal; no native Apple literal equality was independently measured. No binary inspection was used.
+
+The original fixture opens the actual framework, requires an existing class as a positive control, looks up the public data symbol, checks NSString/NSError behavior and retained ownership, and rejects a deliberately nonexistent symbol. The parent loads the framework/class but fails domain lookup (exit1, exact-prefix shutdown0). Candidate and unchanged Firefox retakes remain separate gates. This data export does not implement authentication, passkeys, credentials, login, or browser functionality.

@@ -26,6 +26,7 @@
 #import <AuthenticationServices/AKAuthorizationCredential+AuthenticationServicesExtras.h>
 #import <AuthenticationServices/AKAuthorizationNotificationHandler.h>
 #import <AuthenticationServices/ASAuthorization.h>
+#import <AuthenticationServices/ASAuthorizationError.h>
 #import <AuthenticationServices/ASAuthorizationAppleIDButton.h>
 #import <AuthenticationServices/ASAuthorizationAppleIDCredential.h>
 #import <AuthenticationServices/ASAuthorizationAppleIDProvider.h>

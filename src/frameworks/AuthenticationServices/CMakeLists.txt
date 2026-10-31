@@ -22,6 +22,7 @@ add_framework(AuthenticationServices
 	SOURCES
 		src/AKAuthorizationCredential+AuthenticationServicesExtras.m
 		src/ASAuthorization.m
+		src/ASAuthorizationError.m
 		src/ASAuthorizationAppleIDButton.m
 		src/ASAuthorizationAppleIDCredential.m
 		src/ASAuthorizationAppleIDProvider.m
