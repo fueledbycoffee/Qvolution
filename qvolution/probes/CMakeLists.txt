@@ -60,6 +60,7 @@ if (TARGET AppKit)
     endforeach()
     foreach(fixture IN ITEMS screen-colorspace screen-localized-name screen-name-metadata
             colorspace-icc-profile graphics-context-nil-state
+            catalog-alpha placeholder-text-color control-accent-color
             semantic-dark-colors semantic-control-surface textview-semantic-defaults
             effective-appearance-inheritance appearance-observer-lifetime
             appearance-reentrancy appearance-direct-lifetime drawing-appearance
