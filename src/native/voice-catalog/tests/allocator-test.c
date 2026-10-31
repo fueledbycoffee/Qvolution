@@ -1,5 +1,5 @@
 #include "catalog.h"
-#include <assert.h>
+#include "test-checks.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,13 +22,13 @@ int main(void)
     struct qv_voice_input voice={"original/key","Original",1,&language,1};
     for (fail_at=0;fail_at<2;fail_at++) {
         calls=live=0;written=99;memset(out,0xa5,sizeof(out));
-        assert(qv_catalog_encode(&voice,1,out,sizeof(out),&written)==QV_CATALOG_NO_MEMORY);
-        assert(written==0 && out[0]==0xa5 && live==0);
+        CHECK(qv_catalog_encode(&voice,1,out,sizeof(out),&written)==QV_CATALOG_NO_MEMORY);
+        CHECK(written==0 && out[0]==0xa5 && live==0);
     }
     fail_at=0;calls=live=0;written=99;
-    assert(qv_catalog_error(QV_CATALOG_PROVIDER_ERROR,out,sizeof(out),&written)==QV_CATALOG_NO_MEMORY);
-    assert(written==0&&live==0);
+    CHECK(qv_catalog_error(QV_CATALOG_PROVIDER_ERROR,out,sizeof(out),&written)==QV_CATALOG_NO_MEMORY);
+    CHECK(written==0&&live==0);
     fail_at=-1;calls=live=0;
-    assert(qv_catalog_encode(&voice,1,out,sizeof(out),&written)==QV_CATALOG_OK&&written&&live==0);
+    CHECK(qv_catalog_encode(&voice,1,out,sizeof(out),&written)==QV_CATALOG_OK&&written&&live==0);
     return 0;
 }

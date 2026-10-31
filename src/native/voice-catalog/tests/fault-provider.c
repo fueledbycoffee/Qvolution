@@ -1,5 +1,5 @@
 #include <espeak-ng/espeak_ng.h>
-#include <assert.h>
+#include "test-checks.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,18 +10,18 @@ static espeak_VOICE voice={.identifier="fixture/key",.name=name,.gender=2,.langu
 static espeak_VOICE duplicate={.identifier="fixture/key",.name="Distinct name",.gender=1,.languages=languages};
 static const espeak_VOICE *voices[]={&voice,NULL,NULL};
 
-void espeak_ng_InitializePath(const char *path) { assert(state==0&&!path);state=1; }
+void espeak_ng_InitializePath(const char *path) { CHECK(state==0&&!path);state=1; }
 espeak_ng_STATUS espeak_ng_Initialize(espeak_ng_ERROR_CONTEXT *context)
 {
-    assert(state==1&&context&&!*context);state=2;
+    CHECK(state==1&&context&&!*context);state=2;
     const char *mode=getenv("QV_TEST_PROVIDER_CASE");
     return mode&&!strcmp(mode,"init-error")?ENS_NOT_INITIALIZED:ENS_OK;
 }
 void espeak_ng_ClearErrorContext(espeak_ng_ERROR_CONTEXT *context)
-{ assert(state==2&&context);state=3;*context=NULL; }
+{ CHECK(state==2&&context);state=3;*context=NULL; }
 const espeak_VOICE **espeak_ListVoices(espeak_VOICE *spec)
 {
-    assert(state==3&&!spec);state=4;
+    CHECK(state==3&&!spec);state=4;
     const char *mode=getenv("QV_TEST_PROVIDER_CASE");
     if (mode&&!strcmp(mode,"list-error")) return NULL;
     if (mode&&!strcmp(mode,"empty")) voices[0]=NULL;
@@ -31,7 +31,7 @@ const espeak_VOICE **espeak_ListVoices(espeak_VOICE *spec)
 }
 espeak_ng_STATUS espeak_ng_Terminate(void)
 {
-    assert(state==4);state=5;memset(name,'X',sizeof(name)-1);memset(languages,0,sizeof(languages));
+    CHECK(state==4);state=5;memset(name,'X',sizeof(name)-1);memset(languages,0,sizeof(languages));
     const char *mode=getenv("QV_TEST_PROVIDER_CASE");
     return mode&&!strcmp(mode,"terminate-error")?ENS_NOT_INITIALIZED:ENS_OK;
 }
