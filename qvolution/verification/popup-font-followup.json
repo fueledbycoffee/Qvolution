@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "scope": "source-fixture verification summary; raw machine-specific logs retained locally",
+  "cocotron_commit": "d877f45623a723fc6baab36c7dbe5d8c7c9607bc",
+  "cocotron_source_tree": "dc91ee20fc5bb96605f9833526dd388a9bdbcfee",
+  "build": "passed; final ninja dry run reports no work",
+  "checks": [
+    {
+      "check": "freetype-unscaled-before",
+      "exit": 1,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "freetype-unscaled-after",
+      "exit": 0,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "popup-configured-viewport-before",
+      "exit": 134,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "popup-configured-viewport-after",
+      "exit": 0,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "popup-parent-output-after",
+      "exit": 0,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "popup-hit-throughput-after",
+      "exit": 0,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "popup-viewport-after-native",
+      "timeout": true,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "popup-viewport-fallback-after",
+      "exit": 0,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "inspector-after-native-popup",
+      "exit": 0,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "inspector-focus-after-metrics",
+      "exit": 0,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "font-fractional-origin-before",
+      "exit": 1,
+      "shutdown_exit": 0
+    }
+  ],
+  "targeted_candidate_passes": 7,
+  "host_checks": "All 15 steps complete: 14 initial passes and the socket-dependent nine-case selection test passes with required socket access.",
+  "cli_boot_shutdown_cycles": 3,
+  "measured_work": "1000 last-row hits require 8000 rectangle checks instead of 400000; 1000 live item-array enumerations remain.",
+  "font_metrics": "Advance values match reference for three scalable open fonts and one bitmap font; the live face size is preserved.",
+  "limits": {
+    "interactive_acceptance": "pending latest user check after previous popup overflow failure",
+    "font_quality": "unresolved; explicit fractional-positioning diagnostic fails despite passing integer controls; screenshot cause not established",
+    "parent_output_fixture": "uses real topology with injected membership; no actual output mismatch established",
+    "compositor": "configured resize callback passes; actual workarea constraints, native wheel and dismissal need user acceptance",
+    "timeout": "one invocation emitted no output and timed out; exact shutdown succeeded; cause unassigned",
+    "restricted_execution": "restricted CLI attempt failed; three repeated cycles pass with required execution permissions",
+    "gpu": "no application qualification; ordinary AppKit remains CPU rasterization",
+    "stability": "not qualified"
+  }
+}

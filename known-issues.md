@@ -67,3 +67,10 @@ FSEvents entry is fixed by VibeDarling/darling#1227 once it merges.
   (`sandbox_wakeup_daemon` returns -1), so the stubs report success together with
   an error message. VibeDarling/darling#1212 adds the NULL guards while
   deliberately keeping `return 0`.
+
+
+## Qvolution: explicitly enabled fractional font positioning loses phase
+
+The source-built `qvolution_font_fractional_origin` probe, using the explicit open DejaVu Sans file, enables subpixel positioning and disables quantization. At 1x, origins 10.25 and 10.5 render the same mask as 10.0; at 2x, origin 10.25 also loses its half-device-pixel shift. Integer-device-pixel controls pass, as does the independent FreeType phase reference. See Cocotron `tests/coregraphics-font-fractional-origin.md` and `qvolution/verification/popup-font-followup.json`.
+
+`O2Context_builtin_FT` composites cached glyph bitmaps at integer positions without phase in the cache key. Fixing this needs defined flag/quantization behavior, bounded phase caching and transform/bitmap regressions. Current default flags are off; this is a reproduced API defect, not a demonstrated explanation of the user's TextEdit screenshot. QV-026 tracks the work.
