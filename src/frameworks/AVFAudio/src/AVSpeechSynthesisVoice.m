@@ -3,6 +3,7 @@
 #include "catalog-client.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef QV_VOICE_HELPER_PATH
 #define QV_VOICE_HELPER_PATH "/usr/libexec/darling/qv-voice-catalog"
@@ -81,8 +82,15 @@
 {
     if(!languageCode)languageCode=[self currentLanguageCode];
     if(![languageCode isKindOfClass:[NSString class]])return nil;
-    char canonical[QV_CATALOG_MAX_STRING+1];
-    if(qv_canonical_language([languageCode UTF8String],canonical,sizeof(canonical))!=QV_LANGUAGE_MAPPED)return nil;
+    NSUInteger units=[languageCode length],used=0;
+    if(!units||units>QV_CATALOG_MAX_STRING)return nil;
+    char raw[QV_CATALOG_MAX_STRING+1],canonical[QV_CATALOG_MAX_STRING+1];
+    NSRange remaining=NSMakeRange(0,units);
+    if(![languageCode getBytes:raw maxLength:QV_CATALOG_MAX_STRING usedLength:&used
+        encoding:NSUTF8StringEncoding options:0 range:NSMakeRange(0,units) remainingRange:&remaining]||
+        remaining.length||!used||used>QV_CATALOG_MAX_STRING||memchr(raw,0,used))return nil;
+    raw[used]=0;
+    if(qv_canonical_language(raw,canonical,sizeof(canonical))!=QV_LANGUAGE_MAPPED)return nil;
     NSString *requested=[NSString stringWithUTF8String:canonical];
     NSString *base=[[requested componentsSeparatedByString:@"-"]objectAtIndex:0];
     AVSpeechSynthesisVoice *best=nil;BOOL best_exact=NO;unsigned int best_priority=0;
