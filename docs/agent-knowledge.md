@@ -148,3 +148,25 @@ actual native selection source; `coregraphics-postscript-roundtrip.m` checks exa
 family names against real provider identity and glyph advances. Keep both controls: exact-name
 success alone missed a family-route regression in the unchanged AppKit bridge. This is a measured
 Linux Fontconfig matching fact, not a native Mac fallback policy or an application crash diagnosis.
+
+## Host lock inheritance during manual app sessions
+
+On this host, a manual `flock LOCK darling shell APP` launch can leave the
+Darling server and launchd holding the lock descriptor after the application
+and foreground command exit. This was verified through the exact owned
+server's open descriptor links; a later `flock` command timed out before its
+cleanup script even started. The lock file itself was not evidence of a live
+foreground test.
+
+For a foreground manual session, use `flock -o LOCK COMMAND`: the flock parent
+keeps the lock while COMMAND runs, and closes the inherited descriptor before
+executing COMMAND, so persistent background servers cannot retain it. Confirm
+actual process/session state after exit and stop the exact prefix with
+`darling shutdown`. If an already orphaned server holds the lock, perform that
+exact-prefix cleanup outside the lock; do not wait for the same lock before
+trying to release its known owner. Never remove the lock file or kill by name.
+
+A separate `Timed out waiting for shellspawn in container` was observed before
+any TextEdit window in the same sequence. Keep that startup failure distinct
+from lock inheritance and menu-export behavior; a fresh supported-length prefix
+subsequently launched and exported a real Orbit menu.
