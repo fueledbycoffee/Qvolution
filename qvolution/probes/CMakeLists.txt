@@ -101,6 +101,11 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
+    add_darling_executable(qvolution_accessibility_custom_action
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-custom-action.m
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-custom-action-header.m)
+    target_link_libraries(qvolution_accessibility_custom_action Foundation)
+    add_dependencies(qvolution_accessibility_custom_action AppKit)
     add_darling_executable(qvolution_title_visibility
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-title-visibility.m)
     target_link_libraries(qvolution_title_visibility AppKit CoreGraphics)
