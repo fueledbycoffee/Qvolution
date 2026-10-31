@@ -30,6 +30,11 @@ endif ()
 
 add_darling_executable(qvolution_pty_contract pty-contract.c)
 
+if (TARGET CoreServices AND TARGET Foundation)
+    add_darling_executable(qvolution_user_activity_forwarding user-activity-forwarding.m)
+    target_link_libraries(qvolution_user_activity_forwarding CoreServices objc)
+endif()
+
 if (TARGET CoreMedia)
     add_darling_executable(qvolution_coremedia_sample_attachment_keys coremedia-sample-attachment-keys.c)
     target_link_libraries(qvolution_coremedia_sample_attachment_keys CoreFoundation CoreMedia)
