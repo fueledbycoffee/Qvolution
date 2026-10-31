@@ -190,3 +190,8 @@ if ((COMPONENT_cli_dev AND NOT COMPONENT_gui) OR COMPONENT_cli_dev_gui_stubs)
 	add_subdirectory(dev-stubs/OpenGL)
 	add_subdirectory(dev-stubs/QuartzCore)
 endif()
+
+# Both optional frameworks must exist before declaring the re-export.
+if (TARGET AVFoundation AND TARGET AVFAudio)
+	reexport(AVFoundation AVFAudio "${CMAKE_CURRENT_BINARY_DIR}/AVFAudio/AVFAudio")
+endif()
