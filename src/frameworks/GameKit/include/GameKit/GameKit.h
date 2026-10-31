@@ -145,6 +145,21 @@ typedef NS_ENUM(NSInteger, GKGameCenterViewControllerState) {
 @property (assign) GKGameCenterViewControllerState viewState;
 @end
 
+@interface GKAchievementViewController : GKGameCenterViewController {
+@package
+	id _achievementDelegate;
+}
+@property (assign) id achievementDelegate;
+@end
+
+@interface GKTurnBasedEventHandler : NSObject {
+@package
+	id _delegate;
+}
+@property (assign) id delegate;
++ (GKTurnBasedEventHandler *)sharedTurnBasedEventHandler;
+@end
+
 @interface GKTurnBasedMatchmakerViewController : NSViewController {
 @package
 	id _turnBasedMatchmakerDelegate;

@@ -210,6 +210,28 @@ static void completeErrorLater(void (^handler)(NSError *))
 
 @end
 
+@implementation GKAchievementViewController
+
+@synthesize achievementDelegate = _achievementDelegate;
+
+@end
+
+@implementation GKTurnBasedEventHandler
+
+@synthesize delegate = _delegate;
+
++ (GKTurnBasedEventHandler *)sharedTurnBasedEventHandler
+{
+	static GKTurnBasedEventHandler *handler = nil;
+	static dispatch_once_t once;
+	dispatch_once(&once, ^{
+		handler = [[GKTurnBasedEventHandler alloc] init];
+	});
+	return handler;
+}
+
+@end
+
 @implementation GKTurnBasedMatchmakerViewController
 
 @synthesize turnBasedMatchmakerDelegate = _turnBasedMatchmakerDelegate,
