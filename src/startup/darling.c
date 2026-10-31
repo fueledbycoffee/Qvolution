@@ -48,6 +48,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include "profile-prefix.h"
 #include "proc-dir.h"
 #include "trustd-account.h"
+#include "startup-ready.h"
 
 // Between Linux 4.9 and 4.11, a strange bug has been introduced
 // which prevents connecting to Unix sockets if the socket was
@@ -3167,7 +3168,6 @@ pid_t spawnInitProcess(void)
 {
 	pid_t pid;
 	int pipefd[2];
-	char buffer[1];
 
 	if (pipe(pipefd) == -1)
 	{
@@ -3293,7 +3293,11 @@ pid_t spawnInitProcess(void)
 
 	// Wait for the child to drop UID/GIDs and unshare stuff
 	close(pipefd[1]);
-	read(pipefd[0], buffer, 1);
+	if (!startupReadReady(pipefd[0])) {
+		fprintf(stderr, "Cannot receive darlingserver readiness: %s\n", strerror(errno));
+		close(pipefd[0]);
+		exit(1);
+	}
 	close(pipefd[0]);
 
 	/*
