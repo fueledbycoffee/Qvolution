@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T14:56:52.319917+00:00",
-  "stage": "Stage 36",
-  "built_source": "860c155db3be5fbf7e80604d420e44fffb9ca205",
+  "updated_utc": "2026-10-31T16:10:00+00:00",
+  "stage": "Stage 38",
+  "built_source": "6f3a004369d9a0ceb22cb8a5cd5d16ffd95b3044",
   "qualified_app_ids": [],
   "framework_checks": {
     "Legacy regression suite": {
-      "passed": 54,
-      "total": 55
+      "passed": 56,
+      "total": 58
     }
   },
   "cli_cycles": 3,
@@ -34,7 +34,7 @@
       "title": "Graphics and Metal",
       "owner": "Runtime team",
       "phase": "Installed fixture evidence",
-      "now": "Stage 34 four normal installed Metal fixtures pass, including backend copy and fill. No physical GPU, display or app qualification is established.",
+      "now": "Stage 34 installed backend copy and fill pass. Stage 38 real backend timestamp sampling and capability-negative checks both pass; display and app GPU qualification remain open.",
       "next": "Verify actual device, presentation and app workflows."
     },
     {
@@ -47,9 +47,9 @@
     {
       "title": "PDF documents",
       "owner": "Sol high + independent xhigh review",
-      "phase": "Model and independent-reader checks pass; installation pending",
-      "now": "Stage 35 installed scanner modes pass. Seven corrected model fixtures pass, and the strict independent reader verifies annotation values and preserved content/resources after the trailer fix.",
-      "next": "Model and dictionary-removal source are integrated; build and verify normal installed PDFKit, then retry Skim."
+      "phase": "Icon model and independent reader pass; installed PDFKit pending",
+      "now": "Stage 37 normal installed PDFKit seven model modes and strict independent reader pass. Stage 38 installed empty-name parser passes; the owned icon model and strict independent reader pass for escaped Text and empty Stamp names. Icon source is integrated after the Stage 38 build.",
+      "next": "Build and test normal installed PDFKit with the integrated icon source, then retry the original Skim workflow."
     },
     {
       "title": "Graphics clipping",
@@ -61,29 +61,43 @@
     {
       "title": "Audio playback",
       "owner": "Sol high implementation from clean specification",
-      "phase": "Implementation underway",
-      "now": "Spotify clears atomic imports and stops at the audio-renderer key. CoreMedia PCM buffers, timing and renderer behavior require real implementation.",
-      "next": "Implement typed buffers, renderer queue and synchronizer with the existing audio backend; test actual output and app behavior."
+      "phase": "Unresolved renderer failures",
+      "now": "The unchanged PCM v2 control exited 139 originally and 132 on Stage 38 retry; a diagnostic variant exited 0. These outcomes do not qualify the original renderer or real playback.",
+      "next": "Investigate both original failures and verify renderer queue, synchronization and actual output before an app retake."
     },
     {
       "title": "Startup reliability",
       "owner": "Sol high + independent xhigh review",
-      "phase": "Reviewed source integrated; runtime cycles pending",
-      "now": "Server readiness now follows RPC binding, and launcher validates its readiness handshake. Deterministic native before/after and cancellation controls pass.",
-      "next": "Build paired server/launcher changes and measure cold startup/shutdown cycles."
+      "phase": "Integrated; startup reliability investigation open",
+      "now": "Reviewed server readiness and launcher handshake changes are integrated. Stage 37 full suite initially passed 56 of 58 modes; two empty startup timeouts passed unchanged retries.",
+      "next": "Investigate the initial startup timeouts and measure repeated cold startup and shutdown cycles."
     },
     {
       "title": "Metal counter support",
       "owner": "Sol high + independent review",
-      "phase": "Identifiers integrated; real timestamps in development",
-      "now": "All 18 identifier model behavior checks pass. Real Vulkan timestamp queries are being implemented separately; no counter capability is claimed from identifier exports.",
-      "next": "Verify normal installed identifier exports and retry Discord, VS Code and Obsidian; review and test real timestamp sampling."
+      "phase": "Installed real timestamp controls pass",
+      "now": "Stage 38 installed real backend timestamp sampling and capability-negative controls both pass. These controls do not establish display or app GPU qualification.",
+      "next": "Verify presentation and application workflows, GPU acceleration and stability."
+    },
+    {
+      "title": "Voice synthesis",
+      "owner": "Runtime team",
+      "phase": "Reexport fix in progress",
+      "now": "Stage 38 voice callers exited 20 with the class missing. The actual AVFoundation library lacks the AVFAudio dependency although the class exists in AVFAudio; a reviewed reexport fix is in progress.",
+      "next": "Build and test the reexport and voice metadata, defaults, NUL handling and real helper before retrying Firefox."
+    },
+    {
+      "title": "Swift and CryptoKit",
+      "owner": "Runtime team",
+      "phase": "Source modules built; runtime qualification pending",
+      "now": "A normal Darwin Swift core and _Concurrency source-module build exited 0. This does not establish a concurrency executable, CryptoKit framework, or WhatsApp qualification.",
+      "next": "Build and test genuine Darwin concurrency and CryptoKit artifacts and retry WhatsApp."
     }
   ],
   "app_checkpoints": {
     "textedit": "Stage 26 · source fixture",
-    "discord": "Stage 34",
-    "vscode": "Stage 34",
+    "discord": "Stage 37",
+    "vscode": "Stage 37",
     "firefox": "Stage 22",
     "keka": "Stage 22",
     "keepassxc": "Stage 30",
@@ -92,19 +106,19 @@
     "transmission": "Stage 4",
     "iina": "Stage 30",
     "cyberduck": "Stage 30",
-    "obsidian": "Stage 34",
+    "obsidian": "Stage 37",
     "spotify": "Stage 34",
     "whatsapp": "Stage 36",
     "hex-fiend": "Stage 33",
-    "skim": "Stage 33",
+    "skim": "Stage 37",
     "keycastr": "Stage 33",
     "blender": "Stage 33"
   },
   "blockers": {
     "textedit": "New toolbar checks pass automatically; desktop acceptance, full editing workflow, macOS UI polish, GPU and stability remain.",
-    "discord": "Missing MTLCommonCounterSetTimestamp import; workflow, UI, GPU and stability remain unqualified.",
-    "vscode": "Missing MTLCommonCounterSetTimestamp import; workflow, UI, GPU and stability remain unqualified.",
-    "firefox": "Missing AVSpeechSynthesisVoice API.",
+    "discord": "Original app launch reports missing CVPixelBufferCreateWithIOSurface; workflow, UI, GPU and stability remain unqualified.",
+    "vscode": "Original app launch reports missing CVPixelBufferCreateWithIOSurface; workflow, UI, GPU and stability remain unqualified.",
+    "firefox": "Missing AVSpeechSynthesisVoice API; Stage 38 voice callers report missing class and the AVFoundation to AVFAudio reexport fix is in progress.",
     "coteditor": "Missing AppIntents framework.",
     "keepassxc": "Startup failure; cause not established.",
     "keka": "Settings view partially renders; archive workflow, missing icons and duplicate controls remain.",
@@ -112,16 +126,16 @@
     "transmission": "Partial initialization; controlled transfer and correct rendering not demonstrated.",
     "iina": "Missing PIP.framework dependency; playback, UI, GPU and stability remain untested.",
     "cyberduck": "Startup exit 134; cause unknown. Transfer workflow and desktop rendering remain unverified.",
-    "obsidian": "Missing MTLCommonCounterSetTimestamp import; workflow, UI, GPU and stability remain unqualified.",
-    "spotify": "Missing AVSampleBufferAudioRendererFlushTimeKey import; workflow, UI, GPU and stability remain unqualified.",
-    "whatsapp": "Catalyst MobileCoreServices clears; now missing x86_64 CryptoKit. Existing source-built CryptoKit artifact/build path is arm64-only; a genuine source build is required.",
+    "obsidian": "Original app launch reports missing CVPixelBufferCreateWithIOSurface; workflow, UI, GPU and stability remain unqualified.",
+    "spotify": "Missing AVSampleBufferAudioRendererFlushTimeKey at the last app attempt; original PCM v2 controls exited 139 and 132 on retry, while a diagnostic variant exited 0. Playback and app qualification remain open.",
+    "whatsapp": "Catalyst MobileCoreServices clears; x86_64 CryptoKit remains missing. Swift core and _Concurrency source modules built successfully, but no concurrency executable or CryptoKit runtime qualification is established.",
     "hex-fiend": "Bounded launch timed out without captured UI; cause and application entry not established. Exact published file-open route is prepared for testing.",
-    "skim": "Missing PDFAnnotationKeyDefaultAppearance. Seven corrected model fixtures and strict independent PDF reader pass; normal installed PDFKit and original-app retake remain pending.",
+    "skim": "Stage 37 original app launch reports missing PDFAnnotationKeyIconName. Icon source and owned-model plus strict-reader controls pass; normal installed PDFKit and original-app retake remain pending.",
     "keycastr": "Startup exits 139; cause unknown. Input overlay and host event capture are unverified.",
     "blender": "Startup exits 139; cause unknown. Viewport, render, device acceleration and stability are unverified."
   },
-  "framework_suite_stage": "Stage 32",
+  "framework_suite_stage": "Stage 37 · initial run",
   "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
   "source_label": "Published framework source · Stage 24",
-  "latest_checks": "Stage 36: all 38 public clipping and 29 affected float/HLG modes have passing results; each group retains one initial empty startup timeout and passing retry. Four maintained Scrubber image/coding/lifetime modes pass; replacement source is not yet integrated. Catalyst direct binding and registered PNG lookup pass, with independent database confirmation. Stage 35 PDF model and strict independent reader pass; installed PDFKit is pending. Stage 34 installed atomic ABI and real Metal backend copy/fill pass. Legacy full suite remains Stage32 54/55 until its reviewed replacement and fresh full run."
+  "latest_checks": "Stage 38 installed real Metal timestamp sampling and capability-negative controls both pass; installed empty PDF-name parsing passes. Owned PDF icon model and strict independent reader pass, with integrated icon source awaiting normal installed PDFKit verification. Stage 37 full suite initially passed 56/58; the two unchanged startup-timeout retries passed, so all 58 modes have a passing result but the initial run was not 58/58. Voice reexport repair and original audio failures remain open. A Swift core and _Concurrency source-module build exited 0; runtime qualification remains open."
 }
