@@ -24,7 +24,7 @@
         "load": "pass_source_fixture_normal_loading",
         "launch": "pass_source_fixture_user_confirmed",
         "workflow": "partial_ASCII_save_reopen",
-        "gnome": "partial_native_wayland_visual_checks",
+        "gnome": "partial_native_wayland_and_Orbit_topbar_menu_open",
         "stability": "not_tested_extended"
       },
       "workflow": [
@@ -32,7 +32,7 @@
         "Edit, undo, copy and paste",
         "Save, quit, reopen and compare contents"
       ],
-      "notes": "Darling-built open-source fixture, not a vendor-bundle pass. ASCII saving/reopening, single title bar and flicker correction are user-confirmed. Normal Objective-C startup no longer uses DYLD overrides; the user confirmed reopened text, typing and menus. Unicode editing, undo, clipboard, GNOME global menus and extended stability remain unverified. Swift ABI compatibility with the legacy x86 overlay is not fixed. Rich-text inspector is implemented with partial user-confirmed formatting. Font/size focus regressions pass and screenshot shows DejaVu Serif size 16 applied. Synthetic popup regressions pass, but real multi-output popup acceptance failed: overflow, slow scrolling, pixelated text and font-change lag remain. Orbit bridge is deployed with backups; logout/login and real focus verification remain pending. Follow-up native popup-resize and font-metric fixes pass targeted guest checks; latest real menu acceptance remains pending and pixelation is unresolved.",
+      "notes": "Darling-built open-source fixture, not a vendor-bundle pass. ASCII saving/reopening, single title bar and flicker correction are user-confirmed. Normal Objective-C startup no longer uses DYLD overrides; the user confirmed reopened text, typing and menus. Unicode editing, undo, clipboard and extended stability remain unverified. Swift ABI compatibility with the legacy x86 overlay is not fixed. Rich-text inspector is implemented with partial user-confirmed formatting. Font/size focus regressions pass and screenshot shows DejaVu Serif size 16 applied. Synthetic popup regressions pass, but real multi-output popup acceptance failed: overflow, slow scrolling, pixelated text and font-change lag remain. Orbit bridge is deployed with backups; the later activation and focused-menu result is recorded below. Follow-up native popup-resize and font-metric fixes pass targeted guest checks; latest real menu acceptance remains pending and pixelation is unresolved. On stage23 the user again reports Ubuntu bold failing and the family picker too long; both remain open. Orbit is now active: its real TextEdit process lookup returns a canonical dbusmenu endpoint with all seven top-level menus, and the user confirms focused top-bar menus appear and open. Action execution, disabled/check state, keyboard shortcuts and fallback/restart acceptance are not yet qualified.",
       "tested_variant": "Darling source fixture",
       "diagnostic_results": {
         "wayland_connected": true,
@@ -51,7 +51,7 @@
         "foundation_commit": "cbde81c88373c1417c9bfece7f45e68c56834518",
         "swift_abi": "legacy_x86_overlay_unsupported",
         "rich_text_inspector_bar": "implemented; formatting and font/size application observed; stage4 native popup/configure/metrics fixtures pass; actual menu acceptance and font quality pending",
-        "gnome_global_menu": "Orbit native-Wayland bridge installed; activation and real focus/topbar verification pending"
+        "gnome_global_menu": "Orbit activated; actual TextEdit export and user-confirmed focused top-bar menus appear and open; menu action/state/shortcut/restart acceptance remains open"
       },
       "quality_gates": {
         "workflow": "partial_source_fixture",

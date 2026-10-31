@@ -1,6 +1,6 @@
 # TextEdit
 
-Status: **source fixture starts normally; ASCII save/reopen verified; remaining acceptance checks pending**. Wave 1; priority 1.
+Status: **source fixture starts normally; ASCII save/reopen and opening Orbit top-bar menus verified; remaining acceptance checks pending**. Wave 1; priority 1.
 
 Source: https://support.apple.com/guide/textedit/welcome/mac
 
@@ -47,8 +47,10 @@ Foundation commit `cbde81c88373c1417c9bfece7f45e68c56834518` makes the incompati
 The user confirmed the saved text opens normally, typing and menus respond, and supplied a screenshot. Earlier ASCII saving/reopening and flicker corrections remain recorded separately. Normal Swift ABI compatibility is not fixed: applications that need the legacy Swift overlay still require a matching source-built overlay/runtime. Unicode JSON passing does not establish Unicode TextEdit editing, and undo, clipboard, global-menu integration and extended stability remain unverified.
 
 
-## Known interface gaps
+## Current interface acceptance
 
-The source fixture identifies itself as TextEdit 1.9 (2013 copyright), so its layout is not the current macOS TextEdit interface. The existing plain-text test document should not have rich-text controls. In rich-text mode, however, `DocumentWindowController` requests `setUsesInspectorBar:YES`; Cocotron's `NSTextView` implementation currently stores the flag without creating a bar. The formatting controls are missing functionality (QV-019), not solely a theme difference. `NSLayoutManager` also returns nil for the ruler accessory view.
+The source fixture identifies itself as TextEdit 1.9 (2013 copyright), so its layout is not the current macOS TextEdit interface. Rich-text controls are implemented and partially user tested; plain-text documents intentionally omit them. The latest stage23 user test still reports that Ubuntu bold fails and the font family picker is too long. Native open-Ubuntu observations identify named variable-instance and basic-trait gaps; source corrections and a compact scrollable picker are being developed, with candidate guest and visible acceptance still pending. Font raster quality and broader UI polish remain open.
 
-Native Wayland windows currently keep the application menu in the window. The existing `X11GlobalMenu` registration path is used by `X11Window`, with no corresponding registration in `WaylandWindow`. GNOME top-bar menu integration remains QV-008; an installed desktop menu extension alone does not complete Qvolution's missing backend connection. No global-menu success is claimed.
+Orbit 1.1.3 and the reviewed five-file Qvolution native-Wayland bridge are installed with an intact deployment receipt. The extension was disabled; the user explicitly approved enabling it, and GNOME now reports ACTIVE with the companion daemon available. Against the actual running source TextEdit, the daemon resolves the process to a canonical dbusmenu endpoint, which returns TextEdit, File, Edit, Format, View, Window and Help. The user confirms those menus appear and open in GNOME's top bar when TextEdit is focused.
+
+This verifies focused menu presentation/opening for this source fixture. Menu action execution, checked/disabled state, keyboard shortcuts, multiple applications, daemon/panel restart and exact PID association across all execution modes still need acceptance. The local menu remains as the existing fallback because this protocol has no presentation acknowledgement. This is not a complete QV-008 or official TextEdit/macOS UI qualification. See `qvolution/verification/stage23-orbit-acceptance.json`.

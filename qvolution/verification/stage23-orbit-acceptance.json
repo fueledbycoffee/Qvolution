@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-31",
+  "scope": "Actual source TextEdit Orbit focused-menu presentation, not full application qualification",
+  "built_runtime": {
+    "stage_label": "stage23",
+    "superproject": "5b2bcf48fddf663952abebe80647ab6228be42a5",
+    "components": {
+      "cocotron": "a10c8d69eec3d9d5c737982849a95afeb66fcda4",
+      "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+      "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+      "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+      "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+    }
+  },
+  "desktop": {
+    "orbit_version": "1.1.3",
+    "deployment_integrity": "already applied; installer dry-run verifies known payload and receipt",
+    "activation": "explicit user approval; extension ACTIVE; companion daemon owns service"
+  },
+  "protocol_checks": {
+    "actual_application": "running source TextEdit",
+    "process_lookup": "canonical dbusmenu endpoint returned for actual process",
+    "layout": "seven top-level menu labels returned through actual endpoint",
+    "labels": [
+      "TextEdit",
+      "File",
+      "Edit",
+      "Format",
+      "View",
+      "Window",
+      "Help"
+    ]
+  },
+  "user_acceptance": {
+    "focused_topbar_menus_appear": true,
+    "topbar_menu_opens": true
+  },
+  "remaining": [
+    "Menu action execution and document result",
+    "Checked/disabled state and shortcuts",
+    "Multiple applications and windows",
+    "Daemon/panel restart and fallback",
+    "Removing local fallback requires reliable presentation acknowledgement",
+    "Official Mac app workflow, UI fidelity, GPU and stability qualification"
+  ]
+}
