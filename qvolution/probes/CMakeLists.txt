@@ -29,6 +29,14 @@ if (TARGET Metal)
 endif ()
 
 add_darling_executable(qvolution_pty_contract pty-contract.c)
+if (TARGET CoreGraphics AND TARGET Foundation)
+    foreach(fixture IN ITEMS font-names font-name-vectors type1-font-names)
+        string(REPLACE "-" "_" target_suffix "${fixture}")
+        add_darling_executable(qvolution_cg_${target_suffix}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coregraphics-${fixture}.m)
+        target_link_libraries(qvolution_cg_${target_suffix} Foundation CoreGraphics)
+    endforeach()
+endif()
 add_darling_executable(qvolution_unix_output_capacity
     ${CMAKE_SOURCE_DIR}/src/external/xnu/darling/tests/qvolution/unix-output-capacity.c)
 add_darling_executable(qvolution_unix_root_alias
@@ -81,6 +89,11 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
+    if (TARGET CoreText)
+        add_darling_executable(qvolution_font_ctfont_bridge
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-font-ctfont-bridge.m)
+        target_link_libraries(qvolution_font_ctfont_bridge AppKit CoreText CoreGraphics)
+    endif()
     add_darling_executable(qvolution_accessibility_popover_role
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-popover-role.m
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-popover-role-header.m)
