@@ -19,275 +19,196 @@
 
 #import <IOSurface/IOSurface.h>
 #import <IOSurface/IOSurfaceObjC.h>
-#import <IOSurface/IOSurfacePriv.h>
+#import <IOSurface/IOSurfaceDarlingIPC.h>
 #import <Foundation/Foundation.h>
 #import <IOKit/IOCFSerialize.h>
-#include <stdatomic.h>
+#include <mach/mach_vm.h>
+#include <stdlib.h>
+#include <string.h>
 
 static io_service_t g_surfaceService;
+typedef struct { struct DarlingSurfaceReply backing; } ImplData;
 
-typedef struct
+static kern_return_t surfaceCall(uint32_t operation, uint32_t id, uint32_t options,
+    mach_port_t capability, CFDataRef properties, struct DarlingSurfaceReply *out)
 {
-	struct _IOSurfaceObjectRetval* surface;
-	_Atomic int32_t localUseCount;
-} ImplData;
-
+    if (out) memset(out, 0, sizeof(*out));
+    if (!g_surfaceService) return KERN_FAILURE;
+    union {
+        struct DarlingSurfaceRequest request;
+        struct DarlingSurfaceReply reply;
+        uint8_t storage[sizeof(struct DarlingSurfaceRequest) + MAX_TRAILER_SIZE];
+    } message;
+    memset(&message, 0, sizeof(message));
+    struct DarlingSurfaceRequest *r = &message.request;
+    mach_port_t receive = MACH_PORT_NULL;
+    kern_return_t result = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &receive);
+    if (result != KERN_SUCCESS) return result;
+    r->header.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_COPY_SEND, MACH_MSG_TYPE_MAKE_SEND_ONCE) | MACH_MSGH_BITS_COMPLEX;
+    r->header.msgh_remote_port = g_surfaceService;
+    r->header.msgh_local_port = receive;
+    r->header.msgh_size = sizeof(*r); r->header.msgh_id = DARLING_SURFACE_MSG_ID;
+    r->body.msgh_descriptor_count = 2;
+    r->task.name = mach_task_self(); r->task.disposition = MACH_MSG_TYPE_COPY_SEND; r->task.type = MACH_MSG_PORT_DESCRIPTOR;
+    r->capability.name = capability; r->capability.disposition = MACH_MSG_TYPE_COPY_SEND;
+    r->capability.type = MACH_MSG_PORT_DESCRIPTOR;
+    r->version = DARLING_SURFACE_LAYOUT_VERSION; r->operation = operation; r->surfaceID = id; r->options = options;
+    if (properties) {
+        CFIndex length = CFDataGetLength(properties);
+        if (length <= 0 || length > DARLING_SURFACE_PROPERTY_LIMIT) {
+            mach_port_destroy(mach_task_self(), receive); return KERN_INVALID_ARGUMENT;
+        }
+        r->propertyLength = (uint32_t)length;
+        memcpy(r->properties, CFDataGetBytePtr(properties), length);
+    }
+    result = mach_msg(&r->header, MACH_SEND_MSG | MACH_RCV_MSG | MACH_SEND_TIMEOUT | MACH_RCV_TIMEOUT,
+        sizeof(*r), sizeof(message), receive, 10000, MACH_PORT_NULL);
+    if (result == MACH_MSG_SUCCESS) {
+        const bool acquisition = operation == DarlingSurfaceCreate || operation == DarlingSurfaceLookupID || operation == DarlingSurfaceImport;
+        struct DarlingSurfaceReply *reply = &message.reply;
+        if (reply->header.msgh_size != sizeof(*reply) || reply->header.msgh_id != DARLING_SURFACE_MSG_ID + 100 ||
+            !(reply->header.msgh_bits & MACH_MSGH_BITS_COMPLEX) || reply->body.msgh_descriptor_count != 1 ||
+            reply->capability.type != MACH_MSG_PORT_DESCRIPTOR || reply->version != DARLING_SURFACE_LAYOUT_VERSION ||
+            (MACH_PORT_VALID(reply->capability.name) &&
+                ((operation != DarlingSurfaceExport && !acquisition) || reply->capability.disposition != MACH_MSG_TYPE_PORT_SEND)) ||
+            (reply->result == KERN_SUCCESS && (acquisition || operation == DarlingSurfaceExport) && !MACH_PORT_VALID(reply->capability.name)))
+            result = KERN_INVALID_ARGUMENT;
+        else result = reply->result;
+        if (result == KERN_SUCCESS && out) {
+            *out = *reply;
+            reply->capability.name = MACH_PORT_NULL; // transfer ownership to out
+        }
+        mach_msg_destroy(&message.reply.header);
+    }
+    else if ((result & ~MACH_MSG_MASK) == MACH_RCV_BODY_ERROR) {
+        /* XNU copies partially delivered bodies out on this receive error.
+         * Destroy rights that did arrive; send errors still contain our own
+         * outbound COPY_SEND descriptors and must not destroy those. */
+        mach_msg_destroy(&message.reply.header);
+    }
+    /* Also destroys late replies and the send-once reply right after a timeout. */
+    mach_port_destroy(mach_task_self(), receive);
+    return result;
+}
+static const struct DarlingSurfacePlane *plane(ImplData *data, NSUInteger index)
+{
+    if (!data || index >= (data->backing.layout.planeCount ? data->backing.layout.planeCount : 1)) return NULL;
+    return &data->backing.layout.planes[index];
+}
 @implementation IOSurface
-
 + (void)initialize
 {
-	if (self == [IOSurface self])
-	{
-		CFMutableDictionaryRef matching = IOServiceNameMatching("IOSurfaceRoot");
-
-		g_surfaceService = IOServiceGetMatchingService(kIOMasterPortDefault, matching);
-
-		CFRelease(matching);
-
-		if (!g_surfaceService)
-			NSLog(@"Cannot obtain IOSurfaceRoot!\n");
-	}
+    if (self == [IOSurface self]) {
+        /* IOServiceGetMatchingService consumes the matching dictionary. */
+        g_surfaceService = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("IOSurfaceRoot"));
+    }
 }
-
-- (nullable instancetype)initWithResponse:(const void*)bytes length:(size_t)length
+- (nullable instancetype)initWithResponse:(const struct DarlingSurfaceReply*)reply
 {
-	ImplData* idata = (ImplData*) malloc(sizeof(ImplData));
-	idata->surface = malloc(length);
-	memcpy(idata->surface, bytes, length);
-
-	idata->localUseCount = 0;
-	self->_impl = idata;
-
-	return self;
+    self = [super init];
+    if (!self) { mach_port_deallocate(mach_task_self(), reply->capability.name); return nil; }
+    if (!reply->surfaceID || !DarlingSurfaceLayoutValid(&reply->layout) || !reply->address ||
+        reply->address > UINTPTR_MAX || reply->mappedSize < reply->layout.allocationSize ||
+        reply->mappedSize > UINTPTR_MAX - reply->address) {
+        mach_port_deallocate(mach_task_self(), reply->capability.name);
+        [self release]; return nil;
+    }
+    ImplData *data = calloc(1, sizeof(*data));
+    if (!data) {
+        mach_port_deallocate(mach_task_self(), reply->capability.name);
+        [self release]; return nil;
+    }
+    data->backing = *reply; self->_impl = data;
+    return self;
 }
-
-- (nullable instancetype)initWithProperties:(NSDictionary <IOSurfacePropertyKey, id> *)properties
+- (nullable instancetype)initWithProperties:(NSDictionary<IOSurfacePropertyKey, id>*)properties
 {
-	CFDataRef data = IOCFSerialize((CFTypeRef) properties, kIOCFSerializeToBinary);
-	uint8_t responseBuffer[3500];
-
-	const void* bytes = CFDataGetBytePtr(data);
-	size_t length = CFDataGetLength(data);
-	size_t responseLength = sizeof(responseBuffer);
-
-	kern_return_t ret = IOConnectCallMethod(g_surfaceService, kIOSurfaceMethodCreate, NULL, 0, bytes, length, NULL, 0, responseBuffer, &responseLength);
-	CFRelease(data);
-
-	if (ret != kIOSurfaceSuccess)
-	{
-		[self release];
-		return nil;
-	}
-
-	return [self initWithResponse: responseBuffer length: responseLength];
+    if (!properties || CFGetTypeID((CFTypeRef)properties) != CFDictionaryGetTypeID()) { [self release]; return nil; }
+    CFDataRef serialized = IOCFSerialize((CFTypeRef)properties, kIOCFSerializeToBinary);
+    if (!serialized) { [self release]; return nil; }
+    struct DarlingSurfaceReply reply;
+    kern_return_t result = surfaceCall(DarlingSurfaceCreate, 0, 0, MACH_PORT_NULL, serialized, &reply);
+    CFRelease(serialized);
+    if (result != KERN_SUCCESS) { [self release]; return nil; }
+    return [self initWithResponse:&reply];
 }
-
 - (nullable instancetype)initWithSurfaceID:(IOSurfaceID)surfaceID
 {
-	uint8_t responseBuffer[3500];
-	size_t responseLength = sizeof(responseBuffer);
-
-	uint64_t scalar = surfaceID;
-	kern_return_t ret = IOConnectCallMethod(g_surfaceService, kIOSurfaceMethodLookupByID, &scalar, 1, NULL, 0, NULL, 0, responseBuffer, &responseLength);
-
-	if (ret != kIOSurfaceSuccess)
-	{
-		[self release];
-		return nil;
-	}
-
-	return [self initWithResponse: responseBuffer length: responseLength];
+    struct DarlingSurfaceReply reply;
+    if (surfaceCall(DarlingSurfaceLookupID, surfaceID, 0, MACH_PORT_NULL, NULL, &reply) != KERN_SUCCESS) {
+        [self release]; return nil;
+    }
+    return [self initWithResponse:&reply];
 }
-
-- (void) dealloc
+- (nullable instancetype)initWithMachPort:(mach_port_t)port
 {
-	ImplData* data = (ImplData*) _impl;
-	if (data != NULL)
-	{
-		if (data->surface != NULL)
-		{
-			IOConnectCallMethod(g_surfaceService, kIOSurfaceMethodRelease, NULL, 0, &data->surface->surfaceID, 1, NULL, 0, NULL, 0);
-
-			free(data->surface);
-		}
-
-		free(data);
-	}
-	[super dealloc];
+    struct DarlingSurfaceReply reply;
+    if (!MACH_PORT_VALID(port) || surfaceCall(DarlingSurfaceImport, 0, 0, port, NULL, &reply) != KERN_SUCCESS) {
+        [self release]; return nil;
+    }
+    return [self initWithResponse:&reply];
 }
-
-- (NSUInteger) hash
+- (void)dealloc
 {
-	ImplData* data = (ImplData*) _impl;
-	return data->surface->surfaceID;
+    ImplData *data = _impl;
+    if (data) { mach_port_deallocate(mach_task_self(), data->backing.capability.name); free(data); }
+    [super dealloc];
 }
-
-- (BOOL)isEqual:(id)object
-{
-	if (![object isKindOfClass: [self class]])
-		return NO;
-
-	IOSurface* that = (IOSurface*) object;
-	return ((ImplData*) self->_impl)->surface->surfaceID == ((ImplData*) that->_impl)->surface->surfaceID;
+- (CFTypeID)_cfTypeID { return IOSurfaceGetTypeID(); }
+- (NSUInteger)hash { return [self _darlingSurfaceID]; }
+- (BOOL)isEqual:(id)object {
+    return [object isKindOfClass:[IOSurface class]] && [self _darlingSurfaceID] == [(IOSurface*)object _darlingSurfaceID];
 }
-
-- (CFTypeID) _cfTypeID
-{
-    return IOSurfaceGetTypeID();
+- (IOSurfaceID)_darlingSurfaceID { return _impl ? ((ImplData*)_impl)->backing.surfaceID : 0; }
+- (mach_port_t)_darlingCreateMachPort {
+    struct DarlingSurfaceReply reply;
+    return surfaceCall(DarlingSurfaceExport, [self _darlingSurfaceID], 0, MACH_PORT_NULL, NULL, &reply) == KERN_SUCCESS ?
+        reply.capability.name : MACH_PORT_NULL;
 }
-
-- (NSInteger) width
-{
-	return [self widthOfPlaneAtIndex: 0];
+- (NSInteger)allocationSize { return _impl ? ((ImplData*)_impl)->backing.layout.allocationSize : 0; }
+- (NSInteger)width { return _impl ? ((ImplData*)_impl)->backing.layout.width : 0; }
+- (NSInteger)height { return _impl ? ((ImplData*)_impl)->backing.layout.height : 0; }
+- (OSType)pixelFormat { return _impl ? ((ImplData*)_impl)->backing.layout.pixelFormat : 0; }
+- (NSUInteger)planeCount { return _impl ? ((ImplData*)_impl)->backing.layout.planeCount : 0; }
+- (void*)baseAddress { return [self baseAddressOfPlaneAtIndex:0]; }
+- (NSInteger)bytesPerRow { return [self bytesPerRowOfPlaneAtIndex:0]; }
+- (NSInteger)bytesPerElement { return [self bytesPerElementOfPlaneAtIndex:0]; }
+- (NSInteger)elementWidth { return 1; }
+- (NSInteger)elementHeight { return 1; }
+- (NSInteger)widthOfPlaneAtIndex:(NSUInteger)i { const struct DarlingSurfacePlane *p = plane(_impl, i); return p ? p->width : 0; }
+- (NSInteger)heightOfPlaneAtIndex:(NSUInteger)i { const struct DarlingSurfacePlane *p = plane(_impl, i); return p ? p->height : 0; }
+- (NSInteger)bytesPerRowOfPlaneAtIndex:(NSUInteger)i { const struct DarlingSurfacePlane *p = plane(_impl, i); return p ? p->bytesPerRow : 0; }
+- (NSInteger)bytesPerElementOfPlaneAtIndex:(NSUInteger)i { const struct DarlingSurfacePlane *p = plane(_impl, i); return p ? p->bytesPerElement : 0; }
+- (NSInteger)elementWidthOfPlaneAtIndex:(NSUInteger)i { return plane(_impl, i) ? 1 : 0; }
+- (NSInteger)elementHeightOfPlaneAtIndex:(NSUInteger)i { return plane(_impl, i) ? 1 : 0; }
+- (void*)baseAddressOfPlaneAtIndex:(NSUInteger)i {
+    const struct DarlingSurfacePlane *p = plane(_impl, i);
+    return p ? (void*)(uintptr_t)(((ImplData*)_impl)->backing.address + p->offset) : NULL;
 }
-
-- (NSInteger) height
-{
-	return [self heightOfPlaneAtIndex: 0];
+- (uint32_t)seed {
+    struct DarlingSurfaceReply reply;
+    return surfaceCall(DarlingSurfaceState, [self _darlingSurfaceID], 0, MACH_PORT_NULL, NULL, &reply) == KERN_SUCCESS ? reply.seed : 0;
 }
-
-- (void *) baseAddress
-{
-	return [self baseAddressOfPlaneAtIndex: 0];
+- (BOOL)isInUse {
+    struct DarlingSurfaceReply reply;
+    return surfaceCall(DarlingSurfaceState, [self _darlingSurfaceID], 0, MACH_PORT_NULL, NULL, &reply) == KERN_SUCCESS && reply.inUse;
 }
-
-- (NSInteger) bytesPerRow
-{
-	return [self bytesPerRowOfPlaneAtIndex: 0];
+- (int32_t)localUseCount {
+    struct DarlingSurfaceReply reply;
+    return surfaceCall(DarlingSurfaceState, [self _darlingSurfaceID], 0, MACH_PORT_NULL, NULL, &reply) == KERN_SUCCESS ? reply.useCount : 0;
 }
-
-- (NSInteger) bytesPerElement
-{
-	return [self bytesPerElementOfPlaneAtIndex: 0];
+- (void)incrementUseCount { surfaceCall(DarlingSurfaceUseIncrement, [self _darlingSurfaceID], 0, MACH_PORT_NULL, NULL, NULL); }
+- (void)decrementUseCount { surfaceCall(DarlingSurfaceUseDecrement, [self _darlingSurfaceID], 0, MACH_PORT_NULL, NULL, NULL); }
+- (kern_return_t)lockWithOptions:(IOSurfaceLockOptions)options seed:(uint32_t*)seed {
+    struct DarlingSurfaceReply reply;
+    kern_return_t result = surfaceCall(DarlingSurfaceLock, [self _darlingSurfaceID], options, MACH_PORT_NULL, NULL, &reply);
+    if (result == KERN_SUCCESS && seed) *seed = reply.seed;
+    return result;
 }
-
-- (NSInteger) elementWidth
-{
-	return [self elementWidthOfPlaneAtIndex: 0];
+- (kern_return_t)unlockWithOptions:(IOSurfaceLockOptions)options seed:(uint32_t*)seed {
+    struct DarlingSurfaceReply reply;
+    kern_return_t result = surfaceCall(DarlingSurfaceUnlock, [self _darlingSurfaceID], options, MACH_PORT_NULL, NULL, &reply);
+    if (result == KERN_SUCCESS && seed) *seed = reply.seed;
+    return result;
 }
-
-- (NSInteger) elementHeight
-{
-	return [self elementHeightOfPlaneAtIndex: 0];
-}
-
-- (OSType) pixelFormat
-{
-	return ((ImplData*) _impl)->surface->pixelFormat;
-}
-
-- (NSUInteger) planeCount
-{
-	return ((ImplData*) _impl)->surface->planeCount;
-}
-
-- (NSInteger)widthOfPlaneAtIndex:(NSUInteger)planeIndex
-{
-	if (planeIndex >= [self planeCount])
-		return 0;
-
-	ImplData* data = (ImplData*) _impl;
-	return data->surface->planes[planeIndex].width;
-}
-
-- (NSInteger)heightOfPlaneAtIndex:(NSUInteger)planeIndex
-{
-	if (planeIndex >= [self planeCount])
-		return 0;
-
-	ImplData* data = (ImplData*) _impl;
-	return data->surface->planes[planeIndex].height;
-}
-
-- (NSInteger)bytesPerRowOfPlaneAtIndex:(NSUInteger)planeIndex
-{
-	if (planeIndex >= [self planeCount])
-		return 0;
-
-	ImplData* data = (ImplData*) _impl;
-	return data->surface->planes[planeIndex].bytesPerRow;
-}
-
-- (NSInteger)bytesPerElementOfPlaneAtIndex:(NSUInteger)planeIndex
-{
-	if (planeIndex >= [self planeCount])
-		return 0;
-
-	ImplData* data = (ImplData*) _impl;
-	return data->surface->planes[planeIndex].bytesPerElement;
-}
-
-- (NSInteger)elementWidthOfPlaneAtIndex:(NSUInteger)planeIndex
-{
-	return 1;
-}
-
-- (NSInteger)elementHeightOfPlaneAtIndex:(NSUInteger)planeIndex
-{
-	return 1;
-}
-
-- (void *)baseAddressOfPlaneAtIndex:(NSUInteger)planeIndex
-{
-	if (planeIndex >= [self planeCount])
-		return NULL;
-
-	ImplData* data = (ImplData*) _impl;
-	return (void*)(data->surface->address + data->surface->planes[planeIndex].memoryOffset);
-}
-
-- (void)incrementUseCount
-{
-	ImplData* data = (ImplData*) _impl;
-	if ((data->localUseCount++) == 0)
-	{
-		uint64_t scalar = data->surface->surfaceID;
-		IOConnectCallMethod(g_surfaceService, kIOSurfaceMethodIncrementUseCount, &scalar, 1, NULL, 0, NULL, 0, NULL, 0);
-	}
-}
-
-- (void)decrementUseCount
-{
-	ImplData* data = (ImplData*) _impl;
-	if (--data->localUseCount == 0)
-	{
-		uint64_t scalar = data->surface->surfaceID;
-		IOConnectCallMethod(g_surfaceService, kIOSurfaceMethodDecrementUseCount, &scalar, 1, NULL, 0, NULL, 0, NULL, 0);
-	}
-}
-
-- (int32_t) localUseCount
-{
-	ImplData* data = (ImplData*) _impl;
-	return data->localUseCount;
-}
-
-- (kern_return_t)lockWithOptions:(IOSurfaceLockOptions)options seed:(nullable uint32_t *)seed
-{
-	ImplData* data = (ImplData*) _impl;
-	struct _IOSurfaceLockUnlock args = {
-		.surfaceID = data->surface->surfaceID,
-		.options = options,
-	};
-	return IOConnectCallMethod(g_surfaceService, kIOSurfaceMethodLock, NULL, 0, &args, sizeof(args), NULL, 0, NULL, 0);
-}
-
-- (kern_return_t)unlockWithOptions:(IOSurfaceLockOptions)options seed:(nullable uint32_t *)seed
-{
-	ImplData* data = (ImplData*) _impl;
-	struct _IOSurfaceLockUnlock args = {
-		.surfaceID = data->surface->surfaceID,
-		.options = options,
-	};
-	return IOConnectCallMethod(g_surfaceService, kIOSurfaceMethodUnlock, NULL, 0, &args, sizeof(args), NULL, 0, NULL, 0);
-}
-
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-    return [NSMethodSignature signatureWithObjCTypes: "v@:"];
-}
-
-- (void)forwardInvocation:(NSInvocation *)anInvocation {
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
-}
-
 @end

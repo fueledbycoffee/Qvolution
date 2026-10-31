@@ -29,6 +29,7 @@ add_framework(CoreVideo
         system
         Foundation
         CoreGraphics
+        IOSurface
         cxx
 )
 

@@ -44,6 +44,9 @@ extern IOSurfacePropertyKey IOSurfacePropertyKeyPixelSizeCastingAllowed;
 - (nullable instancetype)initWithProperties:(NSDictionary <IOSurfacePropertyKey, id> *)properties;
 - (nullable instancetype)initWithMachPort:(mach_port_t)port;
 - (nullable instancetype)initWithSurfaceID:(IOSurfaceID)surfaceID;
+/* Darling broker accessors, not Apple private ABI. */
+- (IOSurfaceID)_darlingSurfaceID;
+- (mach_port_t)_darlingCreateMachPort;
 - (kern_return_t)lockWithOptions:(IOSurfaceLockOptions)options seed:(nullable uint32_t *)seed;
 - (kern_return_t)unlockWithOptions:(IOSurfaceLockOptions)options seed:(nullable uint32_t *)seed;
 

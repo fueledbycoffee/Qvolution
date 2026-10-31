@@ -198,13 +198,13 @@ size_t IOSurfaceGetBytesPerElement(IOSurfaceRef buffer)
 
 size_t IOSurfaceGetElementWidth(IOSurfaceRef buffer)
 {
-	return [(IOSurface*)buffer widthOfPlaneAtIndex: 0];
+	return [(IOSurface*)buffer elementWidth];
 }
 
 
 size_t IOSurfaceGetElementHeight(IOSurfaceRef buffer)
 {
-	return [(IOSurface*)buffer heightOfPlaneAtIndex: 0];
+	return [(IOSurface*)buffer elementHeight];
 }
 
 Boolean IOSurfaceIsInUse(IOSurfaceRef buffer)
@@ -215,4 +215,48 @@ Boolean IOSurfaceIsInUse(IOSurfaceRef buffer)
 kern_return_t IOSurfaceSetPurgeable(IOSurfaceRef buffer, uint32_t newState, uint32_t * _Nullable oldState)
 {
 	return [(IOSurface*)buffer setPurgeable:newState oldState:oldState];
+}
+
+/* CPU backing alignment is byte alignment. A future GPU backend must expose
+ * its own genuine allocation requirements instead of borrowing this promise. */
+static Boolean darlingSurfaceProperty(CFStringRef key, Boolean wide)
+{
+    if (!key || CFGetTypeID(key) != CFStringGetTypeID()) return false;
+    if (wide) return CFEqual(key, kIOSurfaceAllocSize) || CFEqual(key, kIOSurfaceOffset) ||
+        CFEqual(key, kIOSurfacePlaneOffset) || CFEqual(key, kIOSurfacePlaneSize);
+    const CFStringRef keys[] = {kIOSurfaceWidth, kIOSurfaceHeight, kIOSurfaceBytesPerRow,
+        kIOSurfaceBytesPerElement, kIOSurfacePlaneWidth, kIOSurfacePlaneHeight,
+        kIOSurfacePlaneBytesPerRow, kIOSurfacePlaneBytesPerElement, kIOSurfaceElementWidth,
+        kIOSurfaceElementHeight, kIOSurfacePlaneElementWidth, kIOSurfacePlaneElementHeight};
+    for (size_t i = 0; i < sizeof(keys)/sizeof(keys[0]); ++i) if (CFEqual(key, keys[i])) return true;
+    return false;
+}
+IOSurfaceRef IOSurfaceLookup(IOSurfaceID id)
+{
+    return (IOSurfaceRef)[[IOSurface alloc] initWithSurfaceID:id];
+}
+IOSurfaceID IOSurfaceGetID(IOSurfaceRef surface)
+{
+    return [(IOSurface*)surface _darlingSurfaceID];
+}
+size_t IOSurfaceGetAllocSize(IOSurfaceRef surface)
+{
+    return [(IOSurface*)surface allocationSize];
+}
+mach_port_t IOSurfaceCreateMachPort(IOSurfaceRef surface)
+{
+    return surface ? [(IOSurface*)surface _darlingCreateMachPort] : MACH_PORT_NULL;
+}
+size_t IOSurfaceGetPropertyMaximum(CFStringRef key)
+{
+    if (darlingSurfaceProperty(key, true)) return SIZE_MAX < INT64_MAX ? SIZE_MAX : INT64_MAX;
+    return darlingSurfaceProperty(key, false) ? UINT32_MAX : 0;
+}
+size_t IOSurfaceGetPropertyAlignment(CFStringRef key)
+{
+    return darlingSurfaceProperty(key, true) || darlingSurfaceProperty(key, false) ? 1 : 0;
+}
+size_t IOSurfaceAlignProperty(CFStringRef key, size_t value)
+{
+    return IOSurfaceGetPropertyAlignment(key) ? value : 0;
 }

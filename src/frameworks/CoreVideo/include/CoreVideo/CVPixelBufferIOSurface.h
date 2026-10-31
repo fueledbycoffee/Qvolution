@@ -21,11 +21,16 @@
 #define CVPIXELBUFFERIOSURFACE_H
 
 #include <sys/cdefs.h>
-#include <CoreVideo/CVBase.h>
+#include <CoreVideo/CVPixelBuffer.h>
+#include <IOSurface/IOSurfaceRef.h>
 
 __BEGIN_DECLS
 
 extern const CFStringRef kCVPixelBufferIOSurfaceOpenGLTextureCompatibilityKey;
+
+CV_EXPORT CVReturn CVPixelBufferCreateWithIOSurface(CFAllocatorRef allocator,
+    IOSurfaceRef surface, CFDictionaryRef pixelBufferAttributes, CVPixelBufferRef *pixelBufferOut);
+CV_EXPORT IOSurfaceRef CV_NULLABLE CVPixelBufferGetIOSurface(CVPixelBufferRef pixelBuffer);
 
 __END_DECLS
 

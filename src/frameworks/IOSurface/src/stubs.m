@@ -31,22 +31,13 @@ static void initme(void) {
 }
 
 
-IOSurfaceRef _Nullable IOSurfaceLookup(IOSurfaceID csid){
-    if (verbose) printf("STUB: %s called\n", __FUNCTION__);
-    return 0;
-}
 
 
-IOSurfaceID IOSurfaceGetID(IOSurfaceRef buffer){
-    if (verbose) printf("STUB: %s called\n", __FUNCTION__);
-    return 0;
-}
 
 
-size_t IOSurfaceGetAllocSize(IOSurfaceRef buffer){
-    if (verbose) printf("STUB: %s called\n", __FUNCTION__);
-    return 0;
-}
+
+
+
 
 
 
@@ -93,28 +84,16 @@ IOSurfaceSubsampling IOSurfaceGetSubsampling(IOSurfaceRef buffer){
 
 
 
-mach_port_t IOSurfaceCreateMachPort(IOSurfaceRef buffer){
-    if (verbose) printf("STUB: %s called\n", __FUNCTION__);
-    return 0;
-}
-
-
-size_t IOSurfaceGetPropertyMaximum(CFStringRef property){
-    if (verbose) printf("STUB: %s called\n", __FUNCTION__);
-    return 0;
-}
-
-size_t IOSurfaceGetPropertyAlignment(CFStringRef property){
-    if (verbose) printf("STUB: %s called\n", __FUNCTION__);
-    return 0;
-}
 
 
 
-size_t IOSurfaceAlignProperty(CFStringRef property, size_t value){
-    if (verbose) printf("STUB: %s called\n", __FUNCTION__);
-    return 0;
-}
+
+
+
+
+
+
+
 
 
 

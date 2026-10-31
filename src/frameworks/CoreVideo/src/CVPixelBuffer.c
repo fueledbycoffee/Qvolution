@@ -7,7 +7,7 @@
  (at your option) any later version.
 */
 
-// Minimal CPU-memory CVPixelBuffer: a single-plane, packed buffer with 16-byte row alignment.
+// CPU byte buffers and retained IOSurface-backed buffers use distinct ownership.
 // Pixel buffers are CF objects, so CFRetain, CFRelease and CFGetTypeID work on them.
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+enum CVPixelBacking { CVPixelBackingCallerBytes, CVPixelBackingOwnedBytes, CVPixelBackingIOSurface };
 struct __CVBuffer {
 	CFRuntimeBase runtimeBase;
 	size_t width;
@@ -26,7 +27,9 @@ struct __CVBuffer {
 	size_t bytesPerRow;
 	OSType pixelFormat;
 	uint8_t* base;
-	Boolean ownsBase;
+	enum CVPixelBacking backing;
+	IOSurfaceRef surface;
+	size_t dataSize;
 	CVPixelBufferReleaseBytesCallback releaseCallback;
 	void* releaseRefCon;
 	CFMutableDictionaryRef attachments;
@@ -37,7 +40,9 @@ typedef struct __CVBuffer __CVPixelBuffer;
 static void pixelBufferFinalize(CFTypeRef cf)
 {
 	CVPixelBufferRef buffer = (CVPixelBufferRef) cf;
-	if (buffer->ownsBase)
+	if (buffer->backing == CVPixelBackingIOSurface)
+		CFRelease(buffer->surface);
+	else if (buffer->backing == CVPixelBackingOwnedBytes)
 		free(buffer->base);
 	else if (buffer->releaseCallback)
 		buffer->releaseCallback(buffer->releaseRefCon, buffer->base);
@@ -77,7 +82,9 @@ static CVPixelBufferRef pixelBufferAllocate(CFAllocatorRef allocator, size_t wid
 	buffer->bytesPerRow = bytesPerRow;
 	buffer->pixelFormat = pixelFormatType;
 	buffer->base = NULL;
-	buffer->ownsBase = false;
+	buffer->backing = CVPixelBackingCallerBytes;
+	buffer->surface = NULL;
+	buffer->dataSize = bytesPerRow * height;
 	buffer->releaseCallback = NULL;
 	buffer->releaseRefCon = NULL;
 	buffer->attachments = NULL;
@@ -106,12 +113,91 @@ static size_t bytesPerPixelForFormat(OSType format)
 	}
 }
 
+/* Conservative supported-layout policy from the clean public specification.
+ * The framework validates/memory-maps metadata before publishing IOSurfaceRef. */
+CVReturn CVPixelBufferCreateWithIOSurface(CFAllocatorRef allocator, IOSurfaceRef surface,
+    CFDictionaryRef attributes, CVPixelBufferRef *out)
+{
+    if (!out) return kCVReturnInvalidArgument;
+    *out = NULL;
+    if (!surface || CFGetTypeID(surface) != IOSurfaceGetTypeID()) return kCVReturnInvalidArgument;
+    if (attributes && (CFGetTypeID(attributes) != CFDictionaryGetTypeID() || CFDictionaryGetCount(attributes)))
+        return kCVReturnInvalidPixelBufferAttributes;
+    size_t width = IOSurfaceGetWidth(surface), height = IOSurfaceGetHeight(surface);
+    size_t count = IOSurfaceGetPlaneCount(surface), row = IOSurfaceGetBytesPerRow(surface);
+    OSType format = IOSurfaceGetPixelFormat(surface);
+    if (!width || !height || !row || height > SIZE_MAX / row || !IOSurfaceGetID(surface) ||
+        !IOSurfaceGetBaseAddress(surface)) return kCVReturnInvalidArgument;
+    size_t dataSize = row * height;
+    if (format == kCVPixelFormatType_32BGRA) {
+        if (count || IOSurfaceGetBytesPerElement(surface) != 4 || width > row / 4)
+            return kCVReturnInvalidPixelFormat;
+    } else if (format == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
+        if (count != 2 || (width & 1) || (height & 1)) return kCVReturnInvalidPixelFormat;
+        uintptr_t base = (uintptr_t)IOSurfaceGetBaseAddress(surface), last = base;
+        for (size_t i = 0; i < count; ++i) {
+            size_t w = IOSurfaceGetWidthOfPlane(surface, i), h = IOSurfaceGetHeightOfPlane(surface, i);
+            size_t r = IOSurfaceGetBytesPerRowOfPlane(surface, i), element = i ? 2 : 1;
+            uintptr_t address = (uintptr_t)IOSurfaceGetBaseAddressOfPlane(surface, i);
+            if (w != width / (i ? 2 : 1) || h != height / (i ? 2 : 1) ||
+                IOSurfaceGetBytesPerElementOfPlane(surface, i) != element || !r || w > r / element ||
+                h > SIZE_MAX / r || address < last || h * r > UINTPTR_MAX - address)
+                return kCVReturnInvalidArgument;
+            last = address + h * r;
+        }
+        dataSize = last - base; // same contiguous validated CPU allocation, no invented planar header
+    } else return kCVReturnInvalidPixelFormat;
+    if (dataSize > IOSurfaceGetAllocSize(surface)) return kCVReturnInvalidArgument;
+    CVPixelBufferRef buffer = pixelBufferAllocate(allocator, width, height, row, format);
+    if (!buffer) return kCVReturnAllocationFailed;
+    buffer->backing = CVPixelBackingIOSurface;
+    buffer->surface = (IOSurfaceRef)CFRetain(surface);
+    buffer->dataSize = dataSize;
+    *out = buffer;
+    return kCVReturnSuccess;
+}
+IOSurfaceRef CVPixelBufferGetIOSurface(CVPixelBufferRef buffer)
+{
+    return buffer && buffer->backing == CVPixelBackingIOSurface ? buffer->surface : NULL;
+}
+static bool setSurfaceNumber(CFMutableDictionaryRef properties, CFStringRef key, int64_t value)
+{
+    CFNumberRef number = CFNumberCreate(NULL, kCFNumberSInt64Type, &value);
+    if (!number) return false;
+    CFDictionarySetValue(properties, key, number); CFRelease(number); return true;
+}
+
 CVReturn CVPixelBufferCreate(CFAllocatorRef allocator, size_t width, size_t height, OSType pixelFormatType,
 	CFDictionaryRef pixelBufferAttributes, CVPixelBufferRef* pixelBufferOut)
 {
 	if (pixelBufferOut == NULL || width == 0 || height == 0)
 		return kCVReturnInvalidArgument;
 	*pixelBufferOut = NULL;
+    if (pixelBufferAttributes && CFGetTypeID(pixelBufferAttributes) != CFDictionaryGetTypeID())
+        return kCVReturnInvalidPixelBufferAttributes;
+    CFTypeRef surfaceProperties = pixelBufferAttributes ? CFDictionaryGetValue(pixelBufferAttributes, kCVPixelBufferIOSurfacePropertiesKey) : NULL;
+    if (surfaceProperties) {
+        if (CFGetTypeID(surfaceProperties) != CFDictionaryGetTypeID() || width > INT64_MAX || height > INT64_MAX)
+            return kCVReturnInvalidPixelBufferAttributes;
+        /* Requested row alignment is not implemented by this CPU milestone. */
+        if (CFDictionaryContainsKey(pixelBufferAttributes, kCVPixelBufferBytesPerRowAlignmentKey))
+            return kCVReturnInvalidPixelBufferAttributes;
+        const CFStringRef gpuKeys[] = {kCVPixelBufferOpenGLCompatibilityKey, kCVPixelBufferMetalCompatibilityKey,
+            kCVPixelBufferIOSurfaceOpenGLTextureCompatibilityKey};
+        for (size_t i = 0; i < sizeof(gpuKeys)/sizeof(gpuKeys[0]); ++i) {
+            CFTypeRef value = CFDictionaryGetValue(pixelBufferAttributes, gpuKeys[i]);
+            if (value && value != kCFBooleanFalse) return kCVReturnInvalidPixelBufferAttributes;
+        }
+        CFMutableDictionaryRef properties = CFDictionaryCreateMutableCopy(allocator, 0, surfaceProperties);
+        if (!properties) return kCVReturnAllocationFailed;
+        bool ready = setSurfaceNumber(properties, kIOSurfaceWidth, width) && setSurfaceNumber(properties, kIOSurfaceHeight, height) &&
+            setSurfaceNumber(properties, kIOSurfacePixelFormat, pixelFormatType);
+        IOSurfaceRef surface = ready ? IOSurfaceCreate(properties) : NULL;
+        CFRelease(properties);
+        if (!surface) return kCVReturnAllocationFailed;
+        CVReturn result = CVPixelBufferCreateWithIOSurface(allocator, surface, NULL, pixelBufferOut);
+        CFRelease(surface); return result;
+    }
 
 	size_t bpp = bytesPerPixelForFormat(pixelFormatType);
 	if (bpp == 0)
@@ -131,7 +217,7 @@ CVReturn CVPixelBufferCreate(CFAllocatorRef allocator, size_t width, size_t heig
 		CFRelease(buffer);
 		return kCVReturnAllocationFailed;
 	}
-	buffer->ownsBase = true;
+	buffer->backing = CVPixelBackingOwnedBytes;
 
 	*pixelBufferOut = buffer;
 	return kCVReturnSuccess;
@@ -223,50 +309,42 @@ OSType CVPixelBufferGetPixelFormatType(CVPixelBufferRef buffer)
 
 size_t CVPixelBufferGetDataSize(CVPixelBufferRef buffer)
 {
-	return buffer ? buffer->bytesPerRow * buffer->height : 0;
+	return buffer ? buffer->dataSize : 0;
 }
 
 void* CVPixelBufferGetBaseAddress(CVPixelBufferRef buffer)
 {
-	return buffer ? buffer->base : NULL;
+	return buffer ? (buffer->surface ? (IOSurfaceGetPlaneCount(buffer->surface) ? NULL : IOSurfaceGetBaseAddress(buffer->surface)) : buffer->base) : NULL;
 }
 
 size_t CVPixelBufferGetPlaneCount(CVPixelBufferRef buffer)
 {
-	return 0;
+    return buffer && buffer->surface ? IOSurfaceGetPlaneCount(buffer->surface) : 0;
 }
 
 Boolean CVPixelBufferIsPlanar(CVPixelBufferRef buffer)
 {
-	return false;
+    return CVPixelBufferGetPlaneCount(buffer) != 0;
 }
 
 void* CVPixelBufferGetBaseAddressOfPlane(CVPixelBufferRef buffer, size_t planeIndex)
 {
-	if (!buffer || planeIndex > 0)
-		return NULL;
-	return buffer->base;
+    return planeIndex < CVPixelBufferGetPlaneCount(buffer) ? IOSurfaceGetBaseAddressOfPlane(buffer->surface, planeIndex) : NULL;
 }
 
 size_t CVPixelBufferGetBytesPerRowOfPlane(CVPixelBufferRef buffer, size_t planeIndex)
 {
-	if (!buffer || planeIndex > 0)
-		return 0;
-	return buffer->bytesPerRow;
+    return planeIndex < CVPixelBufferGetPlaneCount(buffer) ? IOSurfaceGetBytesPerRowOfPlane(buffer->surface, planeIndex) : 0;
 }
 
 size_t CVPixelBufferGetWidthOfPlane(CVPixelBufferRef buffer, size_t planeIndex)
 {
-	if (!buffer || planeIndex > 0)
-		return 0;
-	return buffer->width;
+    return planeIndex < CVPixelBufferGetPlaneCount(buffer) ? IOSurfaceGetWidthOfPlane(buffer->surface, planeIndex) : 0;
 }
 
 size_t CVPixelBufferGetHeightOfPlane(CVPixelBufferRef buffer, size_t planeIndex)
 {
-	if (!buffer || planeIndex > 0)
-		return 0;
-	return buffer->height;
+    return planeIndex < CVPixelBufferGetPlaneCount(buffer) ? IOSurfaceGetHeightOfPlane(buffer->surface, planeIndex) : 0;
 }
 
 CGSize CVImageBufferGetEncodedSize(CVImageBufferRef imageBuffer)
@@ -309,12 +387,22 @@ void* CVMetalTextureGetTexture(void *image)
 
 CVReturn CVPixelBufferLockBaseAddress(CVPixelBufferRef buffer, CVPixelBufferLockFlags flags)
 {
-	return buffer ? kCVReturnSuccess : kCVReturnInvalidArgument;
+    if (!buffer) return kCVReturnInvalidArgument;
+    if (!buffer->surface) return kCVReturnSuccess;
+    /* CV read-only numeric ABI is not established by the frozen sources.
+     * Reject nonzero flags until it is, rather than silently treating them as writes. */
+    if (flags) return kCVReturnInvalidArgument;
+    return IOSurfaceLock(buffer->surface, 0, NULL) == KERN_SUCCESS ? kCVReturnSuccess : kCVReturnError;
 }
 
 CVReturn CVPixelBufferUnlockBaseAddress(CVPixelBufferRef buffer, CVPixelBufferLockFlags flags)
 {
-	return buffer ? kCVReturnSuccess : kCVReturnInvalidArgument;
+    if (!buffer) return kCVReturnInvalidArgument;
+    if (!buffer->surface) return kCVReturnSuccess;
+    /* CV read-only numeric ABI is not established by the frozen sources.
+     * Reject nonzero flags until it is, rather than silently treating them as writes. */
+    if (flags) return kCVReturnInvalidArgument;
+    return IOSurfaceUnlock(buffer->surface, 0, NULL) == KERN_SUCCESS ? kCVReturnSuccess : kCVReturnError;
 }
 
 // ── CVBuffer Attachment Management ──

@@ -29,6 +29,7 @@
 
 #include <CoreVideo/CVDisplayLink.h>
 #include <CoreVideo/CVPixelBuffer.h>
+#include <CoreVideo/CVPixelBufferIOSurface.h>
 #include <CoreVideo/CVPixelBufferPool.h>
 
 #endif
