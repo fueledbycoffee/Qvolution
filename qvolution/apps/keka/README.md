@@ -1,6 +1,6 @@
 # Keka
 
-Status: **partial client rendering, stage 19**. Wave 2; priority 9. No completed workflow or desktop presentation qualification.
+Status: **partial client rendering, stage 22**. Wave 2; priority 9. No completed workflow or desktop presentation qualification.
 
 Source: https://www.keka.io/
 
@@ -9,6 +9,8 @@ Official unmodified Keka1.6.8 universal bundle; publisher SHA256 verified and re
 The bounded 25-second launch timed out (exit unknown); exact-prefix shutdown returned 0. All 749 extracted regular-file/link entries were rechecked unchanged. Compositor visibility, user interaction, archive/extraction workflow, clean app exit, GPU acceleration and stability remain unverified. See the [sanitized stage16 evidence](../../verification/stage16-keka-client-render.json).
 
 Stage 19 repeats the settings client raster after the font/title regression suite passes. Generic symbol boxes and duplicated title/controls remain. Its 25-second run again times out with unknown exit and exact shutdown 0; all 749 payload members remain unchanged. The titleVisibility API correction is proven only by the original renderer fixture, not as the cause of this app appearance. See [stage19 evidence](../../verification/stage19-fonts-title.json).
+
+Stage 22 passes the eleven original font/model/icon gates and renders supported gear/folder artwork in the client image. Other icons are absent and duplicated title/controls remain. The unchanged 749-member bundle again has a bounded 25s timeout, unknown exit and exact cleanup 0. No desktop/workflow/GPU promotion. See [stage22 evidence](../../verification/stage22-fonts-symbols-actions.json).
 
 ## Acceptance workflow
 

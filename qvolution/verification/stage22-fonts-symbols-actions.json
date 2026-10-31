@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "stage_label": "stage22",
+  "scope": "Original font/model/raster regression gates and unchanged vendor retakes, not application qualification",
+  "built_runtime": {
+    "superproject": "f4a192c59d1e871667e096fb5a0e755123045187",
+    "built_runtime_superproject": "f4a192c59d1e871667e096fb5a0e755123045187",
+    "cocotron": "fe830b4571699672010b009df42395784fc4b6e2",
+    "launcher_sha256": "8a5df2195eadee08cd0451c8827655b19603244867cb7a0c0ef99079bdfa77a9",
+    "components": {
+      "cocotron": "fe830b4571699672010b009df42395784fc4b6e2",
+      "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+      "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+      "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+      "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+    }
+  },
+  "build": {
+    "completed": true,
+    "edges": 757,
+    "no_remaining_work": true,
+    "private_install_exit": 0
+  },
+  "original_regressions": [
+    {
+      "label": "font-weight-constants",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.727884528998402
+    },
+    {
+      "label": "accessibility-custom-action",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.6165143599937437
+    },
+    {
+      "label": "semantic-symbols",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.7612753720022738
+    },
+    {
+      "label": "symbol-rendering",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.862746237005922
+    },
+    {
+      "label": "font-ps-resolver",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.632545446002041
+    },
+    {
+      "label": "font-descriptor",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.6365863240062026
+    },
+    {
+      "label": "font-descriptor-appkit",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.6470006270101294
+    },
+    {
+      "label": "ui-font-roles",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.637541449003038
+    },
+    {
+      "label": "font-metadata",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.5913831670040963
+    },
+    {
+      "label": "font-ctfont-bridge",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.6391578440088779
+    },
+    {
+      "label": "title-visibility",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.7989111219940241
+    }
+  ],
+  "symbol_pixels": {
+    "light_ink": 164,
+    "heavy_ink": 644,
+    "palette_red": 663,
+    "palette_blue": 668,
+    "exact_supported_names": 14,
+    "artwork": "original_portable_vectors",
+    "raster": "CPU",
+    "same_destination_appearance_checks": true
+  },
+  "weight_values": "Declared normalized project policy corroborated by public API client; native literals/bit parity not measured",
+  "vendor_results": {
+    "keka": {
+      "stage_label": "stage22",
+      "evidence_checkpoint": "through_stage22",
+      "bounded_launch_only": true,
+      "application_entry": "not_separately_instrumented",
+      "render": "one_cpu_client_image_captured",
+      "visible_ui": "compositor_visibility_not_verified",
+      "functional_workflow": "not_tested",
+      "exit": null,
+      "timeout": true,
+      "timeout_seconds": 25,
+      "seconds": 26.05839241699141,
+      "exact_prefix_shutdown_exit": 0,
+      "diagnostic_dyld_overrides": false,
+      "executable_unchanged": true,
+      "executable_sha256": "51c730ac9b3d385434fff9e96d0881a458d1fb9513970fffe61b874068085d27",
+      "recorded_runtime": {
+        "superproject": "f4a192c59d1e871667e096fb5a0e755123045187",
+        "built_runtime_superproject": "f4a192c59d1e871667e096fb5a0e755123045187",
+        "cocotron": "fe830b4571699672010b009df42395784fc4b6e2",
+        "launcher_sha256": "8a5df2195eadee08cd0451c8827655b19603244867cb7a0c0ef99079bdfa77a9",
+        "components": {
+          "cocotron": "fe830b4571699672010b009df42395784fc4b6e2",
+          "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+          "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+          "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+          "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+        }
+      },
+      "capture_diagnostic_requested": true,
+      "client_capture": {
+        "count": 1,
+        "width": 699,
+        "height": 432,
+        "render_path": "CPU_client_pixels",
+        "observed_content": "settings",
+        "known_quality_gaps": [
+          "unsupported_symbol_icons_absent",
+          "duplicate_title_and_controls"
+        ],
+        "qualification": "client_render_only_not_compositor_visibility_or_workflow",
+        "observed_supported_artwork": [
+          "gear",
+          "folder"
+        ]
+      },
+      "extracted_payload_members_unchanged": 749,
+      "first_concrete_gate": "Partial settings client pixels with supported artwork; other icons, duplicated title/controls, presentation and workflows remain unqualified",
+      "failure_cause": "timeout_does_not_establish_cause"
+    },
+    "keepassxc": {
+      "stage_label": "stage22",
+      "evidence_checkpoint": "through_stage22",
+      "bounded_launch_only": true,
+      "application_entry": "not_separately_instrumented",
+      "render": "not_verified",
+      "visible_ui": "not_verified",
+      "functional_workflow": "not_tested",
+      "exit": 139,
+      "timeout": false,
+      "seconds": 3.5028615720075322,
+      "exact_prefix_shutdown_exit": 0,
+      "diagnostic_dyld_overrides": false,
+      "executable_unchanged": true,
+      "executable_sha256": "fc5446601a86316fc713bda590a8ced2d6458b28acca6596a329837bc48eecbe",
+      "recorded_runtime": {
+        "superproject": "f4a192c59d1e871667e096fb5a0e755123045187",
+        "built_runtime_superproject": "f4a192c59d1e871667e096fb5a0e755123045187",
+        "cocotron": "fe830b4571699672010b009df42395784fc4b6e2",
+        "launcher_sha256": "8a5df2195eadee08cd0451c8827655b19603244867cb7a0c0ef99079bdfa77a9",
+        "components": {
+          "cocotron": "fe830b4571699672010b009df42395784fc4b6e2",
+          "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+          "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+          "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+          "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+        }
+      },
+      "first_concrete_gate": "Unexplained exit 139 during startup; no exception reason recorded",
+      "failure_cause": "unknown",
+      "extracted_payload_members_unchanged": 154
+    },
+    "firefox": {
+      "stage_label": "stage22",
+      "evidence_checkpoint": "through_stage22",
+      "bounded_launch_only": true,
+      "application_entry": "not_separately_instrumented",
+      "render": "not_verified",
+      "visible_ui": "not_verified",
+      "functional_workflow": "not_tested",
+      "exit": 255,
+      "timeout": false,
+      "seconds": 1.7186781460040947,
+      "exact_prefix_shutdown_exit": 0,
+      "diagnostic_dyld_overrides": false,
+      "executable_unchanged": true,
+      "executable_sha256": "ee82fbe42a525ff20d9d70c80fe6c54d0bc95de5500e75a18bc6aa128f0cf5af",
+      "recorded_runtime": {
+        "superproject": "f4a192c59d1e871667e096fb5a0e755123045187",
+        "built_runtime_superproject": "f4a192c59d1e871667e096fb5a0e755123045187",
+        "cocotron": "fe830b4571699672010b009df42395784fc4b6e2",
+        "launcher_sha256": "8a5df2195eadee08cd0451c8827655b19603244867cb7a0c0ef99079bdfa77a9",
+        "components": {
+          "cocotron": "fe830b4571699672010b009df42395784fc4b6e2",
+          "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+          "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+          "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+          "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+        }
+      },
+      "next_missing_api": "AVSpeechSynthesisVoice",
+      "first_concrete_gate": "XPCOM loader missing AVFoundation AVSpeechSynthesisVoice class",
+      "expected_framework": "AppKit.framework",
+      "extracted_payload_members_unchanged": 110,
+      "failure_cause": "missing_class_export"
+    }
+  },
+  "intermediate_regressions": {
+    "stage20": "Original bridge caught normalized family routing regression; corrected without changing its assertions, passes stage21/22",
+    "stage21": "Actual weight exports and symbol strokes failed; normalized exports and unchanged raster test pass stage22"
+  },
+  "own_window_experiment": {
+    "display_8_ticks": {
+      "draws": 11,
+      "completed": 11,
+      "presents": 0,
+      "captures": 0
+    },
+    "display_80_ticks": {
+      "draws": 83,
+      "completed": 83,
+      "presents": 0,
+      "captures": 0
+    },
+    "after_launch_display_80_ticks": {
+      "draws": 83,
+      "completed": 83,
+      "presents": 0,
+      "captures": 0
+    },
+    "explicit_public_flush_80_ticks": {
+      "draws": 83,
+      "completed": 83,
+      "presents": 3,
+      "captures": 3
+    },
+    "all_exits": 0,
+    "all_exact_shutdowns": 0,
+    "scope": "First frame submission differs; later pending frame callback cause and physical visibility remain unverified"
+  },
+  "limitations": [
+    "No vendor workflow/UI/UX/GPU/stability qualification",
+    "Keka client pixels do not establish compositor visibility or user interaction",
+    "KeePassXC startup cause remains unknown",
+    "Full symbol coverage, selected/disabled control tint and accessibility-server dispatch remain open"
+  ]
+}

@@ -1,10 +1,12 @@
 # Firefox
 
-Status: **not tested**. Wave 3; priority 16.
+Status: **blocked during XPCOM loading, stage 22**. Wave 3; priority 16.
 
 Source: https://www.mozilla.org/firefox/
 
 Separate browser/multiprocess target; keep sandbox limitations explicit.
+
+Official unmodified Firefox 159 universal remains unthinned. Stage 22 clears the custom-action class after its genuine copy/weak/callback model tests pass, then XPCOM stops at AVFoundation AVSpeechSynthesisVoice (exit 255). All 110 bundle files are unchanged and exact-prefix cleanup returns 0. No browser UI, workflow, sandbox, GPU or stability qualification. See [stage22 evidence](../../verification/stage22-fonts-symbols-actions.json).
 
 ## Acceptance workflow
 
