@@ -38,6 +38,16 @@ if (TARGET CoreGraphics AND TARGET Foundation)
     endforeach()
 endif()
 if (TARGET CoreText AND TARGET CoreGraphics AND TARGET Foundation)
+    add_darling_executable(qvolution_unicode_readiness
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coretext-unicode-readiness.m)
+    target_link_libraries(qvolution_unicode_readiness Foundation CoreText CoreGraphics)
+    if (TARGET Onyx2D)
+        add_darling_executable(qvolution_advance_cost
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coretext-advance-cost.m)
+        target_include_directories(qvolution_advance_cost PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include)
+        target_link_libraries(qvolution_advance_cost Foundation CoreText CoreGraphics Onyx2D)
+    endif()
     add_darling_executable(qvolution_cg_postscript_roundtrip
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coregraphics-postscript-roundtrip.m)
     target_link_libraries(qvolution_cg_postscript_roundtrip Foundation CoreText CoreGraphics)
@@ -101,6 +111,9 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
+    add_darling_executable(qvolution_rtf_reader_literals
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-rtf-reader-literals.m)
+    target_link_libraries(qvolution_rtf_reader_literals AppKit CoreGraphics)
     add_darling_executable(qvolution_scrubber_contract
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-scrubber-contract.m
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-scrubber-layout-header.m
