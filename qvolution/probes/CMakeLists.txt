@@ -30,6 +30,9 @@ endif ()
 
 add_darling_executable(qvolution_pty_contract pty-contract.c)
 if (TARGET CoreGraphics AND TARGET Foundation)
+    add_darling_executable(qvolution_cg_sparse_cid
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/cg-font-sparse-cid.m)
+    target_link_libraries(qvolution_cg_sparse_cid Foundation CoreGraphics)
     foreach(fixture IN ITEMS font-names font-name-vectors type1-font-names)
         string(REPLACE "-" "_" target_suffix "${fixture}")
         add_darling_executable(qvolution_cg_${target_suffix}
@@ -111,6 +114,27 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
+    foreach(fixture IN ITEMS compact-font-picker rtf-writer-lexical)
+        string(REPLACE "-" "_" target_suffix "${fixture}")
+        add_darling_executable(qvolution_${target_suffix}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-${fixture}.m)
+        target_include_directories(qvolution_${target_suffix} PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron)
+        target_link_libraries(qvolution_${target_suffix} AppKit CoreGraphics)
+    endforeach()
+    if (TARGET CoreText)
+        foreach(fixture IN ITEMS font-manager-identity ubuntu-variable-traits pattern-font-instance)
+            string(REPLACE "-" "_" target_suffix "${fixture}")
+            add_darling_executable(qvolution_${target_suffix}
+                ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-${fixture}.m)
+            target_link_libraries(qvolution_${target_suffix} AppKit CoreText CoreGraphics)
+        endforeach()
+    endif()
+    if (TARGET ImageIO)
+        add_darling_executable(qvolution_png_encode_contract
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/imageio-png-encode-contract.m)
+        target_link_libraries(qvolution_png_encode_contract AppKit ImageIO CoreGraphics)
+    endif()
     add_darling_executable(qvolution_rtf_reader_literals
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-rtf-reader-literals.m)
     target_link_libraries(qvolution_rtf_reader_literals AppKit CoreGraphics)
