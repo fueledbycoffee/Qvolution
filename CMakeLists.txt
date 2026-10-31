@@ -228,13 +228,14 @@ generate_architecture()
 add_subdirectory(src)
 
 if(ENABLE_TESTS)
-    # CTest reserves each directory's build path named test; keep the guest
-    # executable's installed name while separating its build output.
-    set_target_properties(test-bin PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/src/external/shell_cmds/guest-bin")
-    enable_testing()
+    # Root enable_testing() reserves Ninja's test alias, already used by the
+    # guest shell command. Enable CTest only in the native suite and expose it
+    # to root ctest discovery without generating conflicting utility targets.
     set(DARLING_SUPERPROJECT "${CMAKE_SOURCE_DIR}" CACHE PATH "Darling superproject source tree")
     add_subdirectory(src/external/xnu/darling/tests)
+    file(WRITE "${CMAKE_BINARY_DIR}/CTestTestfile.cmake"
+        [=[subdirs("src/external/xnu/darling/tests")
+]=])
 endif()
 
 verify_sdk_header_include()
