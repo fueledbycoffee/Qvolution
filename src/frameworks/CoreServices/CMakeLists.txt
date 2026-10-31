@@ -53,6 +53,7 @@ add_framework(CoreServices
 		OSServices
 		system
 		CoreFoundation
+		Foundation
 		${EXTRA_LIBS}
 
 	RESOURCES
@@ -85,11 +86,18 @@ reexport(CoreServices OSServices ${OSServices_BUILD})
 
 if (TARGET_ARM64)
 set_property(TARGET CoreServices APPEND_STRING PROPERTY
-  LINK_FLAGS " -Wl,-reexported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/reexport_arm64.exp")
+  LINK_FLAGS " -Wl,-reexported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/reexport_arm64.exp -Wl,-reexported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/reexport_user_activity.exp")
+set_property(TARGET CoreServices APPEND PROPERTY LINK_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/reexport_arm64.exp")
 else ()
 set_property(TARGET CoreServices APPEND_STRING PROPERTY
-  LINK_FLAGS " -Wl,-reexported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/reexport.exp")
+  LINK_FLAGS " -Wl,-reexported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/reexport.exp -Xarch_x86_64 -Wl,-reexported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/reexport_user_activity.exp")
+set_property(TARGET CoreServices APPEND PROPERTY LINK_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/reexport.exp")
 endif ()
+
+set_property(TARGET CoreServices APPEND PROPERTY LINK_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/reexport_user_activity.exp")
 
 install(FILES SystemVersion.plist DESTINATION "libexec/darling/System/Library/CoreServices")
 install(FILES SystemVersionCompat.plist DESTINATION "libexec/darling/System/Library/CoreServices")
