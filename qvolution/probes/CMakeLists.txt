@@ -37,6 +37,11 @@ if (TARGET CoreGraphics AND TARGET Foundation)
         target_link_libraries(qvolution_cg_${target_suffix} Foundation CoreGraphics)
     endforeach()
 endif()
+if (TARGET CoreText AND TARGET CoreGraphics AND TARGET Foundation)
+    add_darling_executable(qvolution_ui_font_roles
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coretext-ui-font-roles.m)
+    target_link_libraries(qvolution_ui_font_roles Foundation CoreText CoreGraphics)
+endif()
 add_darling_executable(qvolution_unix_output_capacity
     ${CMAKE_SOURCE_DIR}/src/external/xnu/darling/tests/qvolution/unix-output-capacity.c)
 add_darling_executable(qvolution_unix_root_alias
