@@ -38,6 +38,13 @@ containing a misleading startxref substring, and adding a required DA before sav
 `qvolution_pdf_annotation_optional_nulls` checks optional null Annots/DA values
 and rejection of a required FreeText DA that is null.
 
+`qvolution_pdf_annotation_icon` exercises typed icon-key access for Text and
+Stamp annotations, invalid assignments and subtype-specific encoding, and reloads the
+saved document while checking the PDF object is a name, including an empty name
+and an escaped custom name. It checks wrong-type, null and absent names for both
+subtypes and preserves generic conversion for other subtypes. An independent reader
+must also verify the saved PDF. It does not test rendering.
+
 ## Implementation boundary
 
 Annotations retain actual O2PDFDictionary objects. Foundation scalar/string/array
@@ -86,6 +93,15 @@ No renderer or appearance regeneration is implied by saving dictionary values.
   corresponding public pageCount/pageAtIndex, bounds/type/page, removeAnnotation,
   [initWithURL](https://developer.apple.com/documentation/pdfkit/pdfdocument/init(url:)-98jte)
   and writeToFile/writeToURL documentation.
+- Apple's [iconName key](https://developer.apple.com/documentation/pdfkit/pdfannotationkeyiconname?language=objc)
+  describes an icon name for text and stamp annotations. ISO 32000-1:2008 Tables
+  172 and 181 specify the corresponding /Name value as a PDF name.
+- Rung 6/GUESS: `PDFAnnotationKeyIconName = @"Name"` is a project mapping;
+  the public documentation does not publish the native NSString raw spelling.
+  For Text and Stamp /Name values the model encodes NSString as UTF-8 bytes, a
+  project policy: ISO defines name objects as byte sequences and does not specify
+  native PDFKit NSString encoding or imply parity. Other subtypes retain the
+  generic converter.
 - PDF format: Adobe's published [ISO 32000-1:2008](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf),
   Tables 30/164/174, specifies Annots indirect references, annotation fields and DA
   string semantics; sections 7.3 and 7.5.6 specify object syntax/incremental updates.
@@ -120,6 +136,9 @@ CMake targets against the actual rebuilt frameworks, without model objects or a
 removal category, and repeat runtime/strict-reader gates. Keep exact source,
 object, executable and runtime-manifest hashes for each gate. Full Skim remains
 pending until real document/page/view/annotation workflows work.
+
+The icon fixture also requires Cocotron empty-name scanner support per ISO 32000-1
+section 7.3.5; it accepts empty names in values and keys, including at EOF.
 
 Prerequisite component commits are Cocotron e55af08d (token values and canonical
 name encoding) and c9bbe4ed (physical dictionary removal). The latter fixes an

@@ -31,6 +31,7 @@
 
 // GUESS: public docs specify the semantic, not the native NSString raw value.
 PDFAnnotationKey const PDFAnnotationKeyDefaultAppearance = @"DA";
+PDFAnnotationKey const PDFAnnotationKeyIconName = @"Name";
 
 static NSString *QVKey(id key) {
     if (![key isKindOfClass:[NSString class]]) return nil;
@@ -148,6 +149,11 @@ BOOL QVAnnotationDictionaryIsValid(O2PDFDictionary *dictionary) {
     BOOL hasAppearance=[dictionary getObjectForKey:"DA" value:&entry] && [entry objectType]!=kO2PDFObjectTypeNull;
     if ((hasAppearance || !strcmp(type,"FreeText")) &&
             ![dictionary getStringForKey:"DA" value:&appearance]) return NO;
+    if ((!strcmp(type,"Text") || !strcmp(type,"Stamp")) &&
+            [dictionary getObjectForKey:"Name" value:&entry] && [entry objectType]!=kO2PDFObjectTypeNull) {
+        const char *icon=NULL;
+        if (![entry checkForType:kO2PDFObjectTypeName value:&icon]) return NO;
+    }
     return YES;
 }
 
@@ -168,14 +174,14 @@ PDFAnnotation *QVAnnotationFromDictionary(O2PDFDictionary *dictionary, O2PDFDocu
         [self release]; return nil;
     }
     _qvDictionary = [[O2PDFDictionary pdfDictionary] retain];
+    [_qvDictionary setNameForKey:"Type" value:"Annot"];
+    [_qvDictionary setNameForKey:"Subtype" value:[name UTF8String]];
+    [_qvDictionary setObjectForKey:"Rect" value:rectangle];
     for (id key in properties) {
         if (![self setValue:[properties objectForKey:key] forAnnotationKey:key]) {
             [self release]; return nil;
         }
     }
-    [_qvDictionary setNameForKey:"Type" value:"Annot"];
-    [_qvDictionary setNameForKey:"Subtype" value:[name UTF8String]];
-    [_qvDictionary setObjectForKey:"Rect" value:rectangle];
     return self;
 }
 - (void)dealloc {
@@ -193,6 +199,17 @@ PDFAnnotation *QVAnnotationFromDictionary(O2PDFDictionary *dictionary, O2PDFDocu
     if (appearance && ![value isKindOfClass:[NSString class]]) return NO;
     // Structural entries are managed by the initializer/page model.
     if ([key isEqual:@"Type"] || [key isEqual:@"Subtype"] || [key isEqual:@"Rect"] || [key isEqual:@"P"]) return NO;
+    const char *subtype=NULL;
+    if ([key isEqual:@"Name"] && [_qvDictionary getNameForKey:"Subtype" value:&subtype] &&
+            (!strcmp(subtype,"Text") || !strcmp(subtype,"Stamp"))) {
+        if (![value isKindOfClass:[NSString class]]) return NO;
+        NSData *data=[value dataUsingEncoding:NSUTF8StringEncoding];
+        if (!data || [data length]>=UINT_MAX) return NO;
+        const char *bytes=[data length] ? [data bytes] : "";
+        if (memchr(bytes,0,[data length])) return NO;
+        O2PDFObject *name=[O2PDFObject_Name pdfObjectWithBytes:bytes length:(unsigned)[data length]];
+        [_qvDictionary setObjectForKey:"Name" value:name]; return YES;
+    }
     O2PDFObject *object=QVToPDF(value,appearance,0);
     if (!object) return NO;
     [_qvDictionary setObjectForKey:[key UTF8String] value:object]; return YES;
