@@ -31,6 +31,37 @@ endif ()
 add_darling_executable(qvolution_pty_contract pty-contract.c)
 
 if (TARGET AppKit)
+    foreach(fixture IN ITEMS screen-colorspace graphics-context-nil-state
+            effective-appearance-inheritance appearance-observer-lifetime
+            appearance-reentrancy appearance-direct-lifetime drawing-appearance
+            color-dynamic-provider client-capture-window)
+        string(REPLACE "-" "_" target_suffix "${fixture}")
+        add_darling_executable(qvolution_${target_suffix}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-${fixture}.m)
+        target_compile_options(qvolution_${target_suffix} PRIVATE -UNDEBUG)
+        target_include_directories(qvolution_${target_suffix} PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron)
+        target_link_libraries(qvolution_${target_suffix} AppKit CoreGraphics)
+    endforeach()
+    add_darling_executable(qvolution_drawing_appearance_auto
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-view-drawing-appearance.m)
+    target_link_libraries(qvolution_drawing_appearance_auto AppKit QuartzCore)
+    add_darling_executable(qvolution_egl_presentation
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-egl-presentation.m)
+    target_compile_options(qvolution_egl_presentation PRIVATE -UNDEBUG)
+    target_include_directories(qvolution_egl_presentation PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include)
+    target_link_libraries(qvolution_egl_presentation AppKit OpenGL Onyx2D)
+    add_darling_executable(qvolution_png_alpha
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/imageio-png-alpha.m)
+    target_link_libraries(qvolution_png_alpha Foundation ImageIO CoreGraphics)
+    add_darling_executable(qvolution_client_capture
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-client-capture.m
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/AppKit/Wayland.backend/WaylandClientCapture.m)
+    target_include_directories(qvolution_client_capture PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/AppKit/Wayland.backend
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include)
+    target_link_libraries(qvolution_client_capture Foundation Onyx2D)
     add_darling_executable(qvolution_qt_public_keys
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-qt-public-keys.m)
     target_link_libraries(qvolution_qt_public_keys AppKit)
