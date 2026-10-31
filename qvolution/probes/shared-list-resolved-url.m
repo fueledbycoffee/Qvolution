@@ -10,6 +10,8 @@ int main(void){@autoreleasepool {
  CHECK(list!=NULL,"existing list positive control");
  typedef CFURLRef (*CopyURL)(LSSharedFileListItemRef,UInt32,CFErrorRef *);
  CopyURL copy=dlsym(lib,"LSSharedFileListItemCopyResolvedURL");CHECK(copy!=NULL,"documented URL-copy symbol available");
+ void *umbrella=dlopen("/System/Library/Frameworks/CoreServices.framework/CoreServices",RTLD_LAZY|RTLD_LOCAL);
+ CHECK(umbrella && dlsym(umbrella,"LSSharedFileListItemCopyResolvedURL")==copy,"CoreServices reexports the actual URL-copy implementation");
  CFURLRef input=CFURLCreateWithString(NULL,CFSTR("file:///qvolution-original-no-file-created.txt"),NULL);
  LSSharedFileListItemRef item=LSSharedFileListInsertItemURL(list,kLSSharedFileListItemLast,CFSTR("Original fixture"),NULL,input,NULL,NULL);
  CHECK(item!=NULL,"existing URL item positive control");
@@ -20,6 +22,6 @@ int main(void){@autoreleasepool {
  CHECK(CFEqual(CFURLGetString(resolved),CFSTR("file:///qvolution-original-no-file-created.txt")),"owned URL survives source item/list release");CFRelease(resolved);
  CHECK(copy(NULL,0,&error)==NULL && error!=NULL,"null item reports failure");
  CHECK(CFEqual(CFErrorGetDomain(error),kCFErrorDomainOSStatus) && CFErrorGetCode(error)==paramErr,"legacy status bridged to explicit CFError");CFRelease(error);
- CHECK(copy(NULL,0,NULL)==NULL,"null item without error output");dlclose(lib);
+ CHECK(copy(NULL,0,NULL)==NULL,"null item without error output");dlclose(umbrella);dlclose(lib);
  puts("PASS: shared-list copied stored URL ownership and error bridge");return 0;
 }}

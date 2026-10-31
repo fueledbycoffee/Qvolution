@@ -35,11 +35,11 @@ if (TARGET AuthenticationServices)
     target_link_libraries(qvolution_authorization_domain Foundation)
     add_dependencies(qvolution_authorization_domain AuthenticationServices)
 endif()
-if (TARGET SharedFileList)
+if (TARGET SharedFileList AND TARGET CoreServices)
     add_darling_executable(qvolution_shared_list_resolved_url shared-list-resolved-url.m)
     target_include_directories(qvolution_shared_list_resolved_url PRIVATE
         ${CMAKE_SOURCE_DIR}/src/frameworks/CoreServices/include)
-    target_link_libraries(qvolution_shared_list_resolved_url Foundation SharedFileList)
+    target_link_libraries(qvolution_shared_list_resolved_url Foundation CoreServices)
 endif()
 
 if (TARGET AppKit)
