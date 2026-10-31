@@ -45,6 +45,14 @@ and an escaped custom name. It checks wrong-type, null and absent names for both
 subtypes and preserves generic conversion for other subtypes. An independent reader
 must also verify the saved PDF. It does not test rendering.
 
+`qvolution_pdf_annotation_ink` checks typed InkList nested coordinate arrays,
+invalid inputs, required loaded entries, mutable input isolation, and two saves
+and reloads. Empty outer and path arrays are accepted as a permissive project
+policy; neither native PDFKit behavior nor ISO conformance for them is claimed.
+Other subtypes retain generic conversion. An independent PDF reader must verify
+the resulting file. This does
+not test path rendering or NSBezierPath convenience APIs.
+
 ## Implementation boundary
 
 Annotations retain actual O2PDFDictionary objects. Foundation scalar/string/array
@@ -102,6 +110,11 @@ No renderer or appearance regeneration is implied by saving dictionary values.
   project policy: ISO defines name objects as byte sequences and does not specify
   native PDFKit NSString encoding or imply parity. Other subtypes retain the
   generic converter.
+- Apple's [inklist key](https://developer.apple.com/documentation/pdfkit/pdfannotationkey/inklist?language=objc)
+  describes arrays of stroked paths. ISO 32000-1:2008 Table 182 specifies the
+  required /InkList array of arrays of alternating coordinates for Ink annotations.
+- Rung 6/GUESS: `PDFAnnotationKeyInklist = @"InkList"` is a project mapping; the
+  public documentation does not publish the native NSString raw spelling.
 - PDF format: Adobe's published [ISO 32000-1:2008](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf),
   Tables 30/164/174, specifies Annots indirect references, annotation fields and DA
   string semantics; sections 7.3 and 7.5.6 specify object syntax/incremental updates.

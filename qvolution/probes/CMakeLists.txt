@@ -311,7 +311,7 @@ if (TARGET Onyx2D)
 endif()
 
 if (TARGET PDFKit AND TARGET Onyx2D AND TARGET CoreGraphics)
-    foreach(fixture IN ITEMS roundtrip boundaries properties decimal invalid review optional-nulls icon)
+    foreach(fixture IN ITEMS roundtrip boundaries properties decimal invalid review optional-nulls icon ink)
         string(REPLACE "-" "_" fixture_suffix "${fixture}")
         add_darling_executable(qvolution_pdf_annotation_${fixture_suffix}
             pdfkit/annotation-${fixture}.m)

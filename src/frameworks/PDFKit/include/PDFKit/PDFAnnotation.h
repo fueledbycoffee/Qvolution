@@ -27,6 +27,7 @@ typedef NSString *PDFAnnotationKey;
 typedef NSString *PDFAnnotationSubtype;
 PDFKIT_EXPORT PDFAnnotationKey const PDFAnnotationKeyDefaultAppearance;
 PDFKIT_EXPORT PDFAnnotationKey const PDFAnnotationKeyIconName;
+PDFKIT_EXPORT PDFAnnotationKey const PDFAnnotationKeyInklist;
 
 @interface PDFAnnotation : NSObject {
 @package

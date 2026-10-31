@@ -32,6 +32,7 @@
 // GUESS: public docs specify the semantic, not the native NSString raw value.
 PDFAnnotationKey const PDFAnnotationKeyDefaultAppearance = @"DA";
 PDFAnnotationKey const PDFAnnotationKeyIconName = @"Name";
+PDFAnnotationKey const PDFAnnotationKeyInklist = @"InkList";
 
 static NSString *QVKey(id key) {
     if (![key isKindOfClass:[NSString class]]) return nil;
@@ -133,6 +134,20 @@ static id QVFromPDF(O2PDFObject *object, BOOL appearance, NSUInteger depth) {
     }
 }
 
+static BOOL QVInkListIsValid(O2PDFObject *object) {
+    O2PDFArray *list=nil;
+    if (![object checkForType:kO2PDFObjectTypeArray value:&list]) return NO;
+    for (NSUInteger i=0; i<[list count]; i++) {
+        O2PDFArray *path=nil;
+        if (![list getArrayAtIndex:i value:&path] || [path count]%2) return NO;
+        for (NSUInteger j=0; j<[path count]; j++) {
+            O2PDFReal coordinate;
+            if (![path getNumberAtIndex:j value:&coordinate] || !isfinite(coordinate)) return NO;
+        }
+    }
+    return YES;
+}
+
 BOOL QVAnnotationDictionaryIsValid(O2PDFDictionary *dictionary) {
     const char *type=NULL;
     O2PDFArray *rect=nil; O2PDFString *appearance=nil; O2PDFObject *entry=nil;
@@ -154,6 +169,8 @@ BOOL QVAnnotationDictionaryIsValid(O2PDFDictionary *dictionary) {
         const char *icon=NULL;
         if (![entry checkForType:kO2PDFObjectTypeName value:&icon]) return NO;
     }
+    if (!strcmp(type,"Ink") &&
+            (![dictionary getObjectForKey:"InkList" value:&entry] || !QVInkListIsValid(entry))) return NO;
     return YES;
 }
 
@@ -212,6 +229,8 @@ PDFAnnotation *QVAnnotationFromDictionary(O2PDFDictionary *dictionary, O2PDFDocu
     }
     O2PDFObject *object=QVToPDF(value,appearance,0);
     if (!object) return NO;
+    if ([key isEqual:@"InkList"] && [_qvDictionary getNameForKey:"Subtype" value:&subtype] &&
+            !strcmp(subtype,"Ink") && !QVInkListIsValid(object)) return NO;
     [_qvDictionary setObjectForKey:[key UTF8String] value:object]; return YES;
 }
 - (NSString *)type { return [self valueForAnnotationKey:@"Subtype"]; }
