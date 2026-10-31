@@ -1,10 +1,12 @@
 # Keka
 
-Status: **not tested**. Wave 2; priority 9.
+Status: **partial client rendering, stage 16**. Wave 2; priority 9. No completed workflow or desktop presentation qualification.
 
 Source: https://www.keka.io/
 
-Test the official Mac bundle.
+Official unmodified Keka1.6.8 universal bundle; publisher SHA256 verified and retained unthinned. Stage 11 stopped at a distributed-notification transport exception. Stage 16 clears that gate and produces one diagnostic 699×432 CPU client image of settings. The client output contains generic SF-symbol box placeholders and a duplicate title; NSImage currently draws generic symbol placeholders. These are recorded quality gaps, not native artwork fidelity.
+
+The bounded 25-second launch timed out (exit unknown); exact-prefix shutdown returned 0. All 749 extracted regular-file/link entries were rechecked unchanged. Compositor visibility, user interaction, archive/extraction workflow, clean app exit, GPU acceleration and stability remain unverified. See the [sanitized stage16 evidence](../../verification/stage16-keka-client-render.json).
 
 ## Acceptance workflow
 

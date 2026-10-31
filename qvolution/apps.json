@@ -405,14 +405,14 @@
       "catalog_source": "https://formulae.brew.sh/api/cask/keka.json",
       "catalog_checked": "2026-10-30",
       "architecture": "universal_x86_64_arm64; x86_64_execution_target",
-      "status": "blocked_initialization",
+      "status": "partial_client_render",
       "tested_version": "1.6.8",
       "artifact_sha256": "9878b94156fdd1c7e83f0e1a8a8e2114e057070f628569c705637c2f800a2f28",
       "milestones": {
         "acquire": "verified_official_artifact",
         "install": "isolated_bundle_extracted",
         "load": "framework_initialization_observed",
-        "launch": "blocked_distributed_notification_transport",
+        "launch": "bounded_launch_client_render_observed",
         "workflow": "not_tested",
         "gnome": "not_verified",
         "stability": "not_tested"
@@ -422,7 +422,7 @@
         "Extract into a fresh directory",
         "Compare file hashes and test a Unicode filename"
       ],
-      "notes": "Official publisher SHA256 verified; original universal x86_64+arm64 bundle retained unthinned and executable unchanged. Stage 11 exits134 with a distributed-notification transport initialization exception reporting errno 48. The underlying cause is not qualified here. No visible UI, archive workflow, GPU or stability qualification.",
+      "notes": "Official publisher SHA256 verified; original universal x86_64+arm64 bundle retained unthinned. Stage 16 clears the earlier distributed-notification transport exception and reaches settings client rendering. One diagnostic CPU client image (699x432) was captured, with generic SF-symbol box placeholders and a duplicate title visible in the client output. The 25-second bounded launch timed out; exit is unknown and exact-prefix cleanup returned 0. All 749 extracted regular-file/link entries were rechecked unchanged. Compositor visibility, real archive/extraction workflows, clean app exit, GPU and stability remain unqualified.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -430,27 +430,73 @@
         "stability": "not_qualified"
       },
       "vendor_results": {
-        "stage_label": "stage11",
-        "evidence_checkpoint": "through_stage14",
+        "stage_label": "stage16",
+        "evidence_checkpoint": "through_stage16",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
-        "render": "not_verified",
-        "visible_ui": "not_verified",
+        "render": "one_cpu_client_image_captured",
+        "visible_ui": "compositor_visibility_not_verified",
         "functional_workflow": "not_tested",
-        "exit": 134,
-        "timeout": false,
-        "seconds": 4.232424913003342,
+        "exit": null,
+        "timeout": true,
+        "timeout_seconds": 25,
+        "seconds": 26.047565977991326,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "51c730ac9b3d385434fff9e96d0881a458d1fb9513970fffe61b874068085d27",
         "recorded_runtime": {
-          "superproject": "554309ab4bcab21ad80ba3c7a39c7b587186ea96",
-          "cocotron": "9ffc6409fe77a15a8ef3e659b1a56b9c8c719671",
-          "launcher_sha256": "315e73d1ffdb7242eb1c3e6ec6443d235dc6d9ff75f88e282accc13447d20caf"
+          "superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
+          "built_runtime_superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
+          "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+          "launcher_sha256": "a3c0be4c86737ad9cb1ff3e54d952c2ea6c07b20e9b86f5e9de37bd81081aac4",
+          "components": {
+            "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+            "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+            "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+            "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+            "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+          }
         },
-        "first_concrete_gate": "Distributed notification transport initialization exception: errno 48",
-        "failure_cause": "unknown"
+        "capture_diagnostic_requested": true,
+        "client_capture": {
+          "count": 1,
+          "width": 699,
+          "height": 432,
+          "render_path": "CPU_client_pixels",
+          "observed_content": "settings",
+          "known_quality_gaps": [
+            "generic_SF_symbol_box_placeholders",
+            "duplicate_title"
+          ],
+          "qualification": "client_render_only_not_compositor_visibility_or_workflow"
+        },
+        "extracted_payload_members_unchanged": 749,
+        "first_concrete_gate": "Settings client pixels captured; presentation and real workflows remain unverified",
+        "failure_cause": "timeout_does_not_establish_cause",
+        "stage11_retake": {
+          "stage_label": "stage11",
+          "evidence_checkpoint": "through_stage14",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "not_verified",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "exit": 134,
+          "timeout": false,
+          "seconds": 4.232424913003342,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "51c730ac9b3d385434fff9e96d0881a458d1fb9513970fffe61b874068085d27",
+          "recorded_runtime": {
+            "superproject": "554309ab4bcab21ad80ba3c7a39c7b587186ea96",
+            "cocotron": "9ffc6409fe77a15a8ef3e659b1a56b9c8c719671",
+            "launcher_sha256": "315e73d1ffdb7242eb1c3e6ec6443d235dc6d9ff75f88e282accc13447d20caf"
+          },
+          "first_concrete_gate": "Distributed notification transport initialization exception: errno 48",
+          "failure_cause": "unknown"
+        }
       },
       "tested_variant": "Official unmodified macOS vendor bundle",
       "artifact_source": {
@@ -772,7 +818,7 @@
         "Use search and save/reopen",
         "Open the integrated terminal and verify output"
       ],
-      "notes": "Official publisher SHA256 verified and executable bytes unchanged. Stage8 loader failure cleared by a tested data/API mapping; stage9 now stops at LSSetDefaultHandlerForURLScheme. No initialization, rendered UI, workflow, GPU or stability qualification. VS Code extraction preserved original confined symlinks and all regular payload files were compared against the original ZIP. Stage 13 clears the LSSetDefaultHandlerForURLScheme import but stops at the NSUserActivity class import expected through CoreServices (exit 139); this is not absence of the existing Foundation implementation. No UI or workflow promotion. Stage 14 clears the CoreServices class re-export gate and stops at UNNotificationAttachmentOptionsTypeHintKey (exit 139); the main executable remains unchanged. No UI or workflow qualification.",
+      "notes": "Official publisher SHA256 verified and executable bytes unchanged. Stage8 loader failure cleared by a tested data/API mapping; stage9 now stops at LSSetDefaultHandlerForURLScheme. No initialization, rendered UI, workflow, GPU or stability qualification. VS Code extraction preserved original confined symlinks and all regular payload files were compared against the original ZIP. Stage 13 clears the LSSetDefaultHandlerForURLScheme import but stops at the NSUserActivity class import expected through CoreServices (exit 139); this is not absence of the existing Foundation implementation. No UI or workflow promotion. Stage 14 clears the CoreServices class re-export gate and stops at UNNotificationAttachmentOptionsTypeHintKey (exit 139); the main executable remains unchanged. No UI or workflow qualification. Stage 17 clears the attachment type-hint key data import and stops at NSScrubberImageItemView (exit 139); main executable unchanged and exact-prefix shutdown 0. No UI/workflow qualification.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -781,8 +827,8 @@
       },
       "tested_variant": "Official unmodified macOS vendor bundle",
       "vendor_results": {
-        "stage_label": "stage14",
-        "evidence_checkpoint": "through_stage14",
+        "stage_label": "stage17",
+        "evidence_checkpoint": "through_stage17",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
         "render": "not_verified",
@@ -790,15 +836,23 @@
         "functional_workflow": "not_tested",
         "exit": 139,
         "timeout": false,
-        "seconds": 2.7492698109999765,
+        "seconds": 2.8164342279924313,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "191ae3ebcfbb3f18bf02c1f2fc274b45f3a453444997c461451046e6e0683d4c",
         "recorded_runtime": {
-          "superproject": "3e0f4c8d05614ff030899f28558ef2fad310f3d7",
-          "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
-          "launcher_sha256": "c10c759887e2a8450b74c74ae01dd0625e7a613ecf92fe733b6a68d184d5168a"
+          "superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+          "built_runtime_superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+          "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+          "launcher_sha256": "782071e1c03c1900c16ab644a7cc6832cda3493e112789487d3f4d7b53e33937",
+          "components": {
+            "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+            "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+            "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+            "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+            "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+          }
         },
         "stage9_retake": {
           "stage_label": "stage9",
@@ -841,9 +895,33 @@
           "built_runtime_superproject": "71bf07bb4c471b3084df2fde5bbadb0a2fcd5433",
           "runtime_provenance": "Recorded checkout is25f825190; coordinator stage manifest identifies built runtime source71bf07bb4"
         },
-        "next_missing_api": "UNNotificationAttachmentOptionsTypeHintKey",
-        "first_concrete_gate": "UserNotifications attachment type-hint key data export unavailable",
-        "expected_framework": "UserNotifications.framework"
+        "stage14_retake": {
+          "stage_label": "stage14",
+          "evidence_checkpoint": "through_stage14",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "not_verified",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "exit": 139,
+          "timeout": false,
+          "seconds": 2.7492698109999765,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "191ae3ebcfbb3f18bf02c1f2fc274b45f3a453444997c461451046e6e0683d4c",
+          "recorded_runtime": {
+            "superproject": "3e0f4c8d05614ff030899f28558ef2fad310f3d7",
+            "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+            "launcher_sha256": "c10c759887e2a8450b74c74ae01dd0625e7a613ecf92fe733b6a68d184d5168a"
+          },
+          "next_missing_api": "UNNotificationAttachmentOptionsTypeHintKey",
+          "first_concrete_gate": "UserNotifications attachment type-hint key data export unavailable",
+          "expected_framework": "UserNotifications.framework"
+        },
+        "next_missing_api": "_OBJC_CLASS_$_NSScrubberImageItemView",
+        "first_concrete_gate": "Missing AppKit class NSScrubberImageItemView",
+        "expected_framework": "AppKit.framework"
       },
       "artifact_source": {
         "source_url": "https://vscode.download.prss.microsoft.com/dbazure/download/stable/2c33b50b16c472efe58357d1d2a8a5414bc23fbf/VSCode-darwin.zip",
@@ -927,7 +1005,7 @@
         "Type, scroll and open a second tab",
         "Download a fixture and verify bytes"
       ],
-      "notes": "Official publisher SHA256 verified; universal bundle preserved unthinned and executable unchanged. Stage8 ASAuthorizationErrorDomain failure clears after its tested mapping; stage9 XPCOM load stopped at ASWebAuthenticationSessionErrorDomain. No rendered UI, browser workflow, sandbox, GPU or stability qualification. Stage 11 clears the web-authentication domain import and stops at kCMSampleAttachmentKey_IsDependedOnByOthers. Stage 12 clears that key and stops at kCMTimingInfoInvalid (exit 255). XPCOM/browser initialization, UI and workflows remain unqualified. Stage 14 clears kCMTimingInfoInvalid and stops at NSAccessibilityPopoverRole (exit 255). No browser UI or workflow qualification.",
+      "notes": "Official publisher SHA256 verified; universal bundle preserved unthinned and executable unchanged. Stage8 ASAuthorizationErrorDomain failure clears after its tested mapping; stage9 XPCOM load stopped at ASWebAuthenticationSessionErrorDomain. No rendered UI, browser workflow, sandbox, GPU or stability qualification. Stage 11 clears the web-authentication domain import and stops at kCMSampleAttachmentKey_IsDependedOnByOthers. Stage 12 clears that key and stops at kCMTimingInfoInvalid (exit 255). XPCOM/browser initialization, UI and workflows remain unqualified. Stage 14 clears kCMTimingInfoInvalid and stops at NSAccessibilityPopoverRole (exit 255). No browser UI or workflow qualification. Stage 17 clears the accessibility popover role data import and stops at NSAccessibilityCustomAction (exit 255); main executable unchanged and exact-prefix shutdown 0. No UI/workflow qualification.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -936,8 +1014,8 @@
       },
       "tested_variant": "Official unmodified macOS vendor bundle",
       "vendor_results": {
-        "stage_label": "stage14",
-        "evidence_checkpoint": "through_stage14",
+        "stage_label": "stage17",
+        "evidence_checkpoint": "through_stage17",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
         "render": "not_verified",
@@ -945,15 +1023,23 @@
         "functional_workflow": "not_tested",
         "exit": 255,
         "timeout": false,
-        "seconds": 1.7080536110006506,
+        "seconds": 1.7345422149955994,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "ee82fbe42a525ff20d9d70c80fe6c54d0bc95de5500e75a18bc6aa128f0cf5af",
         "recorded_runtime": {
-          "superproject": "3e0f4c8d05614ff030899f28558ef2fad310f3d7",
-          "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
-          "launcher_sha256": "c10c759887e2a8450b74c74ae01dd0625e7a613ecf92fe733b6a68d184d5168a"
+          "superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+          "built_runtime_superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+          "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+          "launcher_sha256": "782071e1c03c1900c16ab644a7cc6832cda3493e112789487d3f4d7b53e33937",
+          "components": {
+            "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+            "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+            "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+            "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+            "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+          }
         },
         "stage9_retake": {
           "stage_label": "stage9",
@@ -1014,8 +1100,32 @@
           "next_missing_api": "kCMTimingInfoInvalid",
           "first_concrete_gate": "XPCOM loader missing CoreMedia timing-info data export"
         },
-        "next_missing_api": "NSAccessibilityPopoverRole",
-        "first_concrete_gate": "XPCOM loader missing AppKit accessibility popover role data",
+        "stage14_retake": {
+          "stage_label": "stage14",
+          "evidence_checkpoint": "through_stage14",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "not_verified",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "exit": 255,
+          "timeout": false,
+          "seconds": 1.7080536110006506,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "ee82fbe42a525ff20d9d70c80fe6c54d0bc95de5500e75a18bc6aa128f0cf5af",
+          "recorded_runtime": {
+            "superproject": "3e0f4c8d05614ff030899f28558ef2fad310f3d7",
+            "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+            "launcher_sha256": "c10c759887e2a8450b74c74ae01dd0625e7a613ecf92fe733b6a68d184d5168a"
+          },
+          "next_missing_api": "NSAccessibilityPopoverRole",
+          "first_concrete_gate": "XPCOM loader missing AppKit accessibility popover role data",
+          "expected_framework": "AppKit.framework"
+        },
+        "next_missing_api": "_OBJC_CLASS_$_NSAccessibilityCustomAction",
+        "first_concrete_gate": "Missing AppKit class NSAccessibilityCustomAction",
         "expected_framework": "AppKit.framework"
       },
       "artifact_source": {
@@ -1198,7 +1308,7 @@
         "Navigate servers and exchange an authorized test message",
         "Test voice, then camera, then screen share as separate gates"
       ],
-      "notes": "Official stable Discord Mac client 0.0.420 acquired over official HTTPS/CDN; CDN MD5 transport match verified and local SHA256 pinned. No publisher SHA256, signature or notarization verification is claimed. Original universal x86_64+arm64 archive/bundle retained unthinned; main executable and all 300 extracted regular-file/link entries unchanged after the stage 13 bounded launch. It exits 139 at NSUserActivity expected through CoreServices, while a real Foundation class already exists. No login/account action, visible UI, message, voice, camera, screen sharing, GPU or stability qualification. Stage 14 clears the CoreServices class re-export gate and stops at UNNotificationAttachmentOptionsTypeHintKey (exit 139); the main executable remains unchanged. No UI or workflow qualification.",
+      "notes": "Official stable Discord Mac client 0.0.420 acquired over official HTTPS/CDN; CDN MD5 transport match verified and local SHA256 pinned. No publisher SHA256, signature or notarization verification is claimed. Original universal x86_64+arm64 archive/bundle retained unthinned; main executable and all 300 extracted regular-file/link entries unchanged after the stage 13 bounded launch. It exits 139 at NSUserActivity expected through CoreServices, while a real Foundation class already exists. No login/account action, visible UI, message, voice, camera, screen sharing, GPU or stability qualification. Stage 14 clears the CoreServices class re-export gate and stops at UNNotificationAttachmentOptionsTypeHintKey (exit 139); the main executable remains unchanged. No UI or workflow qualification. Stage 17 clears the attachment type-hint key data import and stops at NSScrubberImageItemView (exit 139); main executable unchanged and exact-prefix shutdown 0. No UI/workflow qualification.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -1207,8 +1317,8 @@
       },
       "tested_variant": "Official unmodified macOS vendor bundle",
       "vendor_results": {
-        "stage_label": "stage14",
-        "evidence_checkpoint": "through_stage14",
+        "stage_label": "stage17",
+        "evidence_checkpoint": "through_stage17",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
         "render": "not_verified",
@@ -1216,15 +1326,23 @@
         "functional_workflow": "not_tested",
         "exit": 139,
         "timeout": false,
-        "seconds": 2.7685725939954864,
+        "seconds": 2.825257591990521,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "85766d653be94f0fbb9e61b9454568d133268894ef950b068496c9e9ce223f24",
         "recorded_runtime": {
-          "superproject": "3e0f4c8d05614ff030899f28558ef2fad310f3d7",
-          "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
-          "launcher_sha256": "c10c759887e2a8450b74c74ae01dd0625e7a613ecf92fe733b6a68d184d5168a"
+          "superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+          "built_runtime_superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+          "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+          "launcher_sha256": "782071e1c03c1900c16ab644a7cc6832cda3493e112789487d3f4d7b53e33937",
+          "components": {
+            "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+            "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+            "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+            "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+            "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+          }
         },
         "stage13_retake": {
           "stage_label": "stage13",
@@ -1243,9 +1361,33 @@
           "metadata_limit": "Original launcher hash and recorded checkout fields omitted rather than inferred from stage14",
           "executable_sha256": "85766d653be94f0fbb9e61b9454568d133268894ef950b068496c9e9ce223f24"
         },
-        "next_missing_api": "UNNotificationAttachmentOptionsTypeHintKey",
-        "first_concrete_gate": "UserNotifications attachment type-hint key data export unavailable",
-        "expected_framework": "UserNotifications.framework"
+        "stage14_retake": {
+          "stage_label": "stage14",
+          "evidence_checkpoint": "through_stage14",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "not_verified",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "exit": 139,
+          "timeout": false,
+          "seconds": 2.7685725939954864,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "85766d653be94f0fbb9e61b9454568d133268894ef950b068496c9e9ce223f24",
+          "recorded_runtime": {
+            "superproject": "3e0f4c8d05614ff030899f28558ef2fad310f3d7",
+            "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+            "launcher_sha256": "c10c759887e2a8450b74c74ae01dd0625e7a613ecf92fe733b6a68d184d5168a"
+          },
+          "next_missing_api": "UNNotificationAttachmentOptionsTypeHintKey",
+          "first_concrete_gate": "UserNotifications attachment type-hint key data export unavailable",
+          "expected_framework": "UserNotifications.framework"
+        },
+        "next_missing_api": "_OBJC_CLASS_$_NSScrubberImageItemView",
+        "first_concrete_gate": "Missing AppKit class NSScrubberImageItemView",
+        "expected_framework": "AppKit.framework"
       },
       "artifact_source": {
         "source_url": "https://stable.dl2.discordapp.net/apps/osx/0.0.420/Discord.dmg",

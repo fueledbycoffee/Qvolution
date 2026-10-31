@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "stage_label": "stage16",
+  "scope": "Sanitized own-source transport gates and coordinator vendor client-render observation; no full app qualification",
+  "built_runtime": {
+    "superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
+    "built_runtime_superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
+    "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+    "launcher_sha256": "a3c0be4c86737ad9cb1ff3e54d952c2ea6c07b20e9b86f5e9de37bd81081aac4",
+    "components": {
+      "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+      "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+      "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+      "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+      "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+    }
+  },
+  "keka": {
+    "stage_label": "stage16",
+    "evidence_checkpoint": "through_stage16",
+    "bounded_launch_only": true,
+    "application_entry": "not_separately_instrumented",
+    "render": "one_cpu_client_image_captured",
+    "visible_ui": "compositor_visibility_not_verified",
+    "functional_workflow": "not_tested",
+    "exit": null,
+    "timeout": true,
+    "timeout_seconds": 25,
+    "seconds": 26.047565977991326,
+    "exact_prefix_shutdown_exit": 0,
+    "diagnostic_dyld_overrides": false,
+    "executable_unchanged": true,
+    "executable_sha256": "51c730ac9b3d385434fff9e96d0881a458d1fb9513970fffe61b874068085d27",
+    "recorded_runtime": {
+      "superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
+      "built_runtime_superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
+      "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+      "launcher_sha256": "a3c0be4c86737ad9cb1ff3e54d952c2ea6c07b20e9b86f5e9de37bd81081aac4",
+      "components": {
+        "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+        "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+        "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+        "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+        "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+      }
+    },
+    "capture_diagnostic_requested": true,
+    "client_capture": {
+      "count": 1,
+      "width": 699,
+      "height": 432,
+      "render_path": "CPU_client_pixels",
+      "observed_content": "settings",
+      "known_quality_gaps": [
+        "generic_SF_symbol_box_placeholders",
+        "duplicate_title"
+      ],
+      "qualification": "client_render_only_not_compositor_visibility_or_workflow"
+    },
+    "extracted_payload_members_unchanged": 749,
+    "first_concrete_gate": "Settings client pixels captured; presentation and real workflows remain unverified",
+    "failure_cause": "timeout_does_not_establish_cause"
+  },
+  "transport_gates": {
+    "foundation_long_path_two_process": {
+      "exit": 0,
+      "exact_prefix_shutdown_exit": 0
+    },
+    "supplemental_harness": {
+      "steps": 13,
+      "failures": 0,
+      "both_prefix_shutdown_exit": 0
+    },
+    "single_root_state": {
+      "guest_exit": 0,
+      "exact_prefix_shutdown_exit": 0
+    },
+    "unknown_alias_rejection": {
+      "guest_exit": 0,
+      "holder_exit": 0,
+      "exact_prefix_shutdown_exit": 0
+    },
+    "distributed_notification_semantics": {
+      "exit": 0,
+      "seconds": 3.2368,
+      "exact_prefix_shutdown_exit": 0
+    },
+    "actual_long_prefix_socket_contract": {
+      "guest_path_bytes": 47,
+      "host_prefix_bytes": 68,
+      "exit": 0,
+      "seconds": 2.412,
+      "exact_prefix_shutdown_exit": 0
+    },
+    "raw_long_path_socket_pair": {
+      "processes": 1,
+      "sockets": 2,
+      "exit": 0,
+      "exact_prefix_shutdown_exit": 0
+    }
+  },
+  "evidence_provenance": "Keka immutable stage16 launch scalar metadata; retained coordinator observations for client capture,749-entry check and transport gates. No raw frames, private paths, PIDs or images included.",
+  "limits": [
+    "One CPU client image does not qualify compositor-visible presentation, interaction, workflow, clean app exit, GPU acceleration or stability.",
+    "Timeout is neither a hang diagnosis nor a successful app result.",
+    "SF-symbol placeholders and duplicate title are observed UI-quality gaps; native symbol artwork is not implemented.",
+    "Exact-prefix shutdown0 is cleanup evidence only."
+  ],
+  "independent_stage17_followup": {
+    "built_runtime": {
+      "superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+      "built_runtime_superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+      "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+      "launcher_sha256": "782071e1c03c1900c16ab644a7cc6832cda3493e112789487d3f4d7b53e33937",
+      "components": {
+        "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+        "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+        "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+        "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+        "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+      }
+    },
+    "full_build_edges": 1003,
+    "ninja_dry_run": "no_work",
+    "private_stage": "completed",
+    "data_export_probes": [
+      {
+        "name": "usernotifications_type_hint_key",
+        "exit": 0,
+        "seconds": 1.68365,
+        "exact_prefix_shutdown_exit": 0
+      },
+      {
+        "name": "accessibility_popover_role",
+        "exit": 0,
+        "seconds": 1.61189,
+        "exact_prefix_shutdown_exit": 0
+      }
+    ],
+    "vendor_retake_scalar_results": [
+      {
+        "app": "discord",
+        "stage_label": "stage17",
+        "exit": 139,
+        "timeout": false,
+        "seconds": 2.825257591990521,
+        "exact_prefix_shutdown_exit": 0,
+        "executable_unchanged": true,
+        "executable_sha256": "85766d653be94f0fbb9e61b9454568d133268894ef950b068496c9e9ce223f24",
+        "next_missing_api": "_OBJC_CLASS_$_NSScrubberImageItemView"
+      },
+      {
+        "app": "vscode",
+        "stage_label": "stage17",
+        "exit": 139,
+        "timeout": false,
+        "seconds": 2.8164342279924313,
+        "exact_prefix_shutdown_exit": 0,
+        "executable_unchanged": true,
+        "executable_sha256": "191ae3ebcfbb3f18bf02c1f2fc274b45f3a453444997c461451046e6e0683d4c",
+        "next_missing_api": "_OBJC_CLASS_$_NSScrubberImageItemView"
+      },
+      {
+        "app": "firefox",
+        "stage_label": "stage17",
+        "exit": 255,
+        "timeout": false,
+        "seconds": 1.7345422149955994,
+        "exact_prefix_shutdown_exit": 0,
+        "executable_unchanged": true,
+        "executable_sha256": "ee82fbe42a525ff20d9d70c80fe6c54d0bc95de5500e75a18bc6aa128f0cf5af",
+        "next_missing_api": "_OBJC_CLASS_$_NSAccessibilityCustomAction"
+      }
+    ],
+    "scope_limit": "Independent source data-export checks and unchanged vendor loader progress; no AppKit class behavior, visible UI or workflow qualification. Keka client observation above remains stage16, not an inferred stage17 retake."
+  }
+}

@@ -1,6 +1,6 @@
 # Discord
 
-Status: **blocked during loading; latest bounded retake stage 14**. Wave 4; priority 20.
+Status: **blocked during loading; latest bounded retake stage 17**. Wave 4; priority 20.
 
 Source: https://discord.com/download
 
@@ -12,7 +12,7 @@ Discord 0.0.420 is the official stable Mac distribution, preserved as an unthinn
 
 The recorded checks are official HTTPS origin/CDN and CDN MD5 transport match, plus local SHA256 pinning. Publisher SHA256, signature and notarization verification were not performed. Local archive SHA256: `f1f809f79873a375ebaff8dd09858bf1cd9ac91167853a928f747b9f891c8dc8`. The initial stage 13 run left the main executable and all 300 extracted regular-file/symlink entries unchanged against the acquisition manifest; this is not an independent per-member DMG decoder comparison.
 
-Stage 13 stopped at the NSUserActivity class import expected through CoreServices, despite the existing Foundation implementation. Stage 14 clears that re-export gate, then stops at `UNNotificationAttachmentOptionsTypeHintKey` with exit 139; main executable unchanged and exact-prefix shutdown 0. No login/account action, visible UI, message, voice, camera, screen share, GPU or stability qualification is established. Current runtime hashes and historical gates are in [apps.json](../../apps.json). The original stage 13 raw record was overwritten by the stage 14 retake; its retained coordinator observation omits unknown launcher/checkout metadata rather than inferring it from the newer run. Registry API probes and loader progress do not establish working Discord or actual URL delivery.
+Stage 13 stopped at the NSUserActivity class import expected through CoreServices, despite the existing Foundation implementation. Stage 14 clears that re-export gate, then stops at `UNNotificationAttachmentOptionsTypeHintKey` with exit 139; main executable unchanged and exact-prefix shutdown 0. Stage 17 clears the type-hint data import, then stops at `NSScrubberImageItemView` with exit 139; main executable unchanged and exact-prefix shutdown 0. No login/account action, visible UI, message, voice, camera, screen share, GPU or stability qualification is established. Current runtime hashes and historical gates are in [apps.json](../../apps.json). The original stage 13 raw record was overwritten by the stage 14 retake; its retained coordinator observation omits unknown launcher/checkout metadata rather than inferring it from the newer run. Registry API probes and loader progress do not establish working Discord or actual URL delivery.
 
 ## Acceptance workflow
 
