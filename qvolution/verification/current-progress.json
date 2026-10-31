@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T16:10:00+00:00",
-  "stage": "Stage 38",
-  "built_source": "6f3a004369d9a0ceb22cb8a5cd5d16ffd95b3044",
+  "updated_utc": "2026-10-31T16:19:58.801837+00:00",
+  "stage": "Stage 39",
+  "built_source": "f209523c6ca90dd6731ca72b36abf8033e1f4df4",
   "qualified_app_ids": [],
   "framework_checks": {
     "Legacy regression suite": {
@@ -33,9 +33,9 @@
     {
       "title": "Graphics and Metal",
       "owner": "Runtime team",
-      "phase": "Installed fixture evidence",
-      "now": "Stage 34 installed backend copy and fill pass. Stage 38 real backend timestamp sampling and capability-negative checks both pass; display and app GPU qualification remain open.",
-      "next": "Verify actual device, presentation and app workflows."
+      "phase": "Hardware backend verified; app presentation open",
+      "now": "Stage 39 guest Metal selects NVIDIA GeForce RTX 4070 and passes buffer-fill/readback. Real timestamp and capability-negative controls also pass.",
+      "next": "Verify real application presentation, shared GPU surfaces and stability."
     },
     {
       "title": "Atomic ABI",
@@ -47,9 +47,9 @@
     {
       "title": "PDF documents",
       "owner": "Sol high + independent xhigh review",
-      "phase": "Icon model and independent reader pass; installed PDFKit pending",
-      "now": "Stage 37 normal installed PDFKit seven model modes and strict independent reader pass. Stage 38 installed empty-name parser passes; the owned icon model and strict independent reader pass for escaped Text and empty Stamp names. Icon source is integrated after the Stage 38 build.",
-      "next": "Build and test normal installed PDFKit with the integrated icon source, then retry the original Skim workflow."
+      "phase": "Eight installed annotation checks pass",
+      "now": "Stage 39 all eight normal installed PDF annotation controls pass. Independent strict reader verifies escaped Text and empty Stamp names, references and preserved content. Skim clears the icon-name import and now requires Inklist.",
+      "next": "Implement and verify genuine ink-list storage and persistence, then retry Skim."
     },
     {
       "title": "Graphics clipping",
@@ -82,9 +82,9 @@
     {
       "title": "Voice synthesis",
       "owner": "Runtime team",
-      "phase": "Reexport fix in progress",
-      "now": "Stage 38 voice callers exited 20 with the class missing. The actual AVFoundation library lacks the AVFAudio dependency although the class exists in AVFAudio; a reviewed reexport fix is in progress.",
-      "next": "Build and test the reexport and voice metadata, defaults, NUL handling and real helper before retrying Firefox."
+      "phase": "Class visible; native helper spawn fails",
+      "now": "Stage 39 normal AVFoundation class-surface check passes after the reexport fix. Catalog and language checks fail because native helper posix_spawn returns error1; the explicit no-CLOEXEC control fails identically.",
+      "next": "Diagnose actual native helper transport, then rerun unchanged catalog, language and NUL controls before Firefox."
     },
     {
       "title": "Swift and CryptoKit",
@@ -92,6 +92,13 @@
       "phase": "Source modules built; runtime qualification pending",
       "now": "A normal Darwin Swift core and _Concurrency source-module build exited 0. This does not establish a concurrency executable, CryptoKit framework, or WhatsApp qualification.",
       "next": "Build and test genuine Darwin concurrency and CryptoKit artifacts and retry WhatsApp."
+    },
+    {
+      "title": "Shared surfaces for Electron",
+      "owner": "Sol xhigh implementation + independent review",
+      "phase": "Installed; first runtime creation fails",
+      "now": "Reviewed paired server, iokitd, CoreVideo and IOSurface source is installed in Stage 39. Strict normal-linked guest fixture builds; its first surface creation returns null and asserts. Cross-process and GPU behavior remain unverified.",
+      "next": "Diagnose real broker creation failure, pass ownership and cross-process security/lifetime gates, then retry Discord, VS Code and Obsidian."
     }
   ],
   "app_checkpoints": {
@@ -110,7 +117,7 @@
     "spotify": "Stage 34",
     "whatsapp": "Stage 36",
     "hex-fiend": "Stage 33",
-    "skim": "Stage 37",
+    "skim": "Stage 39",
     "keycastr": "Stage 33",
     "blender": "Stage 33"
   },
@@ -118,7 +125,7 @@
     "textedit": "New toolbar checks pass automatically; desktop acceptance, full editing workflow, macOS UI polish, GPU and stability remain.",
     "discord": "Original app launch reports missing CVPixelBufferCreateWithIOSurface; workflow, UI, GPU and stability remain unqualified.",
     "vscode": "Original app launch reports missing CVPixelBufferCreateWithIOSurface; workflow, UI, GPU and stability remain unqualified.",
-    "firefox": "Missing AVSpeechSynthesisVoice API; Stage 38 voice callers report missing class and the AVFoundation to AVFAudio reexport fix is in progress.",
+    "firefox": "AVSpeechSynthesisVoice class is now visible through AVFoundation, but real catalog helper spawning fails with error1; voice metadata/language and original Firefox acceptance remain open.",
     "coteditor": "Missing AppIntents framework.",
     "keepassxc": "Startup failure; cause not established.",
     "keka": "Settings view partially renders; archive workflow, missing icons and duplicate controls remain.",
@@ -130,12 +137,12 @@
     "spotify": "Missing AVSampleBufferAudioRendererFlushTimeKey at the last app attempt; original PCM v2 controls exited 139 and 132 on retry, while a diagnostic variant exited 0. Playback and app qualification remain open.",
     "whatsapp": "Catalyst MobileCoreServices clears; x86_64 CryptoKit remains missing. Swift core and _Concurrency source modules built successfully, but no concurrency executable or CryptoKit runtime qualification is established.",
     "hex-fiend": "Bounded launch timed out without captured UI; cause and application entry not established. Exact published file-open route is prepared for testing.",
-    "skim": "Stage 37 original app launch reports missing PDFAnnotationKeyIconName. Icon source and owned-model plus strict-reader controls pass; normal installed PDFKit and original-app retake remain pending.",
+    "skim": "Stage 39 original unchanged Skim clears IconName and reports missing PDFAnnotationKeyInklist. Eight installed PDF annotation controls and independent reader pass; document display and app workflow remain unverified.",
     "keycastr": "Startup exits 139; cause unknown. Input overlay and host event capture are unverified.",
     "blender": "Startup exits 139; cause unknown. Viewport, render, device acceleration and stability are unverified."
   },
   "framework_suite_stage": "Stage 37 · initial run",
   "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
   "source_label": "Published framework source · Stage 24",
-  "latest_checks": "Stage 38 installed real Metal timestamp sampling and capability-negative controls both pass; installed empty PDF-name parsing passes. Owned PDF icon model and strict independent reader pass, with integrated icon source awaiting normal installed PDFKit verification. Stage 37 full suite initially passed 56/58; the two unchanged startup-timeout retries passed, so all 58 modes have a passing result but the initial run was not 58/58. Voice reexport repair and original audio failures remain open. A Swift core and _Concurrency source-module build exited 0; runtime qualification remains open."
+  "latest_checks": "Stage 39 full build and private install pass. Guest Metal selects NVIDIA GeForce RTX 4070 and passes buffer-fill/readback; real timestamps and capability negatives pass. Eight normal installed PDF annotation controls plus strict independent reader pass. Voice class visibility passes, but native helper spawn fails. First installed shared-surface creation fails before cross-process tests. Stage 37 full suite remains 56/58 initially, with both unchanged retries passing; all 24 app qualification gates remain open. Audio original failures and concurrency runtime qualification remain unresolved."
 }
