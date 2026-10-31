@@ -72,6 +72,7 @@ extern const CFStringRef kLSSharedFileListItemHidden;
 extern const CFStringRef kLSSharedFileListLoginItemHidden;
 
 /* Flags */
+typedef UInt32 LSSharedFileListResolutionFlags;
 enum {
     kLSSharedFileListNoUserInteraction = 1 << 0,
     kLSSharedFileListDoNotMountVolumes = 1 << 1
@@ -94,6 +95,11 @@ OSStatus LSSharedFileListItemResolve(
     UInt32 inFlags,
     CFURLRef *outURL,
     FSRef *outRef);
+
+CFURLRef LSSharedFileListItemCopyResolvedURL(
+    LSSharedFileListItemRef inItem,
+    LSSharedFileListResolutionFlags inFlags,
+    CFErrorRef *outError);
 
 LSSharedFileListItemRef LSSharedFileListInsertItemURL(
     LSSharedFileListRef inList,

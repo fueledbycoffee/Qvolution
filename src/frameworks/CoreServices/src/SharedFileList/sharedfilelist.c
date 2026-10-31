@@ -200,6 +200,29 @@ OSStatus LSSharedFileListItemResolve(
 	return noErr;
 }
 
+CFURLRef LSSharedFileListItemCopyResolvedURL(
+	LSSharedFileListItemRef inItem,
+	LSSharedFileListResolutionFlags inFlags,
+	CFErrorRef *outError)
+{
+	if (outError) {
+		*outError = NULL;
+	}
+	CFURLRef url = NULL;
+	OSStatus status = LSSharedFileListItemResolve(inItem, inFlags, &url, NULL);
+	if (status == noErr && url == NULL) {
+		status = fnfErr;
+	}
+	if (status != noErr) {
+		if (outError) {
+			*outError = CFErrorCreate(kCFAllocatorDefault,
+				kCFErrorDomainOSStatus, status, NULL);
+		}
+		return NULL;
+	}
+	return url;
+}
+
 LSSharedFileListItemRef LSSharedFileListInsertItemURL(
 	LSSharedFileListRef inList,
 	LSSharedFileListItemRef insertAfterThisItem,

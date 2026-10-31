@@ -1,0 +1,7 @@
+# Shared-list copied URL bridge
+
+Apple documents [LSSharedFileListItemCopyResolvedURL](https://developer.apple.com/documentation/coreservices/1449882-lssharedfilelistitemcopyresolved?language=objc) with item, resolution flags and optional CFError output, returning an owned URL (rung3). Reuse the existing in-memory item/legacy ItemResolve path and its UInt32 flags ABI (rung2); translate its OSStatus into kCFErrorDomainOSStatus on failure. A missing stored URL maps to fnfErr as explicit project policy, not measured native error equivalence.
+
+The underlying implementation stores URLs in memory. Persistence, bookmarks, filesystem existence checks, volume mounting and UI remain unimplemented; this wrapper does not qualify recent files or login items. The flags reach the existing resolver, whose current storage-only path ignores them and performs no UI/mount actions.
+
+The original fixture loads the actual SharedFileList library, creates an existing list as a positive control, then requires the new symbol. It inserts an original URL without creating/reading a file, checks URL equality, optional error output and Copy ownership after source list/item removal. Null input must return NULL and an explicit paramErr CFError, including when no error output is requested. Parent/candidate and unchanged VS Code launch are distinct gates. This fixture uses minimal CoreFoundation headers: importing Foundation alongside the current SharedFileList header exposes a pre-existing FSRef header conflict, which is outside this scoped mapping.
