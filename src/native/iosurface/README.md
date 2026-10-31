@@ -67,6 +67,31 @@ fallible create/import/export operation. These controls are never linked into
 the production library. They establish local validation/ownership properties;
 they do not establish device capability, valid GPU pixels or guest behavior.
 
+`DARLING_SURFACE_HARDWARE_PROBE=ON` separately builds
+`surface-vulkan-hardware-probe`, which links the production library and real
+Vulkan loader. It is never a CTest. Configure a reviewed
+`DARLING_SURFACE_PROBE_SOURCE_ID` before root schedules enumeration or GPU
+execution. It supports actual production import and a separate payload round
+trip, same-process/cross-exec, creator drop and reverse producer roles. Each
+endpoint creates a distinct Vulkan instance and matches exact image metadata;
+the harness adds no raw-handle access to production objects. Only the payload
+case checks shared pixels, nonzero readback sentinels and padded canaries.
+Initial ready is waited once, released is signaled/waited once, and directional
+return-reader FDs are retained explicitly rather than cloning an initial grant.
+
+The probe uses finite fence/channel/child-exit waits. Failed GPU work remains
+in a typed bounded registry; its controller reports its PID/owned child and
+holds the process while polling for known completion/device loss. SIGINT and
+SIGTERM request stop but do not free pending resources. Do not wrap a root GPU
+run in a process-killing timeout. Root must retain and supervise any reported
+retirement hold. The probe does not programmatically collect validation-layer
+messages from production-private VkInstances; when root enables a validation
+layer, its captured diagnostics are a separate acceptance check.
+
+The additional `surface-probe-options-control` is CPU-only and links no Vulkan
+loader. It checks parsing bounds and proves untouched/zero buffers cannot pass
+the sentinel/pixel/canary detector. It supplies no hardware evidence.
+
 Provenance: clean `gpu-surface-direct-primary-next/SPEC.md` sections 4–5 and
 `SOURCE-LEDGER.md`; official Khronos Vulkan memory/resources/synchronization
 contracts and `EXT_external_objects`/`EXT_external_objects_fd`. Linux descriptor
