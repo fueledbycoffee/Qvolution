@@ -30,6 +30,18 @@ endif ()
 
 add_darling_executable(qvolution_pty_contract pty-contract.c)
 
+if (TARGET AuthenticationServices)
+    add_darling_executable(qvolution_authorization_domain authorization-domain.m)
+    target_link_libraries(qvolution_authorization_domain Foundation)
+    add_dependencies(qvolution_authorization_domain AuthenticationServices)
+endif()
+if (TARGET SharedFileList)
+    add_darling_executable(qvolution_shared_list_resolved_url shared-list-resolved-url.m)
+    target_include_directories(qvolution_shared_list_resolved_url PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/frameworks/CoreServices/include)
+    target_link_libraries(qvolution_shared_list_resolved_url Foundation SharedFileList)
+endif()
+
 if (TARGET AppKit)
     foreach(fixture IN ITEMS screen-colorspace colorspace-icc-profile graphics-context-nil-state
             effective-appearance-inheritance appearance-observer-lifetime
