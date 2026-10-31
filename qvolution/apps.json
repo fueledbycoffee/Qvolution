@@ -32,7 +32,7 @@
         "Edit, undo, copy and paste",
         "Save, quit, reopen and compare contents"
       ],
-      "notes": "Darling-built open-source fixture, not a vendor-bundle pass. ASCII saving/reopening, single title bar and flicker correction are user-confirmed. Normal Objective-C startup no longer uses DYLD overrides; the user confirmed reopened text, typing and menus. Unicode editing, undo, clipboard and extended stability remain unverified. Swift ABI compatibility with the legacy x86 overlay is not fixed. Rich-text inspector is implemented with partial user-confirmed formatting. Font/size focus regressions pass and screenshot shows DejaVu Serif size 16 applied. Synthetic popup regressions pass, but real multi-output popup acceptance failed: overflow, slow scrolling, pixelated text and font-change lag remain. Orbit bridge is deployed with backups; the later activation and focused-menu result is recorded below. Follow-up native popup-resize and font-metric fixes pass targeted guest checks; latest real menu acceptance remains pending and pixelation is unresolved. On stage23 the user again reports Ubuntu bold failing and the family picker too long; both remain open. Orbit is now active: its real TextEdit process lookup returns a canonical dbusmenu endpoint with all seven top-level menus, and the user confirms focused top-bar menus appear and open. Action execution, disabled/check state, keyboard shortcuts and fallback/restart acceptance are not yet qualified.",
+      "notes": "Darling-built open-source fixture, not a vendor-bundle pass. ASCII saving/reopening, single title bar and flicker correction are user-confirmed. Normal Objective-C startup no longer uses DYLD overrides; the user confirmed reopened text, typing and menus. Unicode editing, undo, clipboard and extended stability remain unverified. Swift ABI compatibility with the legacy x86 overlay is not fixed. Rich-text inspector is implemented with partial user-confirmed formatting. Font/size focus regressions pass and screenshot shows DejaVu Serif size 16 applied. Synthetic popup regressions pass, but real multi-output popup acceptance failed: overflow, slow scrolling, pixelated text and font-change lag remain. Orbit bridge is deployed with backups; the later activation and focused-menu result is recorded below. Follow-up native popup-resize and font-metric fixes pass targeted guest checks; latest real menu acceptance remains pending and pixelation is unresolved. On stage23 the user again reports Ubuntu bold failing and the family picker too long; both remain open. Orbit is now active: its real TextEdit process lookup returns a canonical dbusmenu endpoint with all seven top-level menus, and the user confirms focused top-bar menus appear and open. Action execution, disabled/check state, keyboard shortcuts and fallback/restart acceptance are not yet qualified. Stage24 user confirms Ubuntu bold and compact font picker work. User then reports missing persistent formatting-button state/icons and a temporary ruler/tab-marker change during Bold; those UI defects remain open.",
       "tested_variant": "Darling source fixture",
       "diagnostic_results": {
         "wayland_connected": true,
@@ -51,7 +51,10 @@
         "foundation_commit": "cbde81c88373c1417c9bfece7f45e68c56834518",
         "swift_abi": "legacy_x86_overlay_unsupported",
         "rich_text_inspector_bar": "implemented; formatting and font/size application observed; stage4 native popup/configure/metrics fixtures pass; actual menu acceptance and font quality pending",
-        "gnome_global_menu": "Orbit activated; actual TextEdit export and user-confirmed focused top-bar menus appear and open; menu action/state/shortcut/restart acceptance remains open"
+        "gnome_global_menu": "Orbit activated; actual TextEdit export and user-confirmed focused top-bar menus appear and open; menu action/state/shortcut/restart acceptance remains open",
+        "ubuntu_bold": "user_confirmed_stage24",
+        "font_family_picker": "user_confirmed_compact_and_scrollable_stage24",
+        "formatting_toolbar": "open: persistent active state/icons and transient ruler change"
       },
       "quality_gates": {
         "workflow": "partial_source_fixture",
@@ -1058,7 +1061,7 @@
         "Use search and save/reopen",
         "Open the integrated terminal and verify output"
       ],
-      "notes": "Official publisher SHA256 verified and executable bytes unchanged. Stage8 loader failure cleared by a tested data/API mapping; stage9 now stops at LSSetDefaultHandlerForURLScheme. No initialization, rendered UI, workflow, GPU or stability qualification. VS Code extraction preserved original confined symlinks and all regular payload files were compared against the original ZIP. Stage 13 clears the LSSetDefaultHandlerForURLScheme import but stops at the NSUserActivity class import expected through CoreServices (exit 139); this is not absence of the existing Foundation implementation. No UI or workflow promotion. Stage 14 clears the CoreServices class re-export gate and stops at UNNotificationAttachmentOptionsTypeHintKey (exit 139); the main executable remains unchanged. No UI or workflow qualification. Stage 17 clears the attachment type-hint key data import and stops at NSScrubberImageItemView (exit 139); main executable unchanged and exact-prefix shutdown 0. No UI/workflow qualification.",
+      "notes": "Official publisher SHA256 verified and executable bytes unchanged. Stage8 loader failure cleared by a tested data/API mapping; stage9 now stops at LSSetDefaultHandlerForURLScheme. No initialization, rendered UI, workflow, GPU or stability qualification. VS Code extraction preserved original confined symlinks and all regular payload files were compared against the original ZIP. Stage 13 clears the LSSetDefaultHandlerForURLScheme import but stops at the NSUserActivity class import expected through CoreServices (exit 139); this is not absence of the existing Foundation implementation. No UI or workflow promotion. Stage 14 clears the CoreServices class re-export gate and stops at UNNotificationAttachmentOptionsTypeHintKey (exit 139); the main executable remains unchanged. No UI or workflow qualification. Stage 17 clears the attachment type-hint key data import and stops at NSScrubberImageItemView (exit 139); main executable unchanged and exact-prefix shutdown 0. No UI/workflow qualification. Stage24 unchanged official app clears the scrubber image-item import and now stops at missing kCGColorSpaceITUR_2100_HLG. No workflow or UI qualification.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -1067,8 +1070,8 @@
       },
       "tested_variant": "Official unmodified macOS vendor bundle",
       "vendor_results": {
-        "stage_label": "stage17",
-        "evidence_checkpoint": "through_stage17",
+        "stage_label": "stage24",
+        "evidence_checkpoint": "through_stage24",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
         "render": "not_verified",
@@ -1076,20 +1079,20 @@
         "functional_workflow": "not_tested",
         "exit": 139,
         "timeout": false,
-        "seconds": 2.8164342279924313,
+        "seconds": 2.875081783000496,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "191ae3ebcfbb3f18bf02c1f2fc274b45f3a453444997c461451046e6e0683d4c",
         "recorded_runtime": {
-          "superproject": "e83fb62e79262fc982fcb47990905880210ab827",
-          "built_runtime_superproject": "e83fb62e79262fc982fcb47990905880210ab827",
-          "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
-          "launcher_sha256": "782071e1c03c1900c16ab644a7cc6832cda3493e112789487d3f4d7b53e33937",
+          "superproject": "8724f8921b867de334418a468b563cbc396273e0",
+          "built_runtime_superproject": "8724f8921b867de334418a468b563cbc396273e0",
+          "cocotron": "20060e5602295dce55a5174573f47e2dbff4e2bc",
+          "launcher_sha256": "91e3a6c55240ca62dfa427e619bd30f3483601babd280b2db344e5f0730bdf51",
           "components": {
-            "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+            "cocotron": "20060e5602295dce55a5174573f47e2dbff4e2bc",
             "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
-            "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+            "darlingserver": "b646fa534608414486b03aab8c1d9db8ce92938c",
             "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
             "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
           }
@@ -1159,9 +1162,64 @@
           "first_concrete_gate": "UserNotifications attachment type-hint key data export unavailable",
           "expected_framework": "UserNotifications.framework"
         },
-        "next_missing_api": "_OBJC_CLASS_$_NSScrubberImageItemView",
-        "first_concrete_gate": "Missing AppKit class NSScrubberImageItemView",
-        "expected_framework": "AppKit.framework"
+        "next_missing_api": "kCGColorSpaceITUR_2100_HLG",
+        "first_concrete_gate": "Missing CoreGraphics HLG color-space data symbol",
+        "expected_framework": "CoreGraphics.framework",
+        "stage24": {
+          "load": "blocked_missing_kCGColorSpaceITUR_2100_HLG",
+          "exit": 139,
+          "shutdown_exit": 0,
+          "executable_unchanged": true,
+          "built_runtime_source": "8724f8921b867de334418a468b563cbc396273e0"
+        },
+        "stage17_retake": {
+          "stage_label": "stage17",
+          "evidence_checkpoint": "through_stage17",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "not_verified",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "exit": 139,
+          "timeout": false,
+          "seconds": 2.8164342279924313,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "191ae3ebcfbb3f18bf02c1f2fc274b45f3a453444997c461451046e6e0683d4c",
+          "recorded_runtime": {
+            "superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+            "built_runtime_superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+            "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+            "launcher_sha256": "782071e1c03c1900c16ab644a7cc6832cda3493e112789487d3f4d7b53e33937",
+            "components": {
+              "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+              "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+              "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+              "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+              "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+            }
+          },
+          "stage9_retake": {
+            "stage_label": "stage9",
+            "bounded_launch_only": true,
+            "exit_code": 139,
+            "next_missing_api": "LSSetDefaultHandlerForURLScheme",
+            "executable_sha256": "191ae3ebcfbb3f18bf02c1f2fc274b45f3a453444997c461451046e6e0683d4c",
+            "executable_unchanged": true,
+            "prefix_shutdown_exit": 0,
+            "render": "not_verified",
+            "workflow": "not_tested",
+            "recorded_runtime": {
+              "superproject": "f17f273e947e2b376ecf48fd9363446842900ee4",
+              "cocotron": "f13721440cabafe6922fce95e2087ad725908c87",
+              "launcher_sha256": "d48be13956de7ce53567bdbea46481ff06a8269d000f66c47fd6e05cc9cd7636"
+            }
+          },
+          "next_missing_api": "_OBJC_CLASS_$_NSScrubberImageItemView",
+          "first_concrete_gate": "Missing AppKit class NSScrubberImageItemView",
+          "expected_framework": "AppKit.framework"
+        }
       },
       "artifact_source": {
         "source_url": "https://vscode.download.prss.microsoft.com/dbazure/download/stable/2c33b50b16c472efe58357d1d2a8a5414bc23fbf/VSCode-darwin.zip",
@@ -1582,7 +1640,7 @@
         "Navigate servers and exchange an authorized test message",
         "Test voice, then camera, then screen share as separate gates"
       ],
-      "notes": "Official stable Discord Mac client 0.0.420 acquired over official HTTPS/CDN; CDN MD5 transport match verified and local SHA256 pinned. No publisher SHA256, signature or notarization verification is claimed. Original universal x86_64+arm64 archive/bundle retained unthinned; main executable and all 300 extracted regular-file/link entries unchanged after the stage 13 bounded launch. It exits 139 at NSUserActivity expected through CoreServices, while a real Foundation class already exists. No login/account action, visible UI, message, voice, camera, screen sharing, GPU or stability qualification. Stage 14 clears the CoreServices class re-export gate and stops at UNNotificationAttachmentOptionsTypeHintKey (exit 139); the main executable remains unchanged. No UI or workflow qualification. Stage 17 clears the attachment type-hint key data import and stops at NSScrubberImageItemView (exit 139); main executable unchanged and exact-prefix shutdown 0. No UI/workflow qualification.",
+      "notes": "Official stable Discord Mac client 0.0.420 acquired over official HTTPS/CDN; CDN MD5 transport match verified and local SHA256 pinned. No publisher SHA256, signature or notarization verification is claimed. Original universal x86_64+arm64 archive/bundle retained unthinned; main executable and all 300 extracted regular-file/link entries unchanged after the stage 13 bounded launch. It exits 139 at NSUserActivity expected through CoreServices, while a real Foundation class already exists. No login/account action, visible UI, message, voice, camera, screen sharing, GPU or stability qualification. Stage 14 clears the CoreServices class re-export gate and stops at UNNotificationAttachmentOptionsTypeHintKey (exit 139); the main executable remains unchanged. No UI or workflow qualification. Stage 17 clears the attachment type-hint key data import and stops at NSScrubberImageItemView (exit 139); main executable unchanged and exact-prefix shutdown 0. No UI/workflow qualification. Stage24 unchanged official app clears the scrubber image-item import and now stops at missing kCGColorSpaceITUR_2100_HLG. No workflow or UI qualification.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -1591,8 +1649,8 @@
       },
       "tested_variant": "Official unmodified macOS vendor bundle",
       "vendor_results": {
-        "stage_label": "stage17",
-        "evidence_checkpoint": "through_stage17",
+        "stage_label": "stage24",
+        "evidence_checkpoint": "through_stage24",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
         "render": "not_verified",
@@ -1600,20 +1658,20 @@
         "functional_workflow": "not_tested",
         "exit": 139,
         "timeout": false,
-        "seconds": 2.825257591990521,
+        "seconds": 2.8187471459968947,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "85766d653be94f0fbb9e61b9454568d133268894ef950b068496c9e9ce223f24",
         "recorded_runtime": {
-          "superproject": "e83fb62e79262fc982fcb47990905880210ab827",
-          "built_runtime_superproject": "e83fb62e79262fc982fcb47990905880210ab827",
-          "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
-          "launcher_sha256": "782071e1c03c1900c16ab644a7cc6832cda3493e112789487d3f4d7b53e33937",
+          "superproject": "8724f8921b867de334418a468b563cbc396273e0",
+          "built_runtime_superproject": "8724f8921b867de334418a468b563cbc396273e0",
+          "cocotron": "20060e5602295dce55a5174573f47e2dbff4e2bc",
+          "launcher_sha256": "91e3a6c55240ca62dfa427e619bd30f3483601babd280b2db344e5f0730bdf51",
           "components": {
-            "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+            "cocotron": "20060e5602295dce55a5174573f47e2dbff4e2bc",
             "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
-            "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+            "darlingserver": "b646fa534608414486b03aab8c1d9db8ce92938c",
             "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
             "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
           }
@@ -1659,9 +1717,48 @@
           "first_concrete_gate": "UserNotifications attachment type-hint key data export unavailable",
           "expected_framework": "UserNotifications.framework"
         },
-        "next_missing_api": "_OBJC_CLASS_$_NSScrubberImageItemView",
-        "first_concrete_gate": "Missing AppKit class NSScrubberImageItemView",
-        "expected_framework": "AppKit.framework"
+        "next_missing_api": "kCGColorSpaceITUR_2100_HLG",
+        "first_concrete_gate": "Missing CoreGraphics HLG color-space data symbol",
+        "expected_framework": "CoreGraphics.framework",
+        "stage24": {
+          "load": "blocked_missing_kCGColorSpaceITUR_2100_HLG",
+          "exit": 139,
+          "shutdown_exit": 0,
+          "executable_unchanged": true,
+          "built_runtime_source": "8724f8921b867de334418a468b563cbc396273e0"
+        },
+        "stage17_retake": {
+          "stage_label": "stage17",
+          "evidence_checkpoint": "through_stage17",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "not_verified",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "exit": 139,
+          "timeout": false,
+          "seconds": 2.825257591990521,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "85766d653be94f0fbb9e61b9454568d133268894ef950b068496c9e9ce223f24",
+          "recorded_runtime": {
+            "superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+            "built_runtime_superproject": "e83fb62e79262fc982fcb47990905880210ab827",
+            "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+            "launcher_sha256": "782071e1c03c1900c16ab644a7cc6832cda3493e112789487d3f4d7b53e33937",
+            "components": {
+              "cocotron": "33d16461d680c893694fd8b5fc4ea3ecc6be4ee1",
+              "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+              "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+              "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+              "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+            }
+          },
+          "next_missing_api": "_OBJC_CLASS_$_NSScrubberImageItemView",
+          "first_concrete_gate": "Missing AppKit class NSScrubberImageItemView",
+          "expected_framework": "AppKit.framework"
+        }
       },
       "artifact_source": {
         "source_url": "https://stable.dl2.discordapp.net/apps/osx/0.0.420/Discord.dmg",

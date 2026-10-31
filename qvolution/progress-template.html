@@ -1,0 +1,142 @@
+<div id="qvolution-progress" class="qv-stack">
+  <div class="qv-heading">
+    <div><h2>Qvolution</h2><div class="text-small">20 Mac apps · complete workflows · macOS-like UI · GPU · stability</div></div>
+    <div class="text-small text-muted" id="qv-updated"></div>
+  </div>
+  <div class="viz-grid" aria-label="Project progress">
+    <div class="card viz-stat"><span>Apps fully qualified</span><span class="viz-stat-value tabular-nums" id="qv-qualified">0 / 20</span><span class="text-small">All four quality gates required</span></div>
+    <div class="card viz-stat"><span>Official inputs tried</span><span class="viz-stat-value tabular-nums" id="qv-attempted">8 / 20</span><span class="text-small">Source TextEdit counted separately</span></div>
+    <div class="card viz-stat"><span>Framework checks passed</span><span class="viz-stat-value tabular-nums" id="qv-checks">55 / 55</span><span class="text-small">Current runtime checkpoint</span></div>
+  </div>
+  <div class="nav nav-pills" role="tablist" aria-label="Progress view">
+    <button class="nav-link active" id="qv-apps-tab" type="button" role="tab" aria-controls="qv-apps-panel" aria-selected="true">20 apps</button>
+    <button class="nav-link" id="qv-work-tab" type="button" role="tab" aria-controls="qv-work-panel" aria-selected="false">Work now</button>
+    <button class="nav-link" id="qv-proof-tab" type="button" role="tab" aria-controls="qv-proof-panel" aria-selected="false">Verified</button>
+  </div>
+  <div id="qv-apps-panel" role="tabpanel" aria-labelledby="qv-apps-tab" class="qv-stack">
+    <div class="card" id="qv-detail" aria-live="polite">
+      <div class="viz-row"><h3 id="qv-app-name">TextEdit</h3><span class="viz-badge" id="qv-app-status">Source fixture · partial workflow</span></div>
+      <div id="qv-app-version" class="text-small"></div>
+      <div id="qv-app-gates" class="qv-gates"></div>
+      <div class="qv-detail-line"><span class="qv-label">Next</span><span id="qv-app-blocker"></span></div>
+      <details><summary>Required workflow</summary><ol id="qv-workflow"></ol></details>
+    </div>
+    <div id="qv-app-grid" class="viz-grid" aria-label="Select an app"></div>
+    <div id="qv-legend" class="viz-row text-small" aria-label="App status legend"></div>
+  </div>
+  <div id="qv-work-panel" role="tabpanel" aria-labelledby="qv-work-tab" hidden>
+    <div class="qv-stack">
+      <div class="viz-row"><h3>Three parallel workstreams</h3><span class="text-small">3 workers + coordinator · session capacity</span></div>
+      <div id="qv-workstreams" class="qv-stack"></div>
+      <hr>
+      <div class="qv-detail-line"><span class="qv-label">Integration</span><span>Source review → build → runtime checks → desktop acceptance</span></div>
+    </div>
+  </div>
+  <div id="qv-proof-panel" role="tabpanel" aria-labelledby="qv-proof-tab" hidden>
+    <div class="qv-stack">
+      <div class="viz-row"><h3 id="qv-stage">Stage 24</h3><span class="text-small">Built source <code id="qv-build"></code></span></div>
+      <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Runtime check group</th><th class="text-end">Passed</th></tr></thead><tbody id="qv-check-groups"></tbody></table></div>
+      <div class="qv-detail-line"><span class="qv-label">Independent checks</span><span id="qv-independent"></span></div>
+      <div class="qv-detail-line"><span class="qv-label">You confirmed</span><span id="qv-user-proof"></span></div>
+      <div class="qv-detail-line"><span class="qv-label">UI still open</span><span id="qv-ui-open"></span></div>
+      <a id="qv-source-link" target="_blank" rel="noopener noreferrer">Tested framework source checkpoint</a>
+    </div>
+  </div>
+  <div class="text-small text-muted">Recorded checkpoint · app qualification requires workflow, UI, GPU and stability evidence.</div>
+</div>
+<style>
+#qvolution-progress { min-width: 0; }
+#qvolution-progress .qv-stack { display: grid; gap: 16px; }
+#qvolution-progress.qv-stack { display: grid; gap: 16px; }
+#qvolution-progress .qv-heading { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 12px; padding-inline-end: 90px; }
+#qvolution-progress .qv-heading h2 { margin-block: 0 6px; }
+#qvolution-progress .qv-gates { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-block: 16px; }
+#qvolution-progress .qv-gate { display: grid; gap: 3px; }
+#qvolution-progress .qv-gate-label { font-weight: 500; }
+#qvolution-progress .qv-detail-line { display: grid; grid-template-columns: minmax(90px, 1fr) minmax(0, 5fr); gap: 10px; margin-block: 10px; }
+#qvolution-progress .qv-label { font-weight: 500; }
+#qvolution-progress .qv-stream { display: grid; gap: 6px; }
+#qvolution-progress .qv-stream h3 { margin: 0; }
+#qvolution-progress .qv-category { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 440px) {
+  #qvolution-progress .qv-heading { padding-inline-end: 0; }
+  #qvolution-progress .qv-detail-line { grid-template-columns: 1fr; gap: 3px; }
+}
+</style>
+<script type="application/json" id="qv-data">__QV_DATA__</script>
+<script>
+(() => {
+  const root = document.getElementById('qvolution-progress');
+  const data = JSON.parse(document.getElementById('qv-data').textContent);
+  const find = id => root.querySelector('#' + id);
+  const categories = {
+    source: { label: 'Source fixture', color: 'var(--viz-series-1)' },
+    partial: { label: 'Partial startup / render', color: 'var(--viz-series-3)' },
+    blocked: { label: 'Startup blocked', color: 'var(--viz-series-2)' },
+    pending: { label: 'Not tried', color: 'var(--muted-foreground)' }
+  };
+  let selected = 'textedit';
+  const mark = category => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '8'); svg.setAttribute('height', '8'); svg.setAttribute('viewBox', '0 0 8 8'); svg.setAttribute('aria-hidden', 'true');
+    const circle = document.createElementNS(svg.namespaceURI, 'circle');
+    circle.setAttribute('cx', '4'); circle.setAttribute('cy', '4'); circle.setAttribute('r', '4'); circle.setAttribute('fill', categories[category].color); svg.append(circle);
+    return svg;
+  };
+  const choose = (id, persist = false) => {
+    const app = data.apps.find(a => a.id === id); if (!app) return;
+    selected = id;
+    find('qv-app-name').textContent = app.name;
+    find('qv-app-status').textContent = app.statusLabel;
+    find('qv-app-version').textContent = [app.version, app.checkpoint].filter(Boolean).join(' · ');
+    find('qv-app-blocker').textContent = app.blocker;
+    find('qv-app-gates').replaceChildren(...Object.entries(app.gates).map(([label, value]) => {
+      const item = document.createElement('div'); item.className = 'qv-gate';
+      const term = document.createElement('span'); term.className = 'qv-gate-label text-small'; term.textContent = label;
+      const result = document.createElement('span'); result.className = 'text-small'; result.textContent = value;
+      item.append(term, result); return item;
+    }));
+    find('qv-workflow').replaceChildren(...app.workflow.map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
+    root.querySelectorAll('[data-app]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.app === id)));
+    if (persist && window.openai?.setWidgetState) window.openai.setWidgetState({ modelContent: { selectedApp: id }, privateContent: null }).catch(() => {});
+  };
+  find('qv-qualified').textContent = data.qualified + ' / ' + data.apps.length;
+  find('qv-attempted').textContent = data.officialAttempted + ' / ' + data.apps.length;
+  find('qv-checks').textContent = data.checkCount + ' / ' + data.checkCount;
+  find('qv-updated').textContent = data.stage + ' · ' + new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(data.updated));
+  const grid = find('qv-app-grid');
+  for (const app of data.apps) {
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'btn viz-tile'; button.dataset.app = app.id;
+    button.setAttribute('aria-label', app.name + ': ' + app.statusLabel); button.setAttribute('aria-pressed', 'false'); button.append(mark(app.category), document.createTextNode(' ' + app.name));
+    button.addEventListener('click', () => choose(app.id, true)); grid.append(button);
+  }
+  for (const [key, category] of Object.entries(categories)) {
+    const label = document.createElement('span'); label.className = 'qv-category'; label.append(mark(key), document.createTextNode(category.label + ' · ' + data.apps.filter(a => a.category === key).length)); find('qv-legend').append(label);
+  }
+  for (const lane of data.workstreams) {
+    const section = document.createElement('section'); section.className = 'qv-stream';
+    const heading = document.createElement('h3'); heading.textContent = lane.title;
+    const phase = document.createElement('div'); phase.className = 'text-small'; phase.textContent = lane.phase + ' · ' + lane.owner;
+    const now = document.createElement('div'); now.textContent = lane.now;
+    const next = document.createElement('div'); next.className = 'text-small'; next.textContent = 'Next proof: ' + lane.next;
+    section.append(heading, phase, now, next); find('qv-workstreams').append(section);
+  }
+  find('qv-stage').textContent = data.stage;
+  find('qv-build').textContent = data.builtSource.slice(0, 9);
+  for (const [label, value] of Object.entries(data.checkGroups)) {
+    const tr = document.createElement('tr'), name = document.createElement('td'), count = document.createElement('td');
+    name.textContent = label; count.className = 'text-end tabular-nums'; count.textContent = value + ' / ' + value; tr.append(name, count); find('qv-check-groups').append(tr);
+  }
+  find('qv-independent').textContent = data.cliCycles + ' CLI cycles; ' + data.transportChecks + ' transport checks; ' + data.pngVectors + ' PNG pixel vectors; ' + data.windowPixels + ' window pixel captures.';
+  find('qv-user-proof').textContent = data.userFeatures.join(' · ');
+  find('qv-ui-open').textContent = data.openUI.join(' · ');
+  find('qv-source-link').href = data.sourceURL;
+  const saved = window.openai?.widgetState;
+  choose(saved?.modelContent?.selectedApp || saved?.selectedApp || selected);
+  window.addEventListener('openai:set_globals', event => {
+    const state = event.detail?.globals?.widgetState;
+    const id = state?.modelContent?.selectedApp || state?.selectedApp;
+    if (id) choose(id);
+  });
+})();
+</script>

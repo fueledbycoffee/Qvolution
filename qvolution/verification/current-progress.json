@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "updated_utc": "2026-10-31T10:59:40.555035+00:00",
+  "stage": "Stage 24",
+  "built_source": "8724f8921b867de334418a468b563cbc396273e0",
+  "qualified_app_ids": [],
+  "framework_checks": {
+    "Focused fixes": 25,
+    "Existing regressions": 15,
+    "Window presentation": 2,
+    "Unicode": 8,
+    "Popup and cost controls": 5
+  },
+  "cli_cycles": 3,
+  "transport_checks": 2,
+  "window_pixel_artifacts": 9,
+  "png_pixel_vectors": 13,
+  "public_component_url": "https://github.com/fueledbycoffee/Qvolution-cocotron/tree/qvolution/parallel-desktop",
+  "public_component_commit": "b1bd0858fdfa249791661d79e760932265bf5618",
+  "verified_user_features": [
+    "ASCII save and reopen",
+    "Normal startup; single title bar",
+    "Flicker correction",
+    "Orbit top-bar menus appear and open",
+    "Ubuntu bold",
+    "Compact, scrollable font picker"
+  ],
+  "open_ui": [
+    "Persistent formatting-button states and icons",
+    "Temporary ruler/tab-marker change on Bold",
+    "Font raster quality and broader macOS UI fidelity"
+  ],
+  "workstreams": [
+    {
+      "title": "Formatting toolbar",
+      "owner": "Inspector agent",
+      "phase": "Implementation",
+      "now": "Persistent B/I/U and alignment states, clearer glyphs, stable ruler context.",
+      "next": "Source review, runtime captures, then your desktop check."
+    },
+    {
+      "title": "Image ownership and archives",
+      "owner": "Image agent",
+      "phase": "Implementation and fault tests",
+      "now": "Independent bitmap copies and lossless image save/restore with safe lifetimes.",
+      "next": "Copy/metadata regressions, archive round trips and malformed-input checks."
+    },
+    {
+      "title": "Discord / VS Code HDR blocker",
+      "owner": "Fresh HDR agent",
+      "phase": "Implementation",
+      "now": "Typed HLG color-space API, genuine metadata, standard transfer math and safe rendering boundaries.",
+      "next": "Import and metadata tests; complete conversion/display support remains open."
+    }
+  ],
+  "app_checkpoints": {
+    "textedit": "Stage 24 \u00b7 source fixture",
+    "discord": "Stage 24",
+    "vscode": "Stage 24",
+    "firefox": "Stage 22",
+    "keka": "Stage 22",
+    "keepassxc": "Stage 22",
+    "coteditor": "Stage 11",
+    "vlc": "Stage 6",
+    "transmission": "Stage 4"
+  },
+  "blockers": {
+    "textedit": "Toolbar states/icons and the temporary ruler change; remaining workflow, UI, GPU and stability gates.",
+    "discord": "Missing HLG color-space API prevents loading.",
+    "vscode": "Missing HLG color-space API prevents loading.",
+    "firefox": "Missing AVSpeechSynthesisVoice API.",
+    "coteditor": "Missing AppIntents framework.",
+    "keepassxc": "Startup failure; cause not established.",
+    "keka": "Settings view partially renders; archive workflow, missing icons and duplicate controls remain.",
+    "vlc": "Partial initialization; video playback and correct rendering not demonstrated.",
+    "transmission": "Partial initialization; controlled transfer and correct rendering not demonstrated."
+  }
+}
