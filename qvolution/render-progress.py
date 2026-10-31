@@ -8,9 +8,10 @@ HERE = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
-apps = json.loads((HERE / 'apps.json').read_text())['apps']
+catalog = json.loads((HERE / 'apps.json').read_text())
+apps = catalog['apps']
 progress = json.loads((HERE / 'verification/current-progress.json').read_text())
-assert len(apps) == 20 and len({app['id'] for app in apps}) == 20
+assert len(apps) == catalog['target_count'] and len({app['id'] for app in apps}) == catalog['target_count']
 qualified = set(progress['qualified_app_ids'])
 assert qualified <= {app['id'] for app in apps}
 items = []

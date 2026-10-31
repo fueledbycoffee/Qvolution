@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T12:20:45.795890+00:00",
-  "stage": "Stage 29",
-  "built_source": "db34dc748141cf59f16825a0cc6a89c3af5c49bc",
+  "updated_utc": "2026-10-31T12:37:54.130407+00:00",
+  "stage": "Stage 31",
+  "built_source": "018c0c63b915367768a18252d9fd46ffb65c4ce6",
   "qualified_app_ids": [],
   "framework_checks": {
     "Focused fixes": 25,
@@ -34,23 +34,23 @@
     {
       "title": "Graphics and float rendering",
       "owner": "Sol high + Sol xhigh review",
-      "phase": "Implementation and sanitizer review",
-      "now": "Real float drawing, text masks and image conversion in private development. Review reproduced sampler overread and unsafe numeric conversion; fixes and consumer safety remain under review.",
-      "next": "Complete production semantics, independent pixel and guest checks, then managed display and GPU integration."
+      "phase": "Reviewed candidate; runtime integration pending",
+      "now": "Real float drawing, text masks and image export candidate is committed privately; sanitizer review found and corrected concrete bounds and conversion defects. Actual guest after-tests remain pending.",
+      "next": "Integrate storage, drawing and safe consumers together; run frozen pixel/export/text controls, then public clipping, managed display and GPU work."
     },
     {
       "title": "Image save and restore",
       "owner": "Coordinator + independent reviewers",
       "phase": "Verified runtime milestone",
-      "now": "Stage 28 resolves all ten prior unkeyed codec crashes; all 31 modes have passing results. Stage 29 RGB24 PNG export passes an independent pixel oracle.",
-      "next": "Verify populated Scrubber image roundtrip, then continue application workflows."
+      "now": "All 31 codec modes have passing Stage 28 results; Stage 29 RGB24 pixel oracle and seven Stage 30 Scrubber coding/rendering checks pass.",
+      "next": "Continue real application workflows and editing/persistence qualification."
     },
     {
       "title": "Audio listeners and voices",
       "owner": "Sol high implementation + Sol xhigh review",
-      "phase": "Concurrency and lifecycle correction",
-      "now": "Native listener controls pass; review is closing alias notification, concurrent registration and cached-stream format hazards. Real guest dispatch remains unverified.",
-      "next": "Actual guest queue/ownership tests, unchanged Discord and VS Code retakes; genuine provider voice catalog for Firefox."
+      "phase": "Actual API and dispatch proof; app retakes next",
+      "now": "Stage 31 typed import, C/block delivery, queue ownership and reentrancy controls pass. Five standalone real-dispatch IO controls pass. Native provider model matches 141 real voices; Firefox class/bridge is still absent.",
+      "next": "Retake unchanged Discord, VS Code and Obsidian; finish provider bridge, physical events and real audio workflows."
     }
   ],
   "app_checkpoints": {
@@ -59,10 +59,13 @@
     "vscode": "Stage 26",
     "firefox": "Stage 22",
     "keka": "Stage 22",
-    "keepassxc": "Stage 22",
+    "keepassxc": "Stage 30",
     "coteditor": "Stage 11",
     "vlc": "Stage 6",
-    "transmission": "Stage 4"
+    "transmission": "Stage 4",
+    "iina": "Stage 30",
+    "cyberduck": "Stage 30",
+    "obsidian": "Stage 30"
   },
   "blockers": {
     "textedit": "New toolbar checks pass automatically; desktop acceptance, full editing workflow, macOS UI polish, GPU and stability remain.",
@@ -73,10 +76,13 @@
     "keepassxc": "Startup failure; cause not established.",
     "keka": "Settings view partially renders; archive workflow, missing icons and duplicate controls remain.",
     "vlc": "Partial initialization; video playback and correct rendering not demonstrated.",
-    "transmission": "Partial initialization; controlled transfer and correct rendering not demonstrated."
+    "transmission": "Partial initialization; controlled transfer and correct rendering not demonstrated.",
+    "iina": "Missing PIP.framework dependency; playback, UI, GPU and stability remain untested.",
+    "cyberduck": "Startup exit 134; cause unknown. Transfer workflow and desktop rendering remain unverified.",
+    "obsidian": "Stage 30 stops at CoreAudio block-listener import; Stage 31 API proof passes, but an app retake is still required."
   },
   "framework_suite_stage": "Stage 25",
   "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
   "source_label": "Published framework source \u00b7 Stage 24",
-  "latest_checks": "Stage 29: RGB24 PNG export and independent six-pixel oracle pass; two unchanged bitmap layout controls pass. Stage 28: 31/31 image codec modes have passing semantic results (one initial empty-startup timeout preserved; keyed retry passes); dictionary and array lifetime and image archive workflow pass. Separate diagnostic startup timeouts are preserved. Stage 26: toolbar state, glyph contrast, ruler and focus transitions 4/4. Full 55-check suite last ran on Stage 25."
+  "latest_checks": "Stage 31: typed CoreAudio import and all eight listener modes have passing results (one mixed-mode startup timeout retained; retry passes). Five standalone real-libdispatch IO-context controls pass, separately from installed API tests. Stage 30: seven Scrubber coding/rendering checks pass. Stage 29: RGB24 PNG and independent six-pixel oracle plus two bitmap layout controls pass. Stage 28: all 31 image codec modes have passing semantic results with the initial keyed timeout and retry preserved; dictionary/array lifetime and archive workflow pass. Full 55-check regression suite last ran on Stage 25."
 }

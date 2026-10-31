@@ -20,8 +20,9 @@ def command(args, cwd=ROOT, **kwargs):
 def apps():
     data = json.loads((ROOT / 'qvolution/apps.json').read_text())
     rows = data['apps']
-    if len(rows) != 20 or len({a['id'] for a in rows}) != 20:
-        raise ValueError('expected 20 distinct app targets')
+    target_count = data['target_count']
+    if not isinstance(target_count, int) or target_count <= 0 or len(rows) != target_count or len({a['id'] for a in rows}) != target_count:
+        raise ValueError(f'expected {target_count} distinct app targets')
     return rows
 
 def snapshot():
@@ -145,7 +146,7 @@ def main():
             assert (ROOT / 'qvolution/apps' / a['id'] / 'README.md').is_file(), a['id']
             assert a['milestones'].keys() == {'acquire', 'install', 'load', 'launch', 'workflow', 'gnome', 'stability'}
             assert len(a['workflow']) >= 3
-        print('PASS: 20 distinct targets, playbooks and milestone records')
+        print(f'PASS: {len(targets)} distinct targets, playbooks and milestone records')
     return 0
 
 if __name__ == '__main__':

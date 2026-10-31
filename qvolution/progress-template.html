@@ -1,15 +1,15 @@
 <div id="qvolution-progress" class="qv-stack">
   <div class="qv-heading">
-    <div><h2>Qvolution</h2><div class="text-small">20 Mac apps · complete workflows · macOS-like UI · GPU · stability</div></div>
+    <div><h2>Qvolution</h2><div class="text-small" id="qv-target-summary">24 Mac apps · complete workflows · macOS-like UI · GPU · stability</div></div>
     <div class="text-small text-muted" id="qv-updated"></div>
   </div>
   <div class="viz-grid" aria-label="Project progress">
-    <div class="card viz-stat"><span>Apps fully qualified</span><span class="viz-stat-value tabular-nums" id="qv-qualified">0 / 20</span><span class="text-small">All four quality gates required</span></div>
-    <div class="card viz-stat"><span>Official inputs tried</span><span class="viz-stat-value tabular-nums" id="qv-attempted">8 / 20</span><span class="text-small">Source TextEdit counted separately</span></div>
+    <div class="card viz-stat"><span>Apps fully qualified</span><span class="viz-stat-value tabular-nums" id="qv-qualified">0 / 24</span><span class="text-small">All four quality gates required</span></div>
+    <div class="card viz-stat"><span>Official inputs tried</span><span class="viz-stat-value tabular-nums" id="qv-attempted">11 / 24</span><span class="text-small">Source TextEdit counted separately</span></div>
     <div class="card viz-stat"><span>Last full regression suite</span><span class="viz-stat-value tabular-nums" id="qv-checks">55 / 55</span><span class="text-small" id="qv-suite-stage"></span></div>
   </div>
   <div class="nav nav-pills" role="tablist" aria-label="Progress view">
-    <button class="nav-link active" id="qv-apps-tab" type="button" role="tab" aria-controls="qv-apps-panel" aria-selected="true">20 apps</button>
+    <button class="nav-link active" id="qv-apps-tab" type="button" role="tab" aria-controls="qv-apps-panel" aria-selected="true">24 apps</button>
     <button class="nav-link" id="qv-work-tab" type="button" role="tab" aria-controls="qv-work-panel" aria-selected="false">Work now</button>
     <button class="nav-link" id="qv-proof-tab" type="button" role="tab" aria-controls="qv-proof-panel" aria-selected="false">Verified</button>
   </div>
@@ -26,7 +26,7 @@
   </div>
   <div id="qv-work-panel" role="tabpanel" aria-labelledby="qv-work-tab" hidden>
     <div class="qv-stack">
-      <div class="viz-row"><h3>Three parallel workstreams</h3><span class="text-small">3 workers + coordinator · session capacity</span></div>
+      <div class="viz-row"><h3>Parallel workstreams</h3><span class="text-small">Up to 8 subagents + coordinator</span></div>
       <div id="qv-workstreams" class="qv-stack"></div>
       <hr>
       <div class="qv-detail-line"><span class="qv-label">Integration</span><span>Source review → build → runtime checks → desktop acceptance</span></div>
@@ -101,6 +101,8 @@
     root.querySelectorAll('[data-app]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.app === id)));
     if (persist && window.openai?.setWidgetState) window.openai.setWidgetState({ modelContent: { selectedApp: id }, privateContent: null }).catch(() => {});
   };
+  find('qv-target-summary').textContent = data.apps.length + ' Mac apps · complete workflows · macOS-like UI · GPU · stability';
+  find('qv-apps-tab').textContent = data.apps.length + ' apps';
   find('qv-qualified').textContent = data.qualified + ' / ' + data.apps.length;
   find('qv-attempted').textContent = data.officialAttempted + ' / ' + data.apps.length;
   find('qv-checks').textContent = data.checkCount + ' / ' + data.checkCount;

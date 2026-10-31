@@ -1953,6 +1953,165 @@
         "local_archive_sha256": "f1f809f79873a375ebaff8dd09858bf1cd9ac91167853a928f747b9f891c8dc8",
         "signature_validation": "Official HTTPS origin/CDN and CDN MD5 transport match only; no publisher SHA256, signature or notarization verification claimed"
       }
+    },
+    {
+      "id": "hex-fiend",
+      "name": "Hex Fiend",
+      "priority": 21,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://hexfiend.com/",
+      "catalog_version": "2.18.1",
+      "catalog_requirements": null,
+      "catalog_source": "https://github.com/HexFiend/HexFiend/releases",
+      "catalog_checked": "2026-10-31",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Open a self-authored binary fixture, find a known byte sequence, edit bytes and undo",
+        "Save the edited fixture, quit, reopen and compare exact bytes",
+        "Open a self-authored large file and scroll through it"
+      ],
+      "notes": "Select and record the exact macOS artifact and architecture at acquisition; no artifact has been acquired or tested.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
+    },
+    {
+      "id": "skim",
+      "name": "Skim",
+      "priority": 22,
+      "wave": 2,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://skim-app.sourceforge.io/",
+      "catalog_version": "1.7.17",
+      "catalog_requirements": {
+        "macos": {
+          ">=": [
+            "10.13"
+          ]
+        }
+      },
+      "catalog_source": "https://skim-app.sourceforge.io/",
+      "catalog_checked": "2026-10-31",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Open a disposable multipage PDF, search known text and zoom",
+        "Add annotations and highlights, then save and quit",
+        "Reopen and verify annotations, highlights and page content persist"
+      ],
+      "notes": "Select and record the exact macOS artifact and architecture at acquisition; use a disposable PDF fixture.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
+    },
+    {
+      "id": "keycastr",
+      "name": "KeyCastr",
+      "priority": 23,
+      "wave": 3,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://github.com/keycastr/keycastr",
+      "catalog_version": "0.11.1",
+      "catalog_requirements": null,
+      "catalog_source": "https://github.com/keycastr/keycastr/releases",
+      "catalog_checked": "2026-10-31",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Enable visualization during an authorized test session and type a known test sequence",
+        "Verify the overlay and configured shortcut while changing focus between test windows",
+        "Disable visualization, exit cleanly and verify capture stops"
+      ],
+      "notes": "Limit input observation to the authorized test session; do not capture background personal input. Select and record the exact macOS artifact and architecture at acquisition.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
+    },
+    {
+      "id": "blender",
+      "name": "Blender",
+      "priority": 24,
+      "wave": 4,
+      "platform": "macOS",
+      "cask": null,
+      "official_url": "https://www.blender.org/",
+      "catalog_version": "4.5.14",
+      "catalog_requirements": null,
+      "catalog_source": "https://www.blender.org/releases/4-5/",
+      "catalog_checked": "2026-10-31",
+      "architecture": "select-and-record-artifact",
+      "status": "not_tested",
+      "tested_version": null,
+      "artifact_sha256": null,
+      "milestones": {
+        "acquire": "not_tested",
+        "install": "not_tested",
+        "load": "not_tested",
+        "launch": "not_tested",
+        "workflow": "not_tested",
+        "gnome": "not_tested",
+        "stability": "not_tested"
+      },
+      "workflow": [
+        "Create a small scene, navigate the viewport and manipulate an object",
+        "Save, quit, reopen and verify the scene",
+        "Render the scene and separately verify the actual GPU device used"
+      ],
+      "notes": "Catalog version is a verified 4.5 LTS release with an Intel macOS download, not a claim of the latest Blender release. Select and record the exact artifact and architecture at acquisition. A completed render alone does not establish GPU qualification; record actual device evidence separately.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     }
-  ]
+  ],
+  "target_count": 24
 }
