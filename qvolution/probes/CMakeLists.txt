@@ -81,6 +81,11 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
+    add_darling_executable(qvolution_accessibility_popover_role
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-popover-role.m
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-popover-role-header.m)
+    target_link_libraries(qvolution_accessibility_popover_role Foundation)
+    add_dependencies(qvolution_accessibility_popover_role AppKit)
     foreach(fixture IN ITEMS display-online display-online-topology)
         string(REPLACE "-" "_" target_suffix "${fixture}")
         add_darling_executable(qvolution_${target_suffix}
