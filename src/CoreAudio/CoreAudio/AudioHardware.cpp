@@ -151,6 +151,21 @@ OSStatus AudioObjectRemovePropertyListener(AudioObjectID inObjectID,
 	return obj->removePropertyListener(inAddress, inListener, inClientData);
 }
 
+OSStatus AudioObjectAddPropertyListenerBlock(AudioObjectID object, const AudioObjectPropertyAddress* address,
+        dispatch_queue_t queue, AudioObjectPropertyListenerBlock listener)
+{
+    AudioHardwareImpl* implementation = GetObject(object);
+    if (!implementation) return kAudioHardwareBadObjectError;
+    return implementation->addPropertyListenerBlock(address, queue, listener);
+}
+OSStatus AudioObjectRemovePropertyListenerBlock(AudioObjectID object, const AudioObjectPropertyAddress* address,
+        dispatch_queue_t queue, AudioObjectPropertyListenerBlock listener)
+{
+    AudioHardwareImpl* implementation = GetObject(object);
+    if (!implementation) return kAudioHardwareBadObjectError;
+    return implementation->removePropertyListenerBlock(address, queue, listener);
+}
+
 OSStatus AudioHardwareUnload(void)
 {
 	return noErr;

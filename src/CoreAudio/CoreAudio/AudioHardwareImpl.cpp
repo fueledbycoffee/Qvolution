@@ -23,8 +23,17 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <CarbonCore/MacErrors.h>
 
+// Reserved ASBD storage is not part of the format's semantic identity.
+static bool sameFormat(const AudioStreamBasicDescription& a, const AudioStreamBasicDescription& b)
+{
+    return a.mSampleRate == b.mSampleRate && a.mFormatID == b.mFormatID &&
+        a.mFormatFlags == b.mFormatFlags && a.mBytesPerPacket == b.mBytesPerPacket &&
+        a.mFramesPerPacket == b.mFramesPerPacket && a.mBytesPerFrame == b.mBytesPerFrame &&
+        a.mChannelsPerFrame == b.mChannelsPerFrame && a.mBitsPerChannel == b.mBitsPerChannel;
+}
+
 AudioHardwareImpl::AudioHardwareImpl(AudioObjectID myId)
-: m_myId(myId)
+: m_myId(myId), m_listeners(myId), m_asbd{}
 {
 	// These are the standard values macOS applications have learned to expect
 	m_asbd.mChannelsPerFrame = 2;
@@ -78,6 +87,8 @@ OSStatus AudioHardwareImpl::destroyIOProcID(AudioDeviceIOProcID inIOProcID)
 	{
 		it_stream->second->stop();
 		m_streams.erase(it_stream);
+        std::lock_guard<std::mutex> formatGuard(m_formatMutex);
+        m_formatInUse = !m_streams.empty();
 	}
 
 	m_proc.erase(it);
@@ -100,11 +111,26 @@ OSStatus AudioHardwareImpl::start(AudioDeviceIOProcID inProcID,
 	if (it == m_proc.end())
 		return paramErr;
 	
-	AudioHardwareStream* stream = createStream(it->second.first, it->second.second);
-	if (!stream)
-		return kAudioHardwareBadStreamError;
-	stream->start();
-	m_streams.emplace(std::make_pair(inProcID, std::unique_ptr<AudioHardwareStream>(stream)));
+    // Reserve the format before backend construction; callbacks must never need
+    // m_procMutex, which backend start/stop/destruction may already be waiting on.
+    {
+        std::lock_guard<std::mutex> formatGuard(m_formatMutex);
+        m_formatInUse = true;
+    }
+    try {
+        std::unique_ptr<AudioHardwareStream> stream(createStream(it->second.first, it->second.second));
+        if (!stream) {
+            std::lock_guard<std::mutex> formatGuard(m_formatMutex);
+            m_formatInUse = !m_streams.empty();
+            return kAudioHardwareBadStreamError;
+        }
+        stream->start();
+        m_streams.emplace(inProcID, std::move(stream));
+    } catch (...) {
+        std::lock_guard<std::mutex> formatGuard(m_formatMutex);
+        m_formatInUse = !m_streams.empty();
+        throw;
+    }
 	
 	return noErr;
 }
@@ -138,6 +164,7 @@ OSStatus AudioHardwareImpl::isPropertySettable(const AudioObjectPropertyAddress*
 {
 	switch (inAddress->mSelector)
 	{
+		case kAudioDevicePropertyStreamFormat:
 		case kAudioDevicePropertyVolumeScalar:
 		case kAudioDevicePropertyVolumeDecibels:
 		case kAudioDevicePropertyBufferFrameSize:
@@ -163,6 +190,7 @@ OSStatus AudioHardwareImpl::getPropertyData(const AudioObjectPropertyAddress* in
 		{
 			if (AudioStreamBasicDescription* asbd = static_cast<AudioStreamBasicDescription*>(outData); asbd && *ioDataSize >= sizeof(AudioStreamBasicDescription))
 			{
+				std::lock_guard<std::mutex> guard(m_formatMutex);
 				memcpy(asbd, &m_asbd, sizeof(m_asbd));
 			}
 			*ioDataSize = sizeof(AudioStreamBasicDescription);
@@ -297,6 +325,7 @@ OSStatus AudioHardwareImpl::getPropertyString(CFStringRef str, UInt32* ioDataSiz
 OSStatus AudioHardwareImpl::setPropertyData(const AudioObjectPropertyAddress* inAddress, UInt32 inQualifierDataSize,
 	const void* inQualifierData, UInt32 inDataSize, const void* inData)
 {
+    if (!inAddress) return paramErr;
 	switch (inAddress->mSelector)
 	{
 		case kAudioDevicePropertyBufferSize:
@@ -322,18 +351,46 @@ OSStatus AudioHardwareImpl::setPropertyData(const AudioObjectPropertyAddress* in
 			if (inDataSize != sizeof(m_asbd))
 				return kAudioHardwareBadPropertySizeError;
 
+            if (!inData) return paramErr;
 			const AudioStreamBasicDescription* setting = static_cast<const AudioStreamBasicDescription*>(inData);
 			if (setting->mFormatID != kAudioFormatLinearPCM)
 				return kAudioDeviceUnsupportedFormatError;
 			if (!validateFormat(setting))
 				return kAudioDeviceUnsupportedFormatError;
 
-			memcpy(&m_asbd, setting, sizeof(m_asbd));
-
-			m_asbd.mFramesPerPacket = 1;
-			m_asbd.mBytesPerFrame = UInt32(m_asbd.mBytesPerPacket = m_asbd.mChannelsPerFrame * (m_asbd.mBitsPerChannel / 8));
-
-			return kAudioHardwareNoError;
+            AudioStreamBasicDescription next = *setting;
+            next.mFramesPerPacket = 1;
+            next.mBytesPerFrame = next.mBytesPerPacket = next.mChannelsPerFrame * (next.mBitsPerChannel / 8);
+            next.mReserved = 0;
+            {
+                std::lock_guard<std::mutex> formatGuard(m_formatMutex);
+                if (sameFormat(m_asbd, next)) return kAudioHardwareNoError;
+                // Stopped streams also retain their construction-time backend format.
+                if (m_formatInUse) return kAudioHardwareUnsupportedOperationError;
+            }
+            // Snapshot owners can release client captures on preparation failure;
+            // never perform that work while holding the format-state mutex.
+            // Bound retries under registration churn; exhaustion publishes nothing.
+            constexpr unsigned maxPreparationAttempts = 8;
+            for (unsigned attempt = 0; attempt < maxPreparationAttempts; ++attempt) {
+                AudioPropertyListeners::Change change;
+                // All accepted StreamFormat addresses expose the same backing state.
+                auto status = m_listeners.prepare(*inAddress, change, AudioPropertyListeners::Context::Normal,
+                    AudioPropertyListeners::AddressMatch::SelectorAliases);
+                if (status) return status;
+                bool changed = false;
+                if (!m_listeners.commitIfCurrent(change, [&] {
+                    std::lock_guard<std::mutex> formatGuard(m_formatMutex);
+                    if (sameFormat(m_asbd, next)) return;
+                    if (m_formatInUse) { status = kAudioHardwareUnsupportedOperationError; return; }
+                    m_asbd = next;
+                    changed = true;
+                })) continue;
+                if (status) return status;
+                if (changed) change.deliver();
+                return kAudioHardwareNoError;
+            }
+            return kAudioHardwareUnspecifiedError;
 		}
 		// These make sense only for ALSA, but I find it ridiculous that these properties can be set...
 		case kAudioHardwarePropertyDefaultOutputDevice:
@@ -347,13 +404,31 @@ OSStatus AudioHardwareImpl::setPropertyData(const AudioObjectPropertyAddress* in
 OSStatus AudioHardwareImpl::addPropertyListener(const AudioObjectPropertyAddress* inAddress,
 	AudioObjectPropertyListenerProc inListener, void* inClientData)
 {
-	return kAudioHardwareNoError;
+    if (!inAddress || !inListener) return paramErr;
+    if (!hasProperty(inAddress)) return kAudioHardwareUnknownPropertyError;
+    return m_listeners.add(*inAddress, inListener, inClientData);
 }
 
 OSStatus AudioHardwareImpl::removePropertyListener(const AudioObjectPropertyAddress* inAddress,
 	AudioObjectPropertyListenerProc inListener, void* inClientData)
 {
-	return kAudioHardwareNoError;
+    if (!inAddress || !inListener) return paramErr;
+    return m_listeners.remove(*inAddress, inListener, inClientData);
+}
+
+OSStatus AudioHardwareImpl::addPropertyListenerBlock(const AudioObjectPropertyAddress* address,
+    dispatch_queue_t queue, AudioObjectPropertyListenerBlock listener)
+{
+    if (!address || !listener) return paramErr;
+    if (!hasProperty(address)) return kAudioHardwareUnknownPropertyError;
+    return m_listeners.add(*address, queue, listener);
+}
+
+OSStatus AudioHardwareImpl::removePropertyListenerBlock(const AudioObjectPropertyAddress* address,
+    dispatch_queue_t queue, AudioObjectPropertyListenerBlock listener)
+{
+    if (!address || !listener) return paramErr;
+    return m_listeners.remove(*address, queue, listener);
 }
 
 OSStatus AudioHardwareImpl::setBufferSize(uint32_t bufferSize)

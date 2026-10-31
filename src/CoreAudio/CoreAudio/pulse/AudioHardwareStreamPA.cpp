@@ -206,8 +206,9 @@ void AudioHardwareStreamPA::paStreamWriteCB(pa_stream* s, size_t length, void* s
 
 	while (done < length && This->m_running)
 	{
+		const auto asbd = This->m_paHw->asbd();
 		abl->mNumberBuffers = 1;
-		abl->mBuffers[0].mNumberChannels = This->m_paHw->asbd().mChannelsPerFrame ? This->m_paHw->asbd().mChannelsPerFrame : 2;
+		abl->mBuffers[0].mNumberChannels = asbd.mChannelsPerFrame ? asbd.mChannelsPerFrame : 2;
 
 		size_t rqsize = std::min<UInt32>(This->m_bufferSize, length - done);
 		void* pdata = nullptr;
@@ -227,7 +228,7 @@ void AudioHardwareStreamPA::paStreamWriteCB(pa_stream* s, size_t length, void* s
 
 		OSStatus status = This->m_callback(This->m_paHw->id(), &nowTs, nullptr, nullptr, abl, &outTs, This->m_clientData);
 
-		UInt32 bpf = This->m_paHw->asbd().mBytesPerFrame ? This->m_paHw->asbd().mBytesPerFrame : 8;
+		UInt32 bpf = asbd.mBytesPerFrame ? asbd.mBytesPerFrame : 8;
 		This->m_sampleTime += (Float64)(rqsize / bpf);
 
 		if (status != noErr || !abl->mBuffers[0].mDataByteSize)
@@ -317,7 +318,7 @@ void transform(typename std::make_unsigned<T>::type* data)
 
 void AudioHardwareStreamPA::transformSignedUnsigned(AudioBufferList* abl) const
 {
-	const AudioStreamBasicDescription& asbd = m_paHw->asbd();
+	const auto asbd = m_paHw->asbd();
 	const bool revEndian = (asbd.mFormatFlags & kAudioFormatFlagIsBigEndian) != (asbd.mFormatFlags & kAudioFormatFlagsNativeEndian);
 
 	for (int i = 0; i < abl->mNumberBuffers; i++)

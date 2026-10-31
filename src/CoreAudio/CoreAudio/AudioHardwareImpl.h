@@ -24,6 +24,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <mutex>
 #include "AudioHardwareStream.h"
+#include "AudioPropertyListeners.h"
 
 class AudioHardwareImpl
 {
@@ -49,6 +50,8 @@ public:
 	
 	virtual OSStatus removePropertyListener(const AudioObjectPropertyAddress* inAddress,
 		AudioObjectPropertyListenerProc inListener, void* inClientData);
+	OSStatus addPropertyListenerBlock(const AudioObjectPropertyAddress*, dispatch_queue_t, AudioObjectPropertyListenerBlock);
+	OSStatus removePropertyListenerBlock(const AudioObjectPropertyAddress*, dispatch_queue_t, AudioObjectPropertyListenerBlock);
 	
 	OSStatus createIOProcID(AudioDeviceIOProc inProc, void* inClientData,
 		AudioDeviceIOProcID* outIOProcID);
@@ -69,15 +72,23 @@ public:
 	uint32_t bufferSize() const { return m_bufferSize; }
 
 	AudioObjectID id() const { return m_myId; }
-	const AudioStreamBasicDescription& asbd() const { return m_asbd; }
+	AudioStreamBasicDescription asbd() const {
+        std::lock_guard<std::mutex> guard(m_formatMutex);
+        return m_asbd;
+    }
 private:
 	static OSStatus getPropertyCFString(CFStringRef str, UInt32* ioDataSize, void* outData);
 	static OSStatus getPropertyString(CFStringRef str, UInt32* ioDataSize, void* outData);
 protected:
+	OSStatus preparePropertyChange(const AudioObjectPropertyAddress& address, AudioPropertyListeners::Change& change,
+		AudioPropertyListeners::Context context = AudioPropertyListeners::Context::Normal) { return m_listeners.prepare(address, change, context); }
 	virtual AudioHardwareStream* createStream(AudioDeviceIOProc callback, void* clientData) = 0;
 	virtual bool validateFormat(const AudioStreamBasicDescription* absd) const { return true; }
 protected:
 	AudioObjectID m_myId;
+	AudioPropertyListeners m_listeners;
+	mutable std::mutex m_formatMutex;
+    bool m_formatInUse = false;
 	std::mutex m_procMutex;
 	std::map<AudioDeviceIOProcID, std::pair<AudioDeviceIOProc, void*>> m_proc;
 	int m_nextProcId = 1;
