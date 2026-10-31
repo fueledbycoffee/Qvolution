@@ -101,6 +101,12 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
+    foreach(fixture IN ITEMS semantic-symbols symbol-rendering)
+        string(REPLACE "-" "_" target_suffix "${fixture}")
+        add_darling_executable(qvolution_${target_suffix}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-${fixture}.m)
+        target_link_libraries(qvolution_${target_suffix} AppKit CoreGraphics)
+    endforeach()
     add_darling_executable(qvolution_accessibility_custom_action
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-custom-action.m
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-accessibility-custom-action-header.m)
