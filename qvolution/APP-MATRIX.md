@@ -1,6 +1,6 @@
 # Qvolution: 20 Mac application targets
 
-All entries are **not tested in Qvolution**. This is the proposed work order, not a promise of compatibility. Catalog versions are discovery metadata, not downloaded or tested artifacts. Pin the actual artifact hash, version, architecture and runtime manifest on each run. Discord is counted once. Dia means The Browser Company browser.
+Source TextEdit has partial, user-confirmed workflow evidence; the other 19 application targets are not yet tested in Qvolution. No target has passed all UI/UX, GPU and stability gates. This is the work order, not a promise of compatibility. Catalog versions are discovery metadata, not downloaded or tested artifacts. Pin the actual artifact hash, version, architecture and runtime manifest on each run. Discord is counted once. Dia means The Browser Company browser.
 
 | Order | App | Wave | First useful workflow |
 | --- | --- | --- | --- |
@@ -30,3 +30,8 @@ Waves: 1 = basic desktop workflows; 2 = framework/media breadth; 3 = multiproces
 Dia is ARM64-only in the checked catalog; the initial host is x86_64. It needs an ARM64 host/runtime or a separately validated CPU-translation solution. Darling API translation itself does not supply that CPU translation.
 
 See [apps.json](apps.json) for official URLs, catalog metadata, the full workflows and acquisition requirements.
+
+
+## Completion criteria
+
+Every row must pass artifact/architecture, its full workflow, polished UI/UX, verified GPU behavior and stability qualification from [the delivery roadmap](ROADMAP.md). Launch-only and source-fixture results are recorded but do not qualify a vendor application. GPU presentation, composition and rendering are recorded separately so a CPU path cannot silently count as hardware acceleration. Work on shared UI, menu, PTY, GPU and browser/media foundations proceeds in parallel.

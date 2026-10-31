@@ -1,4 +1,46 @@
-# Qvolution work queue
+# Qvolution delivery roadmap
+
+The target is all 20 pinned Mac applications completing their real workflows on GNOME with polished UI/UX, verified hardware acceleration and stability. A visible window is only a launch milestone. Source fixtures and official vendor bundles keep separate results. Dates are not promises: dependencies and measured gates determine promotion.
+
+## Acceptance gates for every application
+
+| Gate | Evidence required before marking it passed |
+| --- | --- |
+| Artifact and architecture | Legitimately acquired, unmodified official bundle with version/hash/architecture and pinned runtime; source fixtures are labelled separately. Dia requires a working ARM64 execution path. |
+| Functional workflow | The app-specific playbook completes, including persistence and failure handling. Login alone is insufficient; authenticated actions use the user's chosen test accounts/destinations. |
+| UI/UX | Complete functional controls, native Wayland focus/window behavior, keyboard/clipboard/accessibility, correct scale/layout, coherent light/dark styling, and top-bar menus tied to the focused app with fallback on shell restart. Missing controls are functional defects, not cosmetic debt. |
+| GPU | Record device/driver/backend, rendered-output correctness and workload timing. Distinguish CPU rasterization, GPU presentation, GPU composition and GPU rendering. A GPU-driven GNOME compositor or successful context creation alone does not establish app acceleration. Reject or explicitly label software fallbacks. |
+| Stability | First qualification: 10 clean launch/exit cycles, a one-hour repeated workflow, bounded memory growth and no corruption. Before calling a daily-use/service app stable, run an eight-hour soak and relevant suspend/resume/device-loss cases. These are planned gates, not results already achieved. |
+
+Measure startup, input latency, frame-time percentiles, memory and CPU/GPU usage on this host. Establish an app-specific performance budget before qualification; interactive 60 Hz rendering has a 16.7 ms frame budget, but unsupported workloads must be reported rather than hidden behind a pass.
+
+## Parallel execution now
+
+| Lane | Owner | Current deliverable | Exit gate / dependencies |
+| --- | --- | --- | --- |
+| Rich-text controls | Inspector subagent | Font/underline prerequisite fixes, a real rich-text inspector and show/hide/layout tests | Failing-before fixtures, guest checks, then visual TextEdit rich/plain and formatting validation |
+| GNOME global menus | Menu subagent | Orbit Global Menu bridge, real menu export/focus association and exporter acknowledgement/fallback | Isolated D-Bus/model tests, real guest PID association, staged integration and shell restart behavior; no hiding local menus before acknowledged presentation |
+| Terminal/runtime PTY | Terminal subagent | Real PTY input/Unicode/resize/control-terminal/exit harness and vendor-artifact gate | Guest PTY correctness before a Terminal.app claim; no Terminal GUI source fixture exists in the pinned checkout |
+| GPU and integration | Main agent | Host/guest renderer baseline, prioritized GPU gaps, roadmap, review and runtime integration | Verify hardware use and rendered output; coordinate shared heavy builds, staging and prefix launches |
+
+Subagents work in isolated checkouts and can compile lightweight isolated outputs. The main agent reviews and integrates focused commits. Shared CMake configuration, heavy builds and staged-runtime replacement have one coordinator; independent source work, model tests and audits run in parallel. Every handoff states what ran, what failed and what still needs verification.
+
+## Dependency waves
+
+1. **Desktop substrate:** finish TextEdit rich editing, undo/clipboard, GNOME menu consumer/registration, PTYs and measured OpenGL/Metal/2D presentation baselines concurrently. Native AppKit UI currently uses CPU rasterization and shared-memory presentation; acceleration is not yet qualified.
+2. **Basic desktop apps:** qualify TextEdit, Terminal, Stickies, Calculator and Preview using the same shared primitives. UI and GPU work continues alongside app testing, rather than waiting for all apps to launch.
+3. **Graphics/media and utility breadth:** Chess, CotEditor, Transmission, Keka, Cyberduck, VLC, IINA and KeePassXC. Add targeted framework/codec/network fixtures and output correctness tests; fix shared blockers instead of app-specific fake-success stubs.
+4. **Multiprocess editors/browsers:** qualify an unmodified Mac Electron fixture and process/sandbox/network/GPU behavior, then VS Code, Obsidian and Firefox. Matching x86 Swift overlays are an independent dependency for apps that require them.
+5. **Authenticated services and ARM64:** Spotify, WhatsApp, Dia and Discord. Deliver real media/capture/portal behavior and permissions, validate ARM64 execution for Dia, then complete each service's authorized real workflow. Discord voice, camera and screen share are separate required gates.
+6. **Release qualification:** apply the same UI/UX, GPU, persistence and stability gates to every pinned app/version; publish reproducible results, regressions and honest remaining failures. No app is promoted merely because another app from its family works.
+
+## Current evidence and limits
+
+Source TextEdit starts without loader overrides. ASCII saving/reopening, single title bar and removal of menu/scroll flicker are user-confirmed; normal-startup typing and menus are confirmed. Five normal-loading framework/UI probes, 13 host checks and three CLI cycles pass. This does not establish Unicode TextEdit editing, undo, clipboard, inspector controls, GNOME top-bar integration, GPU acceleration, vendor TextEdit compatibility or long-term stability.
+
+Orbit Global Menu is the user-selected integration target and is installed as `global-menu@unmade.space` (1.1.3), with its companion Python daemon. It currently discovers canonical dbusmenu by X11 window ID, while native Wayland GTK menus use GTK D-Bus metadata. The menu workstream must bridge native Qvolution menus into Orbit using its real protocol, preserve local fallback, and verify focus association after the user logs out/in to activate it. We will not install a competing consumer or change extension settings. See [Orbit source](https://github.com/Unmade760/orbit-global-menu). The host exposes an RTX 4070 with NVIDIA driver 595.99.02. Guest CGL/OpenGL has rendered a shader triangle with correct pixel readback on that hardware; guest Metal has completed a GPU buffer-fill/readback with its existing explicit experimental opt-in. These primitive probes do not qualify any of the 20 apps as GPU-accelerated, and native AppKit drawing remains a separate CPU-path acceleration task.
+
+## Tracked work
 
 - [x] QV-001: Fork VibeDarling, preserve provenance and create an independent local checkout.
 - [x] QV-002: Define exactly 20 application targets, workflow gates and reproducible run records.
@@ -7,7 +49,7 @@
 - [ ] QV-005: Make TextEdit edit/save/reopen reliable under GNOME/Mutter. ASCII save/quit/reopen and flicker correction are user-confirmed; normal Objective-C startup and typing/menus are confirmed. Unicode editing, undo, clipboard and extended stability remain pending.
 - [ ] QV-006: Make Terminal PTY input, resize, multiple windows and clean exit reliable.
 - [ ] QV-007: Repair menu mutation, validation, removed-item IDs, toggle state and panel-disappearance fallback.
-- [ ] QV-008: Separate D-Bus menu export from X11 registration; implement native Wayland focus/application association with a specific GNOME extension.
+- [ ] QV-008: Separate D-Bus menu export from X11 registration; bridge native Wayland focus/application association into Orbit Global Menu and verify its real menus after session activation.
 - [ ] QV-009: Publish Mutter and Sway integration evidence for focus, input, clipboard and fractional scaling.
 - [ ] QV-010: Exercise waves 1 and 2; link shared blockers rather than adding app-specific fake-success stubs.
 - [ ] QV-011: Run a minimal unmodified Mac Electron fixture: renderer/helpers, network, input, clipboard and sustained rendering.
@@ -23,3 +65,11 @@ Each runtime change needs a focused regression, its source/provenance and an obs
 - [x] QV-018: Validate single title-bar ownership on Wayland, preserve X11 layout, and confirm the corrected window with the user.
 
 - [ ] QV-019: Implement NSTextView rich-text inspector controls. TextEdit 1.9 requests the inspector in rich mode, but setUsesInspectorBar currently stores only a flag. Verify rich/plain visibility and real formatting actions; this is a functional compatibility gap, separate from theme polish.
+
+- [ ] QV-020: Establish guest OpenGL/EGL and Metal/Vulkan device/output correctness baselines, including explicit software-fallback detection.
+- [ ] QV-021: Accelerate native AppKit/Onyx2D composition and presentation; measure copies, frame pacing, glyph/image composition and multi-window scaling.
+- [ ] QV-022: Define and implement a coherent light/dark GNOME-oriented visual system, accessibility and interaction states after functional controls exist.
+- [ ] QV-023: Add per-app repeat-launch, workflow-loop and soak qualification with memory/performance records and restart/device-loss behavior.
+- [ ] QV-024: Validate media hardware decoding, texture/surface sharing, audio and portal-backed capture for media/browser/service targets.
+
+- [ ] QV-025: Reject overlong prefix socket paths before starting services. Isolated controls reproduced silent Unix-socket truncation for long paths; short unique cold PTY and echo controls pass. Preserve the one unexplained initial timeout separately and do not infer a general cold-start defect from invalid path controls.

@@ -52,6 +52,12 @@
         "swift_abi": "legacy_x86_overlay_unsupported",
         "rich_text_inspector_bar": "missing_implementation; setter_stores_flag_only",
         "gnome_global_menu": "not_integrated_native_wayland"
+      },
+      "quality_gates": {
+        "workflow": "partial_source_fixture",
+        "ui_ux": "partial_source_fixture",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
       }
     },
     {
@@ -84,7 +90,13 @@
         "Test PTY input, Unicode and resize",
         "Open a second window and exit cleanly"
       ],
-      "notes": "Requires an acquired Mac application bundle; a shell prompt alone does not prove PTY correctness."
+      "notes": "Requires an acquired Mac application bundle; a shell prompt alone does not prove PTY correctness.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "stickies",
@@ -116,7 +128,13 @@
         "Copy and paste between windows",
         "Quit and verify note persistence after relaunch"
       ],
-      "notes": "Acquire an exact Mac application version."
+      "notes": "Acquire an exact Mac application version.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "calculator",
@@ -148,7 +166,13 @@
         "Use keyboard input and mode/menu changes",
         "Copy a result to TextEdit"
       ],
-      "notes": "Framework requirements depend strongly on the chosen macOS release."
+      "notes": "Framework requirements depend strongly on the chosen macOS release.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "preview",
@@ -180,7 +204,13 @@
         "Zoom, navigate and select text",
         "Annotate a disposable PDF, save and reopen"
       ],
-      "notes": "Use test documents; record fidelity and rendering failures."
+      "notes": "Use test documents; record fidelity and rendering failures.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "chess",
@@ -212,7 +242,13 @@
         "Play several legal moves",
         "Save and reopen a game"
       ],
-      "notes": "A deliberate graphics and framework stretch target; not an early easy win."
+      "notes": "A deliberate graphics and framework stretch target; not an early easy win.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "coteditor",
@@ -246,7 +282,13 @@
         "Find, replace, undo and save",
         "Reopen and compare exact contents"
       ],
-      "notes": "Modern Apple framework coverage needs validation."
+      "notes": "Modern Apple framework coverage needs validation.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "transmission",
@@ -284,7 +326,13 @@
         "Transfer a self-authored fixture on an isolated peer setup",
         "Pause, resume and verify downloaded bytes"
       ],
-      "notes": "Use a controlled transfer fixture."
+      "notes": "Use a controlled transfer fixture.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "keka",
@@ -318,7 +366,13 @@
         "Extract into a fresh directory",
         "Compare file hashes and test a Unicode filename"
       ],
-      "notes": "Test the official Mac bundle."
+      "notes": "Test the official Mac bundle.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "cyberduck",
@@ -352,7 +406,13 @@
         "Upload and download a fixture",
         "Compare hashes and save a test bookmark"
       ],
-      "notes": "Use local test credentials, not personal servers."
+      "notes": "Use local test credentials, not personal servers.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "vlc",
@@ -386,7 +446,13 @@
         "Seek, pause and toggle fullscreen",
         "Open a second media file and exit cleanly"
       ],
-      "notes": "Measure A/V behavior, not just a visible player window."
+      "notes": "Measure A/V behavior, not just a visible player window.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "iina",
@@ -424,7 +490,13 @@
         "Seek and render subtitles",
         "Resize, enter fullscreen and exit cleanly"
       ],
-      "notes": "Graphics, media backend and Swift dependencies need testing."
+      "notes": "Graphics, media backend and Swift dependencies need testing.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "keepassxc",
@@ -462,7 +534,13 @@
         "Add and copy a dummy password",
         "Save, lock, reopen and verify the dummy entry"
       ],
-      "notes": "Use synthetic vault contents only during compatibility testing."
+      "notes": "Use synthetic vault contents only during compatibility testing.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "vscode",
@@ -496,7 +574,13 @@
         "Use search and save/reopen",
         "Open the integrated terminal and verify output"
       ],
-      "notes": "Mac Electron candidate after an independent minimal Electron fixture passes."
+      "notes": "Mac Electron candidate after an independent minimal Electron fixture passes.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "obsidian",
@@ -534,7 +618,13 @@
         "Edit and link two notes",
         "Restart and verify note contents"
       ],
-      "notes": "Mac Electron candidate; disable optional community plugins in baseline tests."
+      "notes": "Mac Electron candidate; disable optional community plugins in baseline tests.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "firefox",
@@ -568,7 +658,13 @@
         "Type, scroll and open a second tab",
         "Download a fixture and verify bytes"
       ],
-      "notes": "Separate browser/multiprocess target; keep sandbox limitations explicit."
+      "notes": "Separate browser/multiprocess target; keep sandbox limitations explicit.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "spotify",
@@ -606,7 +702,13 @@
         "Authenticate interactively when ready",
         "Play, pause, seek and verify sustained audio"
       ],
-      "notes": "Authentication and media-service behavior are separate gates; do not record account tokens."
+      "notes": "Authentication and media-service behavior are separate gates; do not record account tokens.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "whatsapp",
@@ -644,7 +746,13 @@
         "Link interactively and exchange an authorized test message",
         "Test a fixture attachment, notifications and separately a call"
       ],
-      "notes": "Requires user interaction and an explicitly chosen test contact for message/call tests."
+      "notes": "Requires user interaction and an explicitly chosen test contact for message/call tests.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "dia",
@@ -688,7 +796,13 @@
         "Open tabs and render local/HTTPS pages",
         "Authenticate interactively and test an authorized assistant action"
       ],
-      "notes": "Assumed to mean The Browser Company Dia. Catalog requires ARM64 and macOS 14+. Not directly runnable as x86_64 code."
+      "notes": "Assumed to mean The Browser Company Dia. Catalog requires ARM64 and macOS 14+. Not directly runnable as x86_64 code.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     },
     {
       "id": "discord",
@@ -726,7 +840,13 @@
         "Navigate servers and exchange an authorized test message",
         "Test voice, then camera, then screen share as separate gates"
       ],
-      "notes": "Use the unmodified official Mac client. Passing login is not working Discord; capture APIs are currently incomplete."
+      "notes": "Use the unmodified official Mac client. Passing login is not working Discord; capture APIs are currently incomplete.",
+      "quality_gates": {
+        "workflow": "not_tested",
+        "ui_ux": "not_tested",
+        "gpu": "not_qualified",
+        "stability": "not_qualified"
+      }
     }
   ]
 }
