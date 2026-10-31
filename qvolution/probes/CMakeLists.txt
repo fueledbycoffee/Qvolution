@@ -97,6 +97,9 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
+    add_darling_executable(qvolution_title_visibility
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-title-visibility.m)
+    target_link_libraries(qvolution_title_visibility AppKit CoreGraphics)
     if (TARGET CoreText)
         add_darling_executable(qvolution_font_ctfont_bridge
             ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-font-ctfont-bridge.m)
