@@ -18,6 +18,7 @@ struct Options {
 	Case testCase = Case::PayloadRoundtrip;
 	DeviceIdentity identity;
 	uint32_t width = 61, height = 47, runs = 1;
+	uint32_t enumerationPasses = 1;
 	uint32_t runIndex = 0;
 	uint64_t initializationTimeoutNs = 1000000000, waitTimeoutNs = 1000000000;
 	int channel = -1;
@@ -65,7 +66,7 @@ struct DeviceInfo {
 	VkPhysicalDeviceProperties properties{};
 	std::vector<std::string> extensions;
 };
-std::vector<DeviceInfo> enumerateDevices();
+std::vector<DeviceInfo> enumerateDevices(uint32_t run = 0, uint32_t passes = 1);
 
 class Context : public std::enable_shared_from_this<Context> {
 public:

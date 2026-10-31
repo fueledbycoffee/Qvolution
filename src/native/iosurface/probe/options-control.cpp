@@ -29,6 +29,10 @@ int main()
 		rejects([&] { parse({"probe"}); });
 		rejects([&] { parse({"probe", "--list-hardware", "--unknown"}); });
 		require(parse({"probe", "--list-hardware", "--json"}).list, "CPU list-option parse failed");
+		require(parse({"probe", "--enumeration-only", "--enumeration-passes", "32"}).enumerationPasses == 32,
+			"repeated enumeration parse failed");
+		for (auto value : {"0", "257"}) rejects([&] { parse({"probe", "--enumeration-only", "--enumeration-passes", value}); });
+		rejects([&] { auto args = base; args.insert(args.end(), {"--enumeration-passes", "2"}); parse(args); });
 		Pixels expected(61, 47);
 		auto untouched = expected.bytes;
 		require(expected.compare(untouched.data(), true) != 0, "untouched sentinel falsely passed initial clear");

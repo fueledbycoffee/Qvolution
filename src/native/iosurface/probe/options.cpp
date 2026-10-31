@@ -62,6 +62,7 @@ Options parseOptions(int argc, char** argv)
 		} else if (option == "--width") { const auto n = number(value()); require(n && n <= 4096, "width outside probe bound"); o.width = uint32_t(n); }
 		else if (option == "--height") { const auto n = number(value()); require(n && n <= 4096, "height outside probe bound"); o.height = uint32_t(n); }
 		else if (option == "--runs") { const auto n = number(value()); require(n && n <= 256, "run count outside probe bound"); o.runs = uint32_t(n); }
+		else if (option == "--enumeration-passes") { const auto n = number(value()); require(n && n <= 256, "enumeration passes outside probe bound"); o.enumerationPasses = uint32_t(n); }
 		else if (option == "--run-index") { const auto n = number(value()); require(n <= 255, "run index outside probe bound"); o.runIndex = uint32_t(n); }
 		else if (option == "--initialization-timeout-ns") o.initializationTimeoutNs = number(value());
 		else if (option == "--wait-timeout-ns") o.waitTimeoutNs = number(value());
@@ -76,6 +77,7 @@ Options parseOptions(int argc, char** argv)
 	require(!o.childProducer || o.child, "internal producer role requires child mode");
 	require(!o.enumerationOnly || (!o.list && !o.crossExec && !o.reverse && !o.dropCreator && !o.child),
 		"enumeration-only diagnostic cannot run storage/process cases");
+	require(o.enumerationPasses == 1 || o.enumerationOnly, "repeated enumeration requires enumeration-only");
 	return o;
 }
 

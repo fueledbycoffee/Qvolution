@@ -95,8 +95,12 @@ the sentinel/pixel/canary detector. It supplies no hardware evidence.
 `--fd-audit` records the native process's descriptor number, readlink target,
 stat identity and descriptor/status flags at allocation/export/send/import/
 creator-drop/retirement/discovery boundaries. Its own temporary directory FD
-is excluded from snapshots; the existing count gate remains unchanged and
-still includes its transient count-directory descriptor. Stat stability
+is excluded from snapshots. The strict gate compares complete stable snapshots
+after the first run, including FD numbers and flags, and fails on identity
+replacement even when counts match. Counts now exclude the scan directory.
+The first-run baseline still cannot rule out a resource lost on the first run.
+No device path/inode is exempt: opaque exports can share the driver's inode.
+Stat stability
 does not prove shared open-file-description identity or authorize closing a
 driver-owned FD. The audit is evidence collection, not a driver-cache waiver.
 Diagnostic JSON escapes non-ASCII/control bytes as `\u00XX`, preserving distinct
@@ -104,8 +108,16 @@ native path bytes instead of replacing them with question marks.
 `--enumeration-only --fd-audit --runs 2` isolates instance/physical-device
 discovery without logical devices, allocation/export or submitted work. It
 retains the strict post-first-run FD gate and never qualifies GPU storage.
+`--enumeration-only --enumeration-passes 32 --runs 1 --fd-audit` enumerates
+32 times in a single instance, then destroys it. Compare its API-boundary
+snapshots with `--enumeration-only --runs 2 --fd-audit` to distinguish retention
+per physical-device enumeration from retention per instance lifecycle. This
+diagnostic adds no logical device or storage, closes no driver FDs, and cannot
+establish that a retained descriptor is expected process-lifetime state.
 The new native-only `surface-probe-fd-control` verifies actual memfd duplicate
 identity/flags and that the auditor itself neither retains nor changes FDs.
+Its `--negative-control` deliberately loses an owned duplicate while closing
+an unrelated spare. The count stays unchanged; the identity gate must exit 1.
 
 Provenance: clean `gpu-surface-direct-primary-next/SPEC.md` sections 4–5 and
 `SOURCE-LEDGER.md`; official Khronos Vulkan memory/resources/synchronization

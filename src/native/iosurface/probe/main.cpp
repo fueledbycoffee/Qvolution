@@ -268,10 +268,11 @@ int run(const Options& o)
 		std::vector<FdIdentity> baseline;
 		for (uint32_t i = 0; i < o.runs; ++i) {
 			const auto before = snapshotFds().size(); auditFds("enumeration_only_begin", i);
-			const auto observed = enumerateDevices();
+			const auto observed = enumerateDevices(i, o.enumerationPasses);
 			auditFds("enumeration_only_retired", i); const auto after = snapshotFds();
 			if (!i) baseline = after;
 			output << "{\"source_id\":" << jsonString(SURFACE_PROBE_SOURCE_ID) << ",\"diagnostic\":\"enumeration-only\",\"run\":" << i
+				<< ",\"enumeration_passes\":" << o.enumerationPasses
 				<< ",\"physical_devices\":" << observed.size() << ",\"fd_before\":" << before << ",\"fd_after\":" << after.size()
 				<< ",\"count_stable\":" << (after.size() == baseline.size() ? "true" : "false")
 				<< ",\"fd_identities_stable\":" << (after == baseline ? "true" : "false") << ",\"gpu_storage_qualified\":false}\n";
@@ -292,7 +293,7 @@ int run(const Options& o)
 		auditFds("case_retired", i);
 		require(!Submission::pending() && !pendingRetirements(), "probe retained unexpected submissions on success");
 		const auto d = decode(result.descriptor);
-		const auto observed = enumerateDevices();
+		const auto observed = enumerateDevices(i);
 		auditFds("metadata_enumerated", i);
 		const auto selected = std::find_if(observed.begin(), observed.end(), [&](const auto& info) {
 			return info.identity.device == d.identity.device && info.identity.driver == d.identity.driver;

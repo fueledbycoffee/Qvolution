@@ -31,18 +31,29 @@ static DeviceInfo deviceInfo(VkPhysicalDevice physical)
 	return out;
 }
 
-std::vector<DeviceInfo> enumerateDevices()
+std::vector<DeviceInfo> enumerateDevices(uint32_t run, uint32_t passes)
 {
+	auditFds("enumeration_before_instance", run);
 	const auto instance = newInstance();
+	std::vector<DeviceInfo> result;
 	try {
-		uint32_t count = 0;
-		checked(vkEnumeratePhysicalDevices(instance, &count, nullptr), "probe count physical devices");
-		std::vector<VkPhysicalDevice> physicals(count);
-		checked(vkEnumeratePhysicalDevices(instance, &count, physicals.data()), "probe physical devices");
-		std::vector<DeviceInfo> result;
-		for (uint32_t i = 0; i < count; ++i) result.push_back(deviceInfo(physicals[i]));
-		vkDestroyInstance(instance, nullptr); return result;
+		auditFds("enumeration_instance_created", run);
+		for (uint32_t pass = 0; pass < passes; ++pass) {
+			auditFds("enumeration_pass_begin", pass);
+			uint32_t count = 0;
+			checked(vkEnumeratePhysicalDevices(instance, &count, nullptr), "probe count physical devices");
+			std::vector<VkPhysicalDevice> physicals(count);
+			checked(vkEnumeratePhysicalDevices(instance, &count, physicals.data()), "probe physical devices");
+			auditFds("enumeration_physicals_observed", pass);
+			result.clear();
+			for (uint32_t i = 0; i < count; ++i) result.push_back(deviceInfo(physicals[i]));
+			auditFds("enumeration_pass_end", pass);
+		}
+		auditFds("enumeration_before_destroy", run);
 	} catch (...) { vkDestroyInstance(instance, nullptr); throw; }
+	vkDestroyInstance(instance, nullptr);
+	auditFds("enumeration_instance_destroyed", run);
+	return result;
 }
 
 std::shared_ptr<Context> Context::open(const DeviceIdentity& identity)
