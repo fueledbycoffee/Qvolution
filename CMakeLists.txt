@@ -225,13 +225,10 @@ cmake_policy(SET CMP0014 NEW)
 
 generate_architecture()
 
-if(ENABLE_TESTS)
-    enable_testing()
-endif()
-
 add_subdirectory(src)
 
 if(ENABLE_TESTS)
+    enable_testing()
     set(DARLING_SUPERPROJECT "${CMAKE_SOURCE_DIR}" CACHE PATH "Darling superproject source tree")
     add_subdirectory(src/external/xnu/darling/tests)
 endif()
