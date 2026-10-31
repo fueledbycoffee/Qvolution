@@ -133,3 +133,18 @@ has run out of road is a missing **symbol** rather than a missing library.
 - Install frameworks from the build into the prefix explicitly rather than assuming the payload has
   them - verify the binary exists and is the right size, since an empty framework directory or a
   self-referential symlink (`A -> A`) otherwise fails much later and far from the cause.
+
+## Exact PostScript lookup through Fontconfig
+
+Typed `FC_POSTSCRIPT_NAME` queries through `FcFontList` can return normalized case/space
+matches: a `DejaVu Sans` query can return an advertised `DejaVuSans` name. A nonempty result
+set therefore does not establish an exact candidate. Request the advertised PostScript names
+in the object set and compare them exactly before classifying load failures. Load the selected
+`FC_FILE` and `FC_INDEX`, then verify its actual FreeType PostScript identity. Normalized-only
+matches must retain the caller's explicit family/pattern fallback policy.
+
+The original `src/external/cocotron/tests/coregraphics-postscript-selection.py` exercises the
+actual native selection source; `coregraphics-postscript-roundtrip.m` checks exact and spaced
+family names against real provider identity and glyph advances. Keep both controls: exact-name
+success alone missed a family-route regression in the unchanged AppKit bridge. This is a measured
+Linux Fontconfig matching fact, not a native Mac fallback policy or an application crash diagnosis.
