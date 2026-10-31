@@ -454,7 +454,7 @@
 	url = ../darling-xar.git
 [submodule "src/external/metal"]
 	path = src/external/metal
-	url = ../darling-metal.git
+	url = https://github.com/fueledbycoffee/Qvolution-metal.git
 [submodule "src/external/xnu"]
 	path = src/external/xnu
 	url = ../darling-xnu.git
