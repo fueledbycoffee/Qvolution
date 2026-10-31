@@ -4,6 +4,22 @@ The initial source baseline is VibeDarling commit `1972ae4bc79b96f3dbb952d3bc658
 
 ## Ubuntu 26.04 dependencies
 
+A fresh checkout needs two remotes. Most upstream submodule URLs are relative
+siblings, so keep `origin` on VibeDarling and use `qvolution` for this project.
+The Qvolution component fork URLs are explicit and stay pinned by the gitlinks.
+
+```sh
+git clone --branch qvolution/parallel-desktop https://github.com/fueledbycoffee/Qvolution.git
+cd Qvolution
+git remote rename origin qvolution
+git remote add origin https://github.com/VibeDarling/darling.git
+```
+
+The cloned branch keeps tracking the renamed `qvolution` remote. Fetch/pull this
+project from `qvolution`; the upstream `origin` supplies relative dependency URL
+resolution. Do not initialize these relative submodules against a personal fork
+that does not contain their sibling repositories.
+
 Review and run `bash qvolution/bootstrap-ubuntu.sh`. It uses Ubuntu packages and sudo, and lets apt ask for confirmation. Then:
 
 ```sh
