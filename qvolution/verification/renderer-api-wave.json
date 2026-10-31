@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "scope": "Original API and rendering fixtures only; no application qualification",
+  "component_commit": "b83c3eeb7c3dd0574c08769589ae21d49ff3f665",
+  "tests": [
+    {
+      "name": "screen-colorspace",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "graphics-nil",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-inheritance",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-lifetime",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-reentrancy",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-direct",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-direct-window",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-direct-throw",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-manual",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "color-provider",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-draw",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-layer",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-throw",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "appearance-setup-throw",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "png-alpha",
+      "exit": 0,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "pass"
+    },
+    {
+      "name": "egl-presentation",
+      "exit": 1,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "fail"
+    },
+    {
+      "name": "egl-negative",
+      "exit": 1,
+      "timeout": false,
+      "prefix_shutdown_exit": 0,
+      "result": "expected_rejection"
+    }
+  ],
+  "negative_control": {
+    "actual_reference_mismatch_pixels": 1,
+    "total_pixels": 6144,
+    "failure_before_swap": true
+  },
+  "presentation_limit": "Positive ordinary-window fixture does not complete its bounded progression sequence. Capture checks similarly observe two submissions in shm and EGL; underlying cause remains under investigation.",
+  "not_proven": [
+    "compositor-visible correctness",
+    "app workflow",
+    "GPU rasterization",
+    "performance improvement",
+    "physical ICC profile accuracy",
+    "complete stability"
+  ]
+}

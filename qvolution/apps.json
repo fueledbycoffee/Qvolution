@@ -308,17 +308,17 @@
       },
       "catalog_source": "https://formulae.brew.sh/api/cask/transmission.json",
       "catalog_checked": "2026-10-30",
-      "architecture": "select-and-record-artifact",
-      "status": "not_tested",
-      "tested_version": null,
-      "artifact_sha256": null,
+      "architecture": "universal_x86_64_arm64; x86_64_execution_target",
+      "status": "partial_initialization",
+      "tested_version": "4.1.4",
+      "artifact_sha256": "495c5d21d515c8deb859b0db6692fd5606644a1613c2cac87c1d3e7672755a59",
       "milestones": {
-        "acquire": "not_tested",
-        "install": "not_tested",
-        "load": "not_tested",
-        "launch": "not_tested",
+        "acquire": "verified_official_artifact",
+        "install": "isolated_bundle_extracted",
+        "load": "interface_initialization_observed",
+        "launch": "bounded_launch_render_unverified",
         "workflow": "not_tested",
-        "gnome": "not_tested",
+        "gnome": "not_verified",
         "stability": "not_tested"
       },
       "workflow": [
@@ -326,12 +326,37 @@
         "Transfer a self-authored fixture on an isolated peer setup",
         "Pause, resume and verify downloaded bytes"
       ],
-      "notes": "Use a controlled transfer fixture.",
+      "notes": "Official unmodified universal bundle acquired and publisher SHA256 verified; x86_64 is the execution target. The stage4 launch reached NIB/control initialization and unsatisfiable-layout diagnostics until a bounded timeout. No stage5/6 retake is recorded. Rendering, a controlled local transfer and clean exit remain unverified.",
       "quality_gates": {
         "workflow": "not_tested",
-        "ui_ux": "not_tested",
+        "ui_ux": "not_verified",
         "gpu": "not_qualified",
         "stability": "not_qualified"
+      },
+      "tested_variant": "Official unmodified macOS vendor bundle",
+      "vendor_results": {
+        "stage_label": "stage4",
+        "bounded_launch_only": true,
+        "application_entry": "not_separately_instrumented",
+        "render": "not_verified",
+        "visible_ui": "not_verified",
+        "functional_workflow": "not_tested",
+        "exit": null,
+        "timeout": true,
+        "exact_prefix_shutdown_exit": 0,
+        "diagnostic_dyld_overrides": false,
+        "executable_unchanged": true,
+        "recorded_runtime": {
+          "superproject": "26cb20123208b1cf35540cc4b5415f2ed289cb42",
+          "cocotron": "d877f45623a723fc6baab36c7dbe5d8c7c9607bc",
+          "launcher_sha256": "b159f804e64964f6fcdf3d679b470d2631e1382cd3a80f9c0e41bb226ed75929"
+        },
+        "first_concrete_gate": "Rendering/workflow unverified; unsatisfiable layout diagnostic"
+      },
+      "artifact_source": {
+        "source_url": "https://github.com/transmission/transmission/releases/download/4.1.4/Transmission-4.1.4.dmg",
+        "publisher_digest_url": "https://transmissionbt.com/download",
+        "publisher_sha256_verified": true
       }
     },
     {
@@ -428,17 +453,17 @@
       },
       "catalog_source": "https://formulae.brew.sh/api/cask/vlc.json",
       "catalog_checked": "2026-10-30",
-      "architecture": "select-and-record-artifact",
-      "status": "not_tested",
-      "tested_version": null,
-      "artifact_sha256": null,
+      "architecture": "x86_64",
+      "status": "partial_initialization",
+      "tested_version": "3.0.24-intel64",
+      "artifact_sha256": "1ef6c903e2dc026d4e58ddf7b2a9ed0eb6f8caf80a9a9f46f96490340b962707",
       "milestones": {
-        "acquire": "not_tested",
-        "install": "not_tested",
-        "load": "not_tested",
-        "launch": "not_tested",
+        "acquire": "verified_official_artifact",
+        "install": "isolated_bundle_extracted",
+        "load": "interface_initialization_observed",
+        "launch": "bounded_launch_render_unverified",
         "workflow": "not_tested",
-        "gnome": "not_tested",
+        "gnome": "not_verified",
         "stability": "not_tested"
       },
       "workflow": [
@@ -446,12 +471,37 @@
         "Seek, pause and toggle fullscreen",
         "Open a second media file and exit cleanly"
       ],
-      "notes": "Measure A/V behavior, not just a visible player window.",
+      "notes": "Official unmodified Intel bundle acquired and publisher SHA256 verified. Stage4 reached interface/resource decoding then failed on a PDF cross-reference stream. Stage6 no longer showed that exception; interface initialization continued with audio-property, PDF soft-mask and slider diagnostics until a bounded timeout. Client rendering, playback/audio, seek/fullscreen and clean exit remain unverified.",
       "quality_gates": {
         "workflow": "not_tested",
-        "ui_ux": "not_tested",
+        "ui_ux": "not_verified",
         "gpu": "not_qualified",
         "stability": "not_qualified"
+      },
+      "tested_variant": "Official unmodified macOS vendor bundle",
+      "vendor_results": {
+        "stage_label": "stage6",
+        "bounded_launch_only": true,
+        "application_entry": "not_separately_instrumented",
+        "render": "not_verified",
+        "visible_ui": "not_verified",
+        "functional_workflow": "not_tested",
+        "exit": null,
+        "timeout": true,
+        "exact_prefix_shutdown_exit": 0,
+        "diagnostic_dyld_overrides": false,
+        "executable_unchanged": true,
+        "recorded_runtime": {
+          "superproject": "af3a9009062dc45e08d2179fdc65406d666526a6",
+          "cocotron": "fcc1240c8f7aac6028873976e3f03f9d9f24e3b1",
+          "launcher_sha256": "781cc0e1a45d99b7e3300d46828dd0e899d09b5a479e1e1f1f5e234e111174e1"
+        },
+        "first_concrete_gate": "Rendering/playback unverified; remaining audio-property, PDF soft-mask and slider diagnostics"
+      },
+      "artifact_source": {
+        "source_url": "https://download.videolan.org/pub/videolan/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg",
+        "publisher_digest_url": "https://download.videolan.org/pub/videolan/vlc/3.0.24/macosx/vlc-3.0.24-intel64.dmg.sha256",
+        "publisher_sha256_verified": true
       }
     },
     {
@@ -516,17 +566,17 @@
       },
       "catalog_source": "https://formulae.brew.sh/api/cask/keepassxc.json",
       "catalog_checked": "2026-10-30",
-      "architecture": "select-and-record-artifact",
-      "status": "not_tested",
-      "tested_version": null,
-      "artifact_sha256": null,
+      "architecture": "x86_64",
+      "status": "blocked_initialization",
+      "tested_version": "2.8.0-1",
+      "artifact_sha256": "28492c5535570020179150b2871b3c54abd032cbb8cdee2f1b3fa7c46cdba43e",
       "milestones": {
-        "acquire": "not_tested",
-        "install": "not_tested",
-        "load": "not_tested",
-        "launch": "not_tested",
+        "acquire": "verified_official_artifact",
+        "install": "isolated_bundle_extracted",
+        "load": "earlier_loader_gates_cleared_stage6",
+        "launch": "blocked_screen_color_space_api",
         "workflow": "not_tested",
-        "gnome": "not_tested",
+        "gnome": "not_verified",
         "stability": "not_tested"
       },
       "workflow": [
@@ -534,12 +584,45 @@
         "Add and copy a dummy password",
         "Save, lock, reopen and verify the dummy entry"
       ],
-      "notes": "Use synthetic vault contents only during compatibility testing.",
+      "notes": "Official unmodified Intel bundle acquired and publisher SHA256 verified. Stage4 stopped at an AppKit image-hint import; stage5 progressed to missing Metal stage-input descriptors. Stage6 passed those loader gates and reached native Wayland initialization, then exited 134 on the screen color-space API. No visible UI, dummy-vault workflow or GPU qualification is established. Stage7 adds the screen color-space bridge: the unchanged bundle clears that selector and stops at the next missing NSColorSpace.ICCProfileData method. This is still an initialization failure.",
       "quality_gates": {
         "workflow": "not_tested",
-        "ui_ux": "not_tested",
+        "ui_ux": "not_verified",
         "gpu": "not_qualified",
         "stability": "not_qualified"
+      },
+      "tested_variant": "Official unmodified macOS vendor bundle",
+      "vendor_results": {
+        "stage_label": "stage6",
+        "bounded_launch_only": true,
+        "application_entry": "not_separately_instrumented",
+        "render": "not_verified",
+        "visible_ui": "not_verified",
+        "functional_workflow": "not_tested",
+        "exit": 134,
+        "timeout": false,
+        "exact_prefix_shutdown_exit": 0,
+        "diagnostic_dyld_overrides": false,
+        "executable_unchanged": true,
+        "recorded_runtime": {
+          "superproject": "af3a9009062dc45e08d2179fdc65406d666526a6",
+          "cocotron": "fcc1240c8f7aac6028873976e3f03f9d9f24e3b1",
+          "launcher_sha256": "781cc0e1a45d99b7e3300d46828dd0e899d09b5a479e1e1f1f5e234e111174e1"
+        },
+        "first_concrete_gate": "Native Wayland screen color-space selector unavailable",
+        "stage7_retake": {
+          "exit_code": 134,
+          "next_missing_api": "NSColorSpace.ICCProfileData",
+          "earlier_screen_color_space_gate_cleared": true,
+          "executable_unchanged": true,
+          "prefix_shutdown_exit": 0,
+          "workflow_and_ui_qualified": false
+        }
+      },
+      "artifact_source": {
+        "source_url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",
+        "publisher_digest_url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg.DIGEST",
+        "publisher_sha256_verified": true
       }
     },
     {

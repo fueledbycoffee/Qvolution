@@ -1,7 +1,8 @@
 # Qvolution: 20 Mac application targets
 
-Source TextEdit has partial, user-confirmed workflow evidence; the other 19 application targets are not yet tested in Qvolution. No target has passed all UI/UX, GPU and stability gates. This is the work order, not a promise of compatibility. Catalog versions are discovery metadata, not downloaded or tested artifacts. Pin the actual artifact hash, version, architecture and runtime manifest on each run. Discord is counted once. Dia means The Browser Company browser.
+Source TextEdit has partial, user-confirmed workflow evidence. Official KeePassXC, VLC and Transmission bundles now have bounded launch records; their UI and real workflows remain unverified. No target has passed all UI/UX, GPU and stability gates. This is the work order, not a promise of compatibility. Catalog metadata and tested artifact versions are recorded separately. Pin the actual artifact hash, architecture and runtime on each run. Discord is counted once. Dia means The Browser Company browser.
 
+Current tested inputs: KeePassXC 2.8.0-1 Intel, VLC 3.0.24 Intel64 and Transmission 4.1.4 universal (x86_64 execution target); publisher SHA256 checks passed and executable hashes were unchanged after the recorded runs. Stage6 KeePassXC reached native initialization but stopped at the screen color-space API. Stage6 VLC progressed beyond its earlier PDF cross-reference exception, but still has unverified rendering/playback and audio/PDF/slider diagnostics. Transmission has stage4 UI-initialization evidence and a layout diagnostic, without a stage5/6 retake. Timeouts establish neither a hang nor a working app. TextEdit remains a source-fixture result, not an Apple vendor-bundle pass.
 | Order | App | Wave | First useful workflow |
 | --- | --- | --- | --- |
 | 1 | TextEdit | 1 | Create a Unicode document; Edit, undo, copy and paste |
@@ -35,3 +36,5 @@ See [apps.json](apps.json) for official URLs, catalog metadata, the full workflo
 ## Completion criteria
 
 Every row must pass artifact/architecture, its full workflow, polished UI/UX, verified GPU behavior and stability qualification from [the delivery roadmap](ROADMAP.md). Launch-only and source-fixture results are recorded but do not qualify a vendor application. GPU presentation, composition and rendering are recorded separately so a CPU path cannot silently count as hardware acceleration. Work on shared UI, menu, PTY, GPU and browser/media foundations proceeds in parallel.
+
+Stage7 retake: KeePassXC clears `NSScreen.colorSpace` and stops at missing `NSColorSpace.ICCProfileData` (exit134). It remains blocked during initialization; no UI/workflow promotion.
