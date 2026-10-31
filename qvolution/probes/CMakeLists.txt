@@ -34,6 +34,9 @@ if (TARGET AuthenticationServices)
     add_darling_executable(qvolution_authorization_domain authorization-domain.m)
     target_link_libraries(qvolution_authorization_domain Foundation)
     add_dependencies(qvolution_authorization_domain AuthenticationServices)
+    add_darling_executable(qvolution_web_auth_domain web-auth-domain.m web-auth-domain-header.m)
+    target_link_libraries(qvolution_web_auth_domain Foundation)
+    add_dependencies(qvolution_web_auth_domain AuthenticationServices)
 endif()
 if (TARGET SharedFileList AND TARGET CoreServices)
     add_darling_executable(qvolution_shared_list_resolved_url shared-list-resolved-url.m)
@@ -43,6 +46,13 @@ if (TARGET SharedFileList AND TARGET CoreServices)
 endif()
 
 if (TARGET AppKit)
+    foreach(fixture IN ITEMS display-online display-online-topology)
+        string(REPLACE "-" "_" target_suffix "${fixture}")
+        add_darling_executable(qvolution_${target_suffix}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coregraphics-${fixture}.m)
+        target_compile_options(qvolution_${target_suffix} PRIVATE -UNDEBUG)
+        target_link_libraries(qvolution_${target_suffix} AppKit CoreGraphics)
+    endforeach()
     foreach(fixture IN ITEMS screen-colorspace screen-localized-name screen-name-metadata
             colorspace-icc-profile graphics-context-nil-state
             semantic-dark-colors semantic-control-surface textview-semantic-defaults
