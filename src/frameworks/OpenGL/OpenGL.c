@@ -1,3 +1,4 @@
+#define GL_GLEXT_PROTOTYPES 1
 #include <stdlib.h>
 #include <stdio.h>  // for fprintf(stderr, "unimplemented")
 #include <string.h>
@@ -6,6 +7,7 @@
 #include <pthread.h>
 
 #include <OpenGL/OpenGL.h>
+#include <OpenGL/glext.h>
 #include <OpenGL/CGLInternal.h>
 #include <CoreFoundation/CFDictionary.h>
 #include <pthread.h>
@@ -121,6 +123,7 @@ struct _CGLContextObj {
     EGLContext egl_context;
     EGLSurface egl_surface;
     EGLSurface fallback_pbuffer;
+    int native_framebuffer_initialized;
     // EGL has no function for getting the current swap interval,
     // so we need to save the last set value. The default is 1.
     // This is the application's value; a paced context never gives it to EGL.
@@ -360,6 +363,47 @@ CGL_EXPORT void CGLDestroyWindow(CGLWindowRef ref) {
     free(window);
 }
 
+static int cgl_has_extension(const char *extensions, const char *name) {
+    if (!extensions)
+        return 0;
+    size_t length = strlen(name);
+    const char *match = extensions;
+    while ((match = strstr(match, name)) != NULL) {
+        if ((match == extensions || match[-1] == ' ') &&
+            (match[length] == ' ' || match[length] == '\0'))
+            return 1;
+        match += length;
+    }
+    return 0;
+}
+
+static void cgl_initialize_native_framebuffer(GLenum buffer) {
+    const char *version = (const char *)glGetString(GL_VERSION);
+    long major = version ? strtol(version, NULL, 10) : 0;
+    const char *extensions = major < 3 ? (const char *)glGetString(GL_EXTENSIONS) : NULL;
+    if (major >= 3 || cgl_has_extension(extensions, "GL_ARB_framebuffer_object")) {
+        GLint draw, read;
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &draw);
+        glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &read);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glDrawBuffer(buffer);
+        glReadBuffer(buffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, read);
+    } else if (cgl_has_extension(extensions, "GL_EXT_framebuffer_object")) {
+        GLint framebuffer;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &framebuffer);
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        glDrawBuffer(buffer);
+        glReadBuffer(buffer);
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
+    } else {
+        glDrawBuffer(buffer);
+        glReadBuffer(buffer);
+    }
+}
+
 CGL_EXPORT CGLError CGLContextMakeCurrentAndAttachToWindow(CGLContextObj context, CGLWindowRef window) {
     if (!context)
         return kCGLBadContext;
@@ -410,6 +454,19 @@ CGLError CGLSetCurrentContext(CGLContextObj context) {
         return kCGLBadState;
     if (context != NULL) {
         EGLSurface surface = context->egl_surface;
+        GLenum native_buffer = GL_NONE;
+        if (surface != EGL_NO_SURFACE && surface != context->fallback_pbuffer &&
+                !context->native_framebuffer_initialized) {
+            EGLint render_buffer;
+            if (!eglQuerySurface(context->egl_display, surface, EGL_RENDER_BUFFER, &render_buffer))
+                return kCGLBadDrawable;
+            if (render_buffer == EGL_BACK_BUFFER)
+                native_buffer = GL_BACK;
+            else if (render_buffer == EGL_SINGLE_BUFFER)
+                native_buffer = GL_FRONT;
+            else
+                return kCGLBadDrawable;
+        }
         if (surface == EGL_NO_SURFACE) {
             if (!eglMakeCurrent(context->egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, context->egl_context)) {
                 const EGLint pbufferAttribs[] = { EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE };
@@ -440,6 +497,12 @@ CGLError CGLSetCurrentContext(CGLContextObj context) {
             if (!eglMakeCurrent(context->egl_display, surface, surface, context->egl_context)) {
                 return kCGLBadContext;
             }
+        }
+        // Surfaceless first use can leave the default draw/read buffers at NONE.
+        // Initialize only once; later attachments retain explicit client choices.
+        if (native_buffer != GL_NONE) {
+            cgl_initialize_native_framebuffer(native_buffer);
+            context->native_framebuffer_initialized = 1;
         }
         pthread_setspecific(get_current_context_key(), context);
         if (surface != EGL_NO_SURFACE) {
@@ -690,6 +753,7 @@ CGLError CGLCreateContext(CGLPixelFormatObj pixelFormat, CGLContextObj share, CG
     context->egl_context = egl_context;
     context->egl_surface = EGL_NO_SURFACE;
     context->fallback_pbuffer = EGL_NO_SURFACE;
+    context->native_framebuffer_initialized = 0;
     context->swap_interval = interval;
     context->paced = paced;
     context->pacer.period_ns = cgl_period_ns_from_millihertz(0);
