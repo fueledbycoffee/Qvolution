@@ -38,9 +38,12 @@ if (TARGET CoreGraphics AND TARGET Foundation)
     endforeach()
 endif()
 if (TARGET CoreText AND TARGET CoreGraphics AND TARGET Foundation)
-    add_darling_executable(qvolution_ui_font_roles
-        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coretext-ui-font-roles.m)
-    target_link_libraries(qvolution_ui_font_roles Foundation CoreText CoreGraphics)
+    foreach(fixture IN ITEMS ui-font-roles font-traits-dictionary font-name-attribute)
+        string(REPLACE "-" "_" target_suffix "${fixture}")
+        add_darling_executable(qvolution_${target_suffix}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coretext-${fixture}.m)
+        target_link_libraries(qvolution_${target_suffix} Foundation CoreText CoreGraphics)
+    endforeach()
 endif()
 add_darling_executable(qvolution_unix_output_capacity
     ${CMAKE_SOURCE_DIR}/src/external/xnu/darling/tests/qvolution/unix-output-capacity.c)
