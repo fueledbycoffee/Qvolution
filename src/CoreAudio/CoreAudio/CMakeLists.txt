@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fblocks")
 add_definitions(-DINSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
 
 set(coreaudio_sources
+    CATapDescription.mm
 	AudioHardware.cpp
 	AudioPropertyListeners.cpp
     AudioHardwareImpl.cpp
@@ -30,5 +31,7 @@ add_framework(CoreAudio
         system
         cxx
         CoreFoundation
+        Foundation
+        objc
         pulse
 )
