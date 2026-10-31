@@ -136,5 +136,52 @@
     "performance improvement",
     "physical ICC profile accuracy",
     "complete stability"
-  ]
+  ],
+  "controlled_scene_retake": {
+    "compositor": "Installed GNOME Shell/Mutter 50.1, own headless virtual output, private bus/XDG state, memory settings",
+    "native_cpu_control": {
+      "exit": 0,
+      "matched_callback_done_events": 34,
+      "presentation_feedback_events": 29,
+      "gpu_qualification": false
+    },
+    "positive_tests": [
+      "shm capture enabled",
+      "shm capture off",
+      "shm invalid capture configuration",
+      "EGL capture enabled with verification",
+      "original EGL update/resize/remap/alpha/flush/context sequence"
+    ],
+    "positive_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "all_six_prefix_shutdowns": 0,
+    "egl_root_checked_swaps": 9,
+    "egl_opaque_checked_swaps": 3,
+    "actual_resized_extent": [
+      137,
+      83
+    ],
+    "corruption_negative": {
+      "exit": 1,
+      "mismatch_pixels": 1,
+      "total_pixels": 6144,
+      "rejected_before_swap": true
+    },
+    "renderer_evidence": "Client reports hardware OpenGL; compositor selects GBM renderer without modesetting. No software path accepted as hardware.",
+    "cleanup": "Exact owned compositor group stopped after guest shutdown; known child process IDs absent.",
+    "interpretation": "The same unchanged fixtures progress in isolation. Physical-session cause remains unproven; no production callback workaround added.",
+    "not_proven": [
+      "physical compositor-visible UI",
+      "physical mixed-scale transitions",
+      "popups and GPU children coexistence",
+      "GPU glyph/path rasterization",
+      "vendor workflows",
+      "performance or stability qualification"
+    ]
+  }
 }
