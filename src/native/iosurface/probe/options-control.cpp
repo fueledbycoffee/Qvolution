@@ -17,6 +17,9 @@ template<class Function> static void rejects(Function f)
 int main()
 {
 	try {
+		require(jsonString(std::string("\n\t\0\x7f\x80\xff", 6)) == "\"\\u000a\\u0009\\u0000\\u007f\\u0080\\u00ff\"",
+			"JSON diagnostic lost native string bytes");
+		require(jsonString("?\n") != jsonString("??"), "JSON diagnostic collapsed distinct native names");
 		std::vector<std::string> base{"probe", "--require-hardware", "--device-uuid", std::string(32, '1'), "--driver-uuid", std::string(32, '2')};
 		require(parse(base).width == 61, "probe argument defaults mismatch");
 		for (auto pair : {std::pair{"--runs", "0"}, {"--runs", "257"}, {"--width", "0"}, {"--width", "4097"},

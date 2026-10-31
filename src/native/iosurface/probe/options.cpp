@@ -88,11 +88,12 @@ std::string uuidString(const UUID& id)
 }
 std::string jsonString(const std::string& text)
 {
+	static const char hex[] = "0123456789abcdef";
 	std::string result = "\"";
 	for (unsigned char byte : text) {
 		if (byte == '\\' || byte == '"') { result += '\\'; result += char(byte); }
 		else if (byte >= 32 && byte < 127) result += char(byte);
-		else result += '?';
+		else { result += "\\u00"; result += hex[byte >> 4]; result += hex[byte & 15]; }
 	}
 	return result + '"';
 }

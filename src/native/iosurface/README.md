@@ -99,6 +99,8 @@ is excluded from snapshots; the existing count gate remains unchanged and
 still includes its transient count-directory descriptor. Stat stability
 does not prove shared open-file-description identity or authorize closing a
 driver-owned FD. The audit is evidence collection, not a driver-cache waiver.
+Diagnostic JSON escapes non-ASCII/control bytes as `\u00XX`, preserving distinct
+native path bytes instead of replacing them with question marks.
 `--enumeration-only --fd-audit --runs 2` isolates instance/physical-device
 discovery without logical devices, allocation/export or submitted work. It
 retains the strict post-first-run FD gate and never qualifies GPU storage.
