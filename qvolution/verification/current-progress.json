@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T14:33:37.223964+00:00",
+  "updated_utc": "2026-10-31T14:38:15.449261+00:00",
   "stage": "Stage 35",
   "built_source": "579633a54450e3b4e380cc1a1a4207c0dae1c75e",
   "qualified_app_ids": [],
@@ -47,9 +47,9 @@
     {
       "title": "PDF documents",
       "owner": "Sol high + independent xhigh review",
-      "phase": "Installed parser passes; model correction in progress",
-      "now": "Stage 35 three frozen scanner modes pass through rebuilt Onyx2D. Seven authored model fixtures have passing results; one empty startup timeout passed on retry. Strict independent reader rejects a null cross-reference entry in saved output.",
-      "next": "Correct trailer key removal, rerun unchanged independent oracle, then integrate and test normal installed PDFKit."
+      "phase": "Model and independent-reader checks pass; installation pending",
+      "now": "Stage 35 installed scanner modes pass. Seven corrected model fixtures pass, and the strict independent reader verifies annotation values and preserved content/resources after the trailer fix.",
+      "next": "Integrate real dictionary removal and PDFKit model, then verify normal installed-framework linkage and retry Skim."
     },
     {
       "title": "Graphics clipping",
@@ -102,12 +102,12 @@
     "spotify": "Missing AVSampleBufferAudioRendererFlushTimeKey import; workflow, UI, GPU and stability remain unqualified.",
     "whatsapp": "Missing Catalyst MobileCoreServices framework. Reviewed real UTI reexport wrapper awaits build and original-app retake.",
     "hex-fiend": "Bounded launch timed out without captured UI; cause and application entry not established. Exact published file-open route is prepared for testing.",
-    "skim": "Missing PDFAnnotationKeyDefaultAppearance. PDF model tests pass but independent reader found a save compatibility defect still being corrected.",
+    "skim": "Missing PDFAnnotationKeyDefaultAppearance. Seven corrected model fixtures and strict independent PDF reader pass; normal installed PDFKit and original-app retake remain pending.",
     "keycastr": "Startup exits 139; cause unknown. Input overlay and host event capture are unverified.",
     "blender": "Startup exits 139; cause unknown. Viewport, render, device acceleration and stability are unverified."
   },
   "framework_suite_stage": "Stage 32",
   "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
   "source_label": "Published framework source · Stage 24",
-  "latest_checks": "Stage 32 legacy suite: 54 pass, one obsolete expectation fails; original result retained. Stage 34 installed public atomic ABI and four normal installed Metal fixtures pass, including backend buffer copy/fill; no physical GPU, display or app qualification. Stage 35 frozen scanner caller passes all three modes through rebuilt Onyx2D. Seven authored PDF model fixtures have passing results (one empty startup timeout then retry); strict independent reader found a trailer compatibility defect, so the PDF model is not promoted."
+  "latest_checks": "Stage 32 legacy suite: 54 pass, one obsolete expectation fails; original result retained. Stage 34 installed public atomic ABI and four normal installed Metal fixtures pass, including backend buffer copy/fill; physical GPU/display/app qualification remains open. Stage 35 frozen scanner caller passes all three modes through rebuilt Onyx2D. Seven corrected authored PDF model fixtures pass; strict independent reader verifies actual saved annotation, content and resource persistence. PDFKit is not yet installed. A new common-counter identifier model failed its class-based immutability assertion and is under investigation."
 }
