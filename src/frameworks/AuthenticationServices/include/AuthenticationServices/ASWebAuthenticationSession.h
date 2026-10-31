@@ -19,6 +19,8 @@
 
 #include <Foundation/Foundation.h>
 
+FOUNDATION_EXPORT NSErrorDomain const ASWebAuthenticationSessionErrorDomain;
+
 @interface ASWebAuthenticationSession : NSObject
 
 @end

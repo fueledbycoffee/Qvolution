@@ -91,6 +91,7 @@ add_framework(AuthenticationServices
 		src/ASPublicKeyCredentialOperation.m
 		src/ASViewServiceInterfaceUtilities.m
 		src/ASWebAuthenticationSession.m
+		src/ASWebAuthenticationSessionError.m
 		src/ASWebAuthenticationSessionController.m
 		src/ASWebAuthenticationSessionLaunchAgentProxy.m
 		src/ASWebAuthenticationSessionRequest.m
