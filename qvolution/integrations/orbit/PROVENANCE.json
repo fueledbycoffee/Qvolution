@@ -1,0 +1,43 @@
+{
+  "upstream": "https://github.com/Unmade760/orbit-global-menu",
+  "upstream_commit": "aa5a9934edf5ee88c651d76a80ecbf936b9500a0",
+  "upstream_version": "1.1.3",
+  "patch_commit": "bec5f1bdd3aa46c836ceeabb8189ea0796741121",
+  "license": "GPL-3.0; see LICENSE.txt",
+  "runtime_files": [
+    {
+      "root": "extension",
+      "path": "extension.js",
+      "before": "582bf7ffabb074c25fc772524cdb5b4739d9ac1d0fd5c2efb523e64bb0fa14c9",
+      "after": "b73b4ad41547b43634a5d4d6e963003196867473e089c4e4ed1aeff33602149d"
+    },
+    {
+      "root": "extension",
+      "path": "windowData.js",
+      "before": null,
+      "after": "ac6f22a78d4614ce6653c29843e5f3c15aaab9b0f8ab11dcb906d47ad329b5d9"
+    },
+    {
+      "root": "daemon",
+      "path": "globalmenu/menu_model/menu_model.py",
+      "before": "b5c011b88b6298545006e83389b3746382e7d8d257e4c4a58b47fa8453a59d77",
+      "after": "59eac73521cad74fe4a2407278367ed963f01a6f83c6c1297a0917a06d47c327"
+    },
+    {
+      "root": "daemon",
+      "path": "globalmenu/utils/service.py",
+      "before": "2c82ec92b99dd0d31a9905612d0e99c491600a4f0b05fa4f236d9502285f92fc",
+      "after": "979d0a9ba15c74990a8c0af5d4a56f72b1ea96d4f552d183b4594ef6ee8bd5b6"
+    },
+    {
+      "root": "daemon",
+      "path": "globalmenu/utils/wayland_menu.py",
+      "before": null,
+      "after": "174bd241daac2fc581ae87776abd766d94ec822b4ad9e157185c8598c5e729ff"
+    }
+  ],
+  "scope": "Only 3 modified and 2 added runtime files. No extension settings or process control. Offline, no network required.",
+  "deployment_helper": "install.py; stdlib-only, GPL-3.0",
+  "baseline_lock": "Orbit metadata UUID/version plus hardcoded original/patched runtime SHA256 values",
+  "tests": "15 temporary-directory tests passed; no installed host writes"
+}
