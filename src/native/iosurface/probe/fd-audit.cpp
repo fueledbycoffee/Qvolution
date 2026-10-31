@@ -8,6 +8,7 @@
 #include <cstring>
 #include <algorithm>
 #include <chrono>
+#include <cerrno>
 #include <iostream>
 #include <sstream>
 
@@ -27,7 +28,13 @@ std::vector<FdIdentity> snapshotFds()
 	{
 		std::vector<FdIdentity> result;
 		const auto ownFd = dirfd(directory.get());
-		while (auto entry = readdir(directory.get())) {
+		for (;;) {
+			errno = 0;
+			auto entry = readdir(directory.get());
+			if (!entry) {
+				require(errno == 0, "probe FD audit directory read failed");
+				break;
+			}
 			FdIdentity fd;
 			const auto end = entry->d_name + strlen(entry->d_name);
 			const auto parsed = std::from_chars(entry->d_name, end, fd.number);

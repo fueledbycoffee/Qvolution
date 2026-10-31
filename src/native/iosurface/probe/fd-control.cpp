@@ -4,6 +4,17 @@
 #include <fcntl.h>
 #include <algorithm>
 #include <iostream>
+#include <dirent.h>
+#include <cerrno>
+
+static int readsUntilFailure = -1;
+extern "C" dirent* __real_readdir(DIR*);
+extern "C" dirent* __wrap_readdir(DIR* directory)
+{
+	if (readsUntilFailure == 0) { errno = EIO; return nullptr; }
+	if (readsUntilFailure > 0) --readsUntilFailure;
+	return __real_readdir(directory);
+}
 
 using namespace SurfaceProbe;
 int main()
@@ -14,6 +25,13 @@ int main()
 		const auto options = parseOptions(int(argv.size()), argv.data());
 		require(options.enumerationOnly && options.fdAudit && options.runs == 2, "FD diagnostic parser mismatch");
 		const auto baseline = snapshotFds();
+		readsUntilFailure = 2;
+		bool rejected = false;
+		try { snapshotFds(); }
+		catch (const std::exception& e) { rejected = std::string(e.what()) == "probe FD audit directory read failed"; }
+		readsUntilFailure = -1;
+		require(rejected, "FD audit accepted an incomplete directory scan");
+		require(snapshotFds() == baseline, "failed FD audit leaked its directory");
 		{
 			NativeFd memory(memfd_create("surface-probe-fd-control", MFD_CLOEXEC));
 			require(memory.get() >= 0, "FD control memfd failed");
