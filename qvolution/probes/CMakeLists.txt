@@ -11,12 +11,17 @@ endif ()
 add_darling_executable(qvolution_pty_contract pty-contract.c)
 
 if (TARGET AppKit)
-    foreach(fixture IN ITEMS font-selection underline-typing alignment-caret inspector-bar)
+    foreach(fixture IN ITEMS font-selection underline-typing alignment-caret inspector-bar inspector-window-focus)
         string(REPLACE "-" "_" target_suffix "${fixture}")
         add_darling_executable(qvolution_text_${target_suffix}
             ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-text-${fixture}.m)
         target_link_libraries(qvolution_text_${target_suffix} AppKit)
     endforeach()
+    add_darling_executable(qvolution_popup_viewport
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-popup-viewport.m)
+    target_include_directories(qvolution_popup_viewport PRIVATE ${CMAKE_SOURCE_DIR}/src/external/cocotron)
+    target_compile_options(qvolution_popup_viewport PRIVATE -UNDEBUG)
+    target_link_libraries(qvolution_popup_viewport AppKit)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(QVOLUTION_DBUS dbus-1)
     if (QVOLUTION_DBUS_FOUND)
