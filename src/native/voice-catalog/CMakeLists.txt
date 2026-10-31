@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 project(qv_voice_catalog C)
 
 find_package(ICU REQUIRED COMPONENTS uc)
