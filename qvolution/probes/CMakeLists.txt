@@ -38,7 +38,11 @@ if (TARGET CoreGraphics AND TARGET Foundation)
     endforeach()
 endif()
 if (TARGET CoreText AND TARGET CoreGraphics AND TARGET Foundation)
-    foreach(fixture IN ITEMS ui-font-roles font-traits-dictionary font-name-attribute)
+    add_darling_executable(qvolution_cg_postscript_roundtrip
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coregraphics-postscript-roundtrip.m)
+    target_link_libraries(qvolution_cg_postscript_roundtrip Foundation CoreText CoreGraphics)
+    foreach(fixture IN ITEMS ui-font-roles font-traits-dictionary font-name-attribute
+            font-metadata font-descriptor)
         string(REPLACE "-" "_" target_suffix "${fixture}")
         add_darling_executable(qvolution_${target_suffix}
             ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coretext-${fixture}.m)
@@ -101,6 +105,10 @@ if (TARGET AppKit)
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-title-visibility.m)
     target_link_libraries(qvolution_title_visibility AppKit CoreGraphics)
     if (TARGET CoreText)
+        add_darling_executable(qvolution_appkit_font_descriptor
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-coretext-font-descriptor.m)
+        target_link_libraries(qvolution_appkit_font_descriptor Foundation CoreText CoreGraphics)
+        add_dependencies(qvolution_appkit_font_descriptor AppKit)
         add_darling_executable(qvolution_font_ctfont_bridge
             ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-font-ctfont-bridge.m)
         target_link_libraries(qvolution_font_ctfont_bridge AppKit CoreText CoreGraphics)
