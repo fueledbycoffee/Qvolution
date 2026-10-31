@@ -17,9 +17,11 @@ extern "C" dirent* __wrap_readdir(DIR* directory)
 }
 
 using namespace SurfaceProbe;
-int main()
+int main(int argc, char** argv)
 {
 	try {
+		const bool negative = argc == 2 && std::string(argv[1]) == "--negative-control";
+		require(argc == 1 || negative, "usage: surface-probe-fd-control [--negative-control]");
 		std::vector<std::string> arguments{"probe", "--enumeration-only", "--fd-audit", "--runs", "2"};
 		std::vector<char*> argv; for (auto& argument : arguments) argv.push_back(argument.data());
 		const auto options = parseOptions(int(argv.size()), argv.data());
@@ -50,6 +52,30 @@ int main()
 			require(snapshotFds() == records, "FD audit changed descriptor ownership");
 		}
 		require(snapshotFds() == baseline, "FD audit or native owner leaked a descriptor");
+		{
+			NativeFd memory(memfd_create("surface-probe-gate-payload", MFD_CLOEXEC));
+			NativeFd spare(memfd_create("surface-probe-gate-spare", MFD_CLOEXEC));
+			require(memory.get() >= 0 && spare.get() >= 0, "FD gate fixture failed");
+			const auto before = snapshotFds();
+			requireSameFds(before, before);
+			auto unstable = before; unstable.front().stable = false;
+			bool rejected = false;
+			try { requireSameFds(before, unstable); } catch (const std::exception&) { rejected = true; }
+			require(rejected, "FD gate accepted an unstable identity");
+			// Model a lost exported duplicate while an unrelated descriptor closes.
+			const int retained = memory.duplicate().release();
+			spare = NativeFd();
+			const auto after = snapshotFds();
+			require(before.size() == after.size(), "negative control must defeat a count-only gate");
+			std::cerr << "{\"negative_control\":\"retained-owned-duplicate\",\"fd\":" << retained
+				<< ",\"count_unchanged\":true}\n";
+			if (negative) { requireSameFds(before, after); return 0; }
+			NativeFd cleanup(retained);
+			rejected = false;
+			try { requireSameFds(before, after); } catch (const std::exception&) { rejected = true; }
+			require(rejected, "FD gate accepted a retained owned duplicate at unchanged count");
+		}
+		requireSameFds(baseline, snapshotFds());
 		std::cout << "native FD identity/duplication/closure controls passed; no Vulkan calls\n";
 		return 0;
 	} catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }

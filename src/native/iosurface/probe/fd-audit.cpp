@@ -57,6 +57,13 @@ std::vector<FdIdentity> snapshotFds()
 	}
 }
 void setFdAudit(bool value) { enabled = value; }
+void requireSameFds(const std::vector<FdIdentity>& baseline, const std::vector<FdIdentity>& current)
+{
+	const auto stable = [](const auto& fd) { return fd.stable; };
+	require(std::all_of(baseline.begin(), baseline.end(), stable) && std::all_of(current.begin(), current.end(), stable),
+		"probe FD gate encountered an unstable identity");
+	require(current == baseline, "probe FD identities changed after first-run baseline");
+}
 void auditFds(const char* phase, uint32_t run)
 {
 	if (!enabled) return;

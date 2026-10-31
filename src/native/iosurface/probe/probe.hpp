@@ -39,6 +39,7 @@ struct FdIdentity {
 	bool operator==(const FdIdentity& other) const;
 };
 std::vector<FdIdentity> snapshotFds();
+void requireSameFds(const std::vector<FdIdentity>& baseline, const std::vector<FdIdentity>& current);
 void setFdAudit(bool enabled);
 void auditFds(const char* phase, uint32_t run);
 

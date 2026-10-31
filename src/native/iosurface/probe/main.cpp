@@ -7,7 +7,6 @@
 #include <poll.h>
 #include <signal.h>
 #include <unistd.h>
-#include <dirent.h>
 #include <cerrno>
 #include <cstring>
 #include <fstream>
@@ -45,12 +44,6 @@ static bool childPending()
 	return true;
 }
 
-static size_t fdCount()
-{
-	DIR* d = opendir("/proc/self/fd"); require(d, "probe cannot count own FDs");
-	size_t n = 0; while (auto e = readdir(d)) if (e->d_name[0] != '.') ++n;
-	closedir(d); return n;
-}
 static void channelOptions(int channel, uint64_t timeout)
 {
 	const int enabled = 1;
@@ -272,22 +265,23 @@ int run(const Options& o)
 		return 0;
 	}
 	if (o.enumerationOnly) {
-		size_t baseline = 0;
+		std::vector<FdIdentity> baseline;
 		for (uint32_t i = 0; i < o.runs; ++i) {
-			const auto before = fdCount(); auditFds("enumeration_only_begin", i);
+			const auto before = snapshotFds().size(); auditFds("enumeration_only_begin", i);
 			const auto observed = enumerateDevices();
-			auditFds("enumeration_only_retired", i); const auto after = fdCount();
+			auditFds("enumeration_only_retired", i); const auto after = snapshotFds();
 			if (!i) baseline = after;
 			output << "{\"source_id\":" << jsonString(SURFACE_PROBE_SOURCE_ID) << ",\"diagnostic\":\"enumeration-only\",\"run\":" << i
-				<< ",\"physical_devices\":" << observed.size() << ",\"fd_before\":" << before << ",\"fd_after\":" << after
-				<< ",\"count_stable\":" << (after == baseline ? "true" : "false") << ",\"gpu_storage_qualified\":false}\n";
-			emit(); require(after == baseline, "enumeration-only FD count grew after first-run baseline");
+				<< ",\"physical_devices\":" << observed.size() << ",\"fd_before\":" << before << ",\"fd_after\":" << after.size()
+				<< ",\"count_stable\":" << (after.size() == baseline.size() ? "true" : "false")
+				<< ",\"fd_identities_stable\":" << (after == baseline ? "true" : "false") << ",\"gpu_storage_qualified\":false}\n";
+			emit(); requireSameFds(baseline, after);
 		}
 		return 0;
 	}
-	size_t stableFds = 0;
+	std::vector<FdIdentity> stableFds;
 	for (uint32_t i = 0; i < o.runs; ++i) {
-		const auto before = fdCount();
+		const auto before = snapshotFds().size();
 		auditFds("run_begin", i);
 		Control result;
 		if (o.crossExec) {
@@ -305,8 +299,9 @@ int run(const Options& o)
 		});
 		require(selected != observed.end(), "probe selected hardware disappeared after payload");
 		validateHardwarePair(d.identity, selected->identity, selected->properties.deviceType);
-		const auto after = fdCount();
-		if (!i) stableFds = after; else require(after == stableFds, "probe FD count grew after first-run baseline");
+		const auto after = snapshotFds();
+		if (!i) stableFds = after;
+		requireSameFds(stableFds, after);
 		Pixels expected(o.width, o.height); expected.pattern(i);
 		require(!stopRequested, "probe stopped after completed case");
 		output << "{\"source_id\":" << jsonString(SURFACE_PROBE_SOURCE_ID) << ",\"case\":" << jsonString(o.testCase == Case::FoundationImport ? "foundation-import" : "payload-roundtrip")
@@ -327,7 +322,7 @@ int run(const Options& o)
 			<< ",\"released_waits\":" << result.counters.releasedWaits << ",\"uploads\":" << result.counters.uploads << ",\"readbacks\":" << result.counters.readbacks
 			<< ",\"initial_hash\":" << result.counters.initialHash << ",\"initial_expected_hash\":" << result.counters.initialExpectedHash
 			<< ",\"pixel_hash\":" << result.hash << ",\"expected_hash\":" << (o.testCase == Case::PayloadRoundtrip ? expected.hash(expected.bytes.data()) : 0)
-			<< ",\"fd_before\":" << before << ",\"fd_after\":" << after
+			<< ",\"fd_before\":" << before << ",\"fd_after\":" << after.size() << ",\"fd_identities_stable\":true"
 			<< ",\"pixel_verified\":" << (o.testCase == Case::PayloadRoundtrip ? "true" : "false") << ",\"passed\":true}\n";
 		emit();
 	}
