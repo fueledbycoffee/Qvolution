@@ -43,6 +43,8 @@ Options parseOptions(int argc, char** argv)
 		const std::string option = argv[i];
 		auto value = [&]() { require(i + 1 < argc, "missing argument value"); return argv[++i]; };
 		if (option == "--list-hardware") o.list = true;
+		else if (option == "--enumeration-only") o.enumerationOnly = true;
+		else if (option == "--fd-audit") o.fdAudit = true;
 		else if (option == "--json") {}
 		else if (option == "--require-hardware") o.requireHardware = true;
 		else if (option == "--cross-exec") o.crossExec = true;
@@ -66,12 +68,14 @@ Options parseOptions(int argc, char** argv)
 		else if (option == "--json-out") o.output = value();
 		else throw std::runtime_error("unknown probe option: " + option);
 	}
-	if (!o.list) require(device && driver && o.requireHardware, "explicit UUID pair and --require-hardware required");
+	if (!o.list && !o.enumerationOnly) require(device && driver && o.requireHardware, "explicit UUID pair and --require-hardware required");
 	require(o.initializationTimeoutNs <= 10000000000ULL && o.waitTimeoutNs <= 10000000000ULL,
 		"probe waits must be finite and at most ten seconds");
 	require(!o.dropCreator || o.crossExec || o.child, "creator-drop requires cross-exec");
 	require(!o.reverse || o.crossExec, "reverse role requires cross-exec");
 	require(!o.childProducer || o.child, "internal producer role requires child mode");
+	require(!o.enumerationOnly || (!o.list && !o.crossExec && !o.reverse && !o.dropCreator && !o.child),
+		"enumeration-only diagnostic cannot run storage/process cases");
 	return o;
 }
 

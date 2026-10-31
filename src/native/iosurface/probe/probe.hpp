@@ -14,6 +14,7 @@ struct Options {
 	bool list = false, crossExec = false, dropCreator = false, child = false;
 	bool requireHardware = false;
 	bool reverse = false, childProducer = false;
+	bool fdAudit = false, enumerationOnly = false;
 	Case testCase = Case::PayloadRoundtrip;
 	DeviceIdentity identity;
 	uint32_t width = 61, height = 47, runs = 1;
@@ -28,6 +29,18 @@ std::string uuidString(const UUID& uuid);
 std::string jsonString(const std::string& text);
 void require(bool value, const char* message);
 void checked(VkResult result, const char* operation);
+
+struct FdIdentity {
+	int number = -1, descriptorFlags = -1, statusFlags = -1;
+	uint64_t device = 0, inode = 0, specialDevice = 0;
+	uint32_t mode = 0;
+	bool stable = false;
+	std::string target;
+	bool operator==(const FdIdentity& other) const;
+};
+std::vector<FdIdentity> snapshotFds();
+void setFdAudit(bool enabled);
+void auditFds(const char* phase, uint32_t run);
 
 struct Pixels {
 	uint32_t width, height, rowTexels;

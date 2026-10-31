@@ -92,6 +92,19 @@ The additional `surface-probe-options-control` is CPU-only and links no Vulkan
 loader. It checks parsing bounds and proves untouched/zero buffers cannot pass
 the sentinel/pixel/canary detector. It supplies no hardware evidence.
 
+`--fd-audit` records the native process's descriptor number, readlink target,
+stat identity and descriptor/status flags at allocation/export/send/import/
+creator-drop/retirement/discovery boundaries. Its own temporary directory FD
+is excluded from snapshots; the existing count gate remains unchanged and
+still includes its transient count-directory descriptor. Stat stability
+does not prove shared open-file-description identity or authorize closing a
+driver-owned FD. The audit is evidence collection, not a driver-cache waiver.
+`--enumeration-only --fd-audit --runs 2` isolates instance/physical-device
+discovery without logical devices, allocation/export or submitted work. It
+retains the strict post-first-run FD gate and never qualifies GPU storage.
+The new native-only `surface-probe-fd-control` verifies actual memfd duplicate
+identity/flags and that the auditor itself neither retains nor changes FDs.
+
 Provenance: clean `gpu-surface-direct-primary-next/SPEC.md` sections 4–5 and
 `SOURCE-LEDGER.md`; official Khronos Vulkan memory/resources/synchronization
 contracts and `EXT_external_objects`/`EXT_external_objects_fd`. Linux descriptor

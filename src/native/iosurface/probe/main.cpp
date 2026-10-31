@@ -112,6 +112,7 @@ static Child startChild(const Options& o, uint32_t run)
 		"--initialization-timeout-ns", std::to_string(o.initializationTimeoutNs), "--wait-timeout-ns", std::to_string(o.waitTimeoutNs)};
 	if (o.reverse) args.emplace_back("--producer-child");
 	if (o.dropCreator) args.emplace_back("--drop-creator");
+	if (o.fdAudit) args.emplace_back("--fd-audit");
 	std::vector<char*> argv; for (auto& arg : args) argv.push_back(arg.data()); argv.push_back(nullptr);
 	posix_spawn_file_actions_t actions;
 	require(!posix_spawn_file_actions_init(&actions), "probe spawn actions init failed");
@@ -124,6 +125,7 @@ static Child startChild(const Options& o, uint32_t run)
 	posix_spawn_file_actions_destroy(&actions);
 	require(!result && pid > 0, "probe posix_spawn failed");
 	activeChild = pid;
+	auditFds("child_spawned", run);
 	return Child{std::move(parent), pid};
 }
 
@@ -146,17 +148,23 @@ static Control consume(int channel, pid_t producer, const Options& o, uint32_t r
 		"probe fixture configuration mismatch");
 	ExpectedTransfer grant{expected, uint32_t(producer), uint32_t(getuid()), uint32_t(getgid())};
 	auto transfer = receiveTransfer(channel, grant);
+	auditFds("consumer_transfer_received", run);
 	Counters counters;
 	if (o.testCase == Case::FoundationImport) {
 		auto context = Device::open(o.identity);
+		auditFds("consumer_device_open", run);
 		auto imported = Allocation::import(context, std::move(transfer));
+		auditFds("consumer_foundation_imported", run);
 		sendControl(channel, control(Kind::Imported, run)); receiveControl(channel, Kind::Proceed, run);
 		imported.reset(); context.reset();
+		auditFds("consumer_foundation_retired", run);
 	} else {
 		auto image = Image::import(Context::open(o.identity), transfer.descriptor,
 			std::move(transfer.memory), std::move(transfer.ready), std::move(transfer.released));
+		auditFds("consumer_payload_imported", run);
 		sendControl(channel, control(Kind::Imported, run)); receiveControl(channel, Kind::Proceed, run);
 		consumer(image, run, o, counters); image.reset();
+		auditFds("consumer_payload_retired", run);
 	}
 	auto finished = control(Kind::Finished, run); finished.counters = counters;
 	finished.producerPid = uint32_t(producer); finished.consumerPid = uint32_t(getpid());
@@ -166,29 +174,40 @@ static Control consume(int channel, pid_t producer, const Options& o, uint32_t r
 static Control produce(int channel, pid_t recipient, const Options& o, uint32_t run, const std::function<void()>& consumerExit)
 {
 	auto context = Device::open(o.identity);
+	auditFds("producer_device_open", run);
 	ImageSpec spec; spec.width = o.width; spec.height = o.height;
 	const auto caps = context->query(spec);
 	auto source = Allocation::create(context, binding(run, recipient), spec, o.initializationTimeoutNs);
+	auditFds("producer_allocation_created", run);
 	const auto descriptor = source->descriptor();
 	auto transfer = source->exportTransfer(descriptor.binding);
+	if (o.fdAudit) std::cerr << "{\"fd_bundle\":true,\"pid\":" << getpid() << ",\"run\":" << run << ",\"memory\":" << transfer.memory.get()
+		<< ",\"ready\":" << transfer.ready.get() << ",\"released\":" << transfer.released.get() << "}\n";
+	auditFds("producer_exported", run);
 	NativeFd returnMemory, returnReleased;
 	if (o.testCase == Case::PayloadRoundtrip) { returnMemory = transfer.memory.duplicate(); returnReleased = transfer.released.duplicate(); }
 	auto configure = control(Kind::Configure, run); configure.descriptor = encode(descriptor);
 	configure.producerPid = uint32_t(getpid()); configure.consumerPid = uint32_t(recipient);
 	sendControl(channel, configure); sendTransfer(channel, std::move(transfer));
+	auditFds("producer_transfer_sent", run);
 	receiveControl(channel, Kind::Imported, run);
+	auditFds("producer_import_acknowledged", run);
 	if (o.dropCreator) { source.reset(); context.reset(); }
+	auditFds("producer_after_creator_drop", run);
 	sendControl(channel, control(Kind::Proceed, run));
 	auto result = receiveControl(channel, Kind::Finished, run);
 	require(result.producerPid == uint32_t(getpid()) && result.consumerPid == uint32_t(recipient), "probe process-role report mismatch");
 	sendControl(channel, control(Kind::Release, run));
 	if (consumerExit) consumerExit();
+	auditFds("producer_consumer_retired", run);
 	if (o.testCase == Case::PayloadRoundtrip) {
 		auto returned = Image::import(Context::open(o.identity), descriptor, std::move(returnMemory), NativeFd(), std::move(returnReleased));
+		auditFds("producer_return_imported", run);
 		result.hash = returnRead(returned, run, o, result.counters);
 		require(result.counters.readyWaits == 1 && result.counters.releasedSignals == 1 && result.counters.releasedWaits == 1,
 			"probe directional binary semaphore count mismatch");
 	}
+	auditFds("producer_before_return", run);
 	result.descriptor = encode(descriptor); capabilityReport(result, caps); result.kind = Kind::Result; return result;
 }
 
@@ -220,6 +239,7 @@ static Control sameProcess(const Options& o, uint32_t run)
 int run(const Options& o)
 {
 	require(std::string(SURFACE_PROBE_SOURCE_ID) != "unrecorded", "configure a reviewed probe source ID before GPU execution");
+	setFdAudit(o.fdAudit);
 	if (o.child) {
 		if (o.childProducer) { auto result = produce(o.channel, getppid(), o, o.runIndex, {}); sendControl(o.channel, result); }
 		else consume(o.channel, getppid(), o, o.runIndex);
@@ -251,18 +271,35 @@ int run(const Options& o)
 		emit();
 		return 0;
 	}
+	if (o.enumerationOnly) {
+		size_t baseline = 0;
+		for (uint32_t i = 0; i < o.runs; ++i) {
+			const auto before = fdCount(); auditFds("enumeration_only_begin", i);
+			const auto observed = enumerateDevices();
+			auditFds("enumeration_only_retired", i); const auto after = fdCount();
+			if (!i) baseline = after;
+			output << "{\"source_id\":" << jsonString(SURFACE_PROBE_SOURCE_ID) << ",\"diagnostic\":\"enumeration-only\",\"run\":" << i
+				<< ",\"physical_devices\":" << observed.size() << ",\"fd_before\":" << before << ",\"fd_after\":" << after
+				<< ",\"count_stable\":" << (after == baseline ? "true" : "false") << ",\"gpu_storage_qualified\":false}\n";
+			emit(); require(after == baseline, "enumeration-only FD count grew after first-run baseline");
+		}
+		return 0;
+	}
 	size_t stableFds = 0;
 	for (uint32_t i = 0; i < o.runs; ++i) {
 		const auto before = fdCount();
+		auditFds("run_begin", i);
 		Control result;
 		if (o.crossExec) {
 			auto child = startChild(o, i);
 			if (o.reverse) { consume(child.channel.get(), child.pid, o, i); result = receiveControl(child.channel.get(), Kind::Result, i); child.wait(o.waitTimeoutNs); }
 			else result = produce(child.channel.get(), child.pid, o, i, [&] { child.wait(o.waitTimeoutNs); });
 		} else result = sameProcess(o, i);
+		auditFds("case_retired", i);
 		require(!Submission::pending() && !pendingRetirements(), "probe retained unexpected submissions on success");
 		const auto d = decode(result.descriptor);
 		const auto observed = enumerateDevices();
+		auditFds("metadata_enumerated", i);
 		const auto selected = std::find_if(observed.begin(), observed.end(), [&](const auto& info) {
 			return info.identity.device == d.identity.device && info.identity.driver == d.identity.driver;
 		});
