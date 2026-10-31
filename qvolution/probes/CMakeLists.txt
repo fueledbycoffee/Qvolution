@@ -38,6 +38,9 @@ endif()
 if (TARGET CoreMedia)
     add_darling_executable(qvolution_coremedia_sample_attachment_keys coremedia-sample-attachment-keys.c)
     target_link_libraries(qvolution_coremedia_sample_attachment_keys CoreFoundation CoreMedia)
+    add_darling_executable(qvolution_coremedia_invalid_timing
+        coremedia-invalid-timing.c coremedia-invalid-timing-header.c)
+    target_link_libraries(qvolution_coremedia_invalid_timing CoreFoundation CoreMedia)
 endif()
 
 if (TARGET LaunchServices)

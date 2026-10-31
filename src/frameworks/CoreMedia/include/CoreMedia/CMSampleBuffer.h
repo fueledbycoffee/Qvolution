@@ -21,6 +21,15 @@
 #define _CMSAMPLEBUFFER_H_
 
 #include <CoreFoundation/CoreFoundation.h>
+#include <CoreMedia/CMTime.h>
+
+typedef struct {
+    CMTime duration;
+    CMTime presentationTimeStamp;
+    CMTime decodeTimeStamp;
+} CMSampleTimingInfo;
+
+extern const CMSampleTimingInfo kCMTimingInfoInvalid;
 
 extern const CFStringRef kCMSampleAttachmentKey_DisplayImmediately;
 extern const CFStringRef kCMSampleAttachmentKey_NotSync;

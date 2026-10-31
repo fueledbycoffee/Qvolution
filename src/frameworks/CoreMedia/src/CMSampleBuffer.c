@@ -19,6 +19,10 @@
 
 #include <CoreMedia/CMSampleBuffer.h>
 
+// Canonical project invalid timing: three zero/invalid CMTime values.
+// Native payload bytes/packing equivalence has not been independently measured.
+const CMSampleTimingInfo kCMTimingInfoInvalid = {0};
+
 const CFStringRef kCMSampleAttachmentKey_DisplayImmediately = CFSTR("DisplayImmediately");
 
 // Public API specifies a CFString key with CFBoolean values and no default.
