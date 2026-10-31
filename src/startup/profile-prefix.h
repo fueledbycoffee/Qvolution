@@ -6,6 +6,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/un.h>
+#include "../shellspawn/shellspawn.h"
+
+static inline size_t darlingMaximumPrefixLength(void)
+{
+	const size_t capacity = sizeof(((struct sockaddr_un*)0)->sun_path);
+	const size_t serverSuffix = sizeof("/.darlingserver.sock") - 1;
+	const size_t shellSuffix = sizeof(SHELLSPAWN_SOCKPATH) - 1;
+	const size_t longestSuffix = serverSuffix > shellSuffix ? serverSuffix : shellSuffix;
+	return capacity - 1 - longestSuffix;
+}
 
 enum darling_prefix_error {
 	DARLING_PREFIX_OK = 0,
@@ -29,7 +40,7 @@ static inline const char* darlingPrefixError(enum darling_prefix_error error)
 		case DARLING_PREFIX_NO_HOME:
 			return "Cannot detect your home directory";
 		case DARLING_PREFIX_TOO_LONG:
-			return "Prefix path too long";
+			return "Prefix path too long for Unix-domain sockets";
 		case DARLING_PREFIX_NO_MEMORY:
 			return "Cannot allocate prefix path";
 		case DARLING_PREFIX_OK:
@@ -66,7 +77,7 @@ static inline char* darlingSelectPrefix(const char* explicitPrefix, const char* 
 			*error = DARLING_PREFIX_EMPTY;
 			return NULL;
 		}
-		if (strlen(explicitPrefix) > 255) {
+		if (strlen(explicitPrefix) > darlingMaximumPrefixLength()) {
 			*error = DARLING_PREFIX_TOO_LONG;
 			return NULL;
 		}
@@ -85,7 +96,7 @@ static inline char* darlingSelectPrefix(const char* explicitPrefix, const char* 
 	}
 	const char* suffix = profile ? "/.darling." : "/.darling";
 	size_t size = strlen(home) + strlen(suffix) + (profile ? strlen(profile) : 0) + 1;
-	if (size - 1 > 255) {
+	if (size - 1 > darlingMaximumPrefixLength()) {
 		*error = DARLING_PREFIX_TOO_LONG;
 		return NULL;
 	}

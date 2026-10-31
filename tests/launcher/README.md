@@ -88,3 +88,24 @@ at startup and validates its user and exact prefix socket environment before
 obtaining a shutdown target. Existing nonroot containers started by an older
 launcher lack this record and are refused rather than falling back to a global
 process-name search. Start disposable nonroot tests with the fixed launcher.
+
+## Native socket pathname capacity
+
+```sh
+cc -Wall -Wextra -Werror -O2 tests/launcher/prefix-socket-paths.c -o /tmp/darling-prefix-socket-test
+/tmp/darling-prefix-socket-test
+```
+
+Prefix selection must reserve the full darlingserver and shellspawn socket suffixes
+and the terminating NUL within the native `sockaddr_un.sun_path` field. On Linux,
+its 108-byte capacity permits socket pathname lengths of 107 bytes and rejects
+108. The test exercises explicit prefixes, default HOME-based prefixes, named
+profiles and UTF-8 byte lengths at that boundary. The old 255-byte prefix limit
+accepted paths which later truncated socket addresses or overflowed the launcher
+connection buffer. Because `darlingSelectPrefix` is called before `checkPrefixDir`
+and `setupPrefix`, rejection precedes filesystem or server creation.
+
+This regression fails on the parent selector and passes after reserving socket
+suffix capacity. Real short unique cold-prefix PTY and `/bin/echo` controls passed;
+intentionally overlong diagnostic prefixes timed out and left socket files at
+truncated paths. These are path-length results, not a generic cold-start failure.
