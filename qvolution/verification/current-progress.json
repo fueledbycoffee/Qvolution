@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T11:39:23.363710+00:00",
-  "stage": "Stage 26",
-  "built_source": "b7186dfdf89a0ccd81a8c39d7d7475c9fd33ec3e",
+  "updated_utc": "2026-10-31T12:20:45.795890+00:00",
+  "stage": "Stage 29",
+  "built_source": "db34dc748141cf59f16825a0cc6a89c3af5c49bc",
   "qualified_app_ids": [],
   "framework_checks": {
     "Focused fixes": 25,
@@ -32,29 +32,29 @@
   ],
   "workstreams": [
     {
-      "title": "GPU and HDR pipeline",
-      "owner": "HDR agent",
-      "phase": "Float-storage implementation",
-      "now": "HLG metadata and cleanup guards pass; real floating-point surfaces still fail before the storage fix.",
-      "next": "Validate float storage, then managed conversion, rendering and display integration."
+      "title": "Graphics and float rendering",
+      "owner": "Sol high + Sol xhigh review",
+      "phase": "Implementation and sanitizer review",
+      "now": "Real float drawing, text masks and image conversion in private development. Review reproduced sampler overread and unsafe numeric conversion; fixes and consumer safety remain under review.",
+      "next": "Complete production semantics, independent pixel and guest checks, then managed display and GPU integration."
     },
     {
       "title": "Image save and restore",
-      "owner": "Image agent + independent reviewer",
-      "phase": "Codec implementation and review",
-      "now": "Bitmap copy tests pass; implementing object-preserving archives and decoder validation.",
-      "next": "Finish decoder validation, then run round trips, malformed-input and cleanup controls."
+      "owner": "Coordinator + independent reviewers",
+      "phase": "Verified runtime milestone",
+      "now": "Stage 28 resolves all ten prior unkeyed codec crashes; all 31 modes have passing results. Stage 29 RGB24 PNG export passes an independent pixel oracle.",
+      "next": "Verify populated Scrubber image roundtrip, then continue application workflows."
     },
     {
-      "title": "Audio and voices",
-      "owner": "Voice agent + coordinator",
-      "phase": "API and backend design",
-      "now": "Discord and VS Code now reach a missing CoreAudio listener API; Firefox needs a genuine voice catalog.",
-      "next": "Real notification, queue and ownership tests; provider-backed voice discovery."
+      "title": "Audio listeners and voices",
+      "owner": "Sol high implementation + Sol xhigh review",
+      "phase": "Concurrency and lifecycle correction",
+      "now": "Native listener controls pass; review is closing alias notification, concurrent registration and cached-stream format hazards. Real guest dispatch remains unverified.",
+      "next": "Actual guest queue/ownership tests, unchanged Discord and VS Code retakes; genuine provider voice catalog for Firefox."
     }
   ],
   "app_checkpoints": {
-    "textedit": "Stage 26 · source fixture",
+    "textedit": "Stage 26 \u00b7 source fixture",
     "discord": "Stage 26",
     "vscode": "Stage 26",
     "firefox": "Stage 22",
@@ -77,6 +77,6 @@
   },
   "framework_suite_stage": "Stage 25",
   "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
-  "source_label": "Published framework source · Stage 24",
-  "latest_checks": "Stage 26: toolbar state, glyph contrast, ruler and synchronous focus transitions 4/4; typed HDR cleanup transaction passes. Stage 25: bitmap ownership 16/16 (one empty-startup timeout preserved; retry passes), HLG metadata, ABI and explicit render-boundary checks pass."
+  "source_label": "Published framework source \u00b7 Stage 24",
+  "latest_checks": "Stage 29: RGB24 PNG export and independent six-pixel oracle pass; two unchanged bitmap layout controls pass. Stage 28: 31/31 image codec modes have passing semantic results (one initial empty-startup timeout preserved; keyed retry passes); dictionary and array lifetime and image archive workflow pass. Separate diagnostic startup timeouts are preserved. Stage 26: toolbar state, glyph contrast, ruler and focus transitions 4/4. Full 55-check suite last ran on Stage 25."
 }
