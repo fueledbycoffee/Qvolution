@@ -10,6 +10,8 @@
 #define QV_CATALOG_MAX_VOICES 4096u
 #define QV_CATALOG_MAX_LANGUAGES 64u
 #define QV_CATALOG_MAX_STRING 1024u
+#define QV_CATALOG_IDENTIFIER_PREFIX "org.qvolution.voice.v1/espeak-ng/"
+#define QV_CATALOG_MAX_IDENTIFIER ((sizeof(QV_CATALOG_IDENTIFIER_PREFIX)-1)+3*QV_CATALOG_MAX_STRING)
 
 enum qv_catalog_status {
     QV_CATALOG_OK,
@@ -41,6 +43,7 @@ struct qv_voice_input {
 };
 
 enum qv_language_status qv_canonical_language(const char *, char *, size_t);
+enum qv_catalog_status qv_catalog_project_identifier(const char *, char *, size_t);
 enum qv_catalog_status qv_catalog_encode(const struct qv_voice_input *, size_t,
                                        uint8_t *, size_t, size_t *);
 enum qv_catalog_status qv_catalog_error(enum qv_catalog_status, uint8_t *, size_t, size_t *);
