@@ -1,15 +1,14 @@
 {
   "schema_version": 1,
-  "updated_utc": "2026-10-31T12:37:54.130407+00:00",
-  "stage": "Stage 31",
-  "built_source": "018c0c63b915367768a18252d9fd46ffb65c4ce6",
+  "updated_utc": "2026-10-31T14:33:37.223964+00:00",
+  "stage": "Stage 35",
+  "built_source": "579633a54450e3b4e380cc1a1a4207c0dae1c75e",
   "qualified_app_ids": [],
   "framework_checks": {
-    "Focused fixes": 25,
-    "Existing regressions": 15,
-    "Window presentation": 2,
-    "Unicode": 8,
-    "Popup and cost controls": 5
+    "Legacy regression suite": {
+      "passed": 54,
+      "total": 55
+    }
   },
   "cli_cycles": 3,
   "transport_checks": 2,
@@ -32,31 +31,45 @@
   ],
   "workstreams": [
     {
-      "title": "Graphics and float rendering",
-      "owner": "Sol high + Sol xhigh review",
-      "phase": "Reviewed candidate; runtime integration pending",
-      "now": "Real float drawing, text masks and image export candidate is committed privately; sanitizer review found and corrected concrete bounds and conversion defects. Actual guest after-tests remain pending.",
-      "next": "Integrate storage, drawing and safe consumers together; run frozen pixel/export/text controls, then public clipping, managed display and GPU work."
+      "title": "Graphics and Metal",
+      "owner": "Runtime team",
+      "phase": "Installed fixture evidence",
+      "now": "Stage 34 four normal installed Metal fixtures pass, including backend copy and fill. No physical GPU, display or app qualification is established.",
+      "next": "Verify actual device, presentation and app workflows."
     },
     {
-      "title": "Image save and restore",
-      "owner": "Coordinator + independent reviewers",
-      "phase": "Verified runtime milestone",
-      "now": "All 31 codec modes have passing Stage 28 results; Stage 29 RGB24 pixel oracle and seven Stage 30 Scrubber coding/rendering checks pass.",
-      "next": "Continue real application workflows and editing/persistence qualification."
+      "title": "Atomic ABI",
+      "owner": "Runtime team",
+      "phase": "Installed fixture evidence",
+      "now": "Stage 34 public installed atomic ABI fixture passes.",
+      "next": "Continue real app retakes and workflow qualification."
     },
     {
-      "title": "Audio listeners and voices",
-      "owner": "Sol high implementation + Sol xhigh review",
-      "phase": "Actual API and dispatch proof; app retakes next",
-      "now": "Stage 31 typed import, C/block delivery, queue ownership and reentrancy controls pass. Five standalone real-dispatch IO controls pass. Native provider model matches 141 real voices; Firefox class/bridge is still absent.",
-      "next": "Retake unchanged Discord, VS Code and Obsidian; finish provider bridge, physical events and real audio workflows."
+      "title": "PDF documents",
+      "owner": "Sol high + independent xhigh review",
+      "phase": "Installed parser passes; model correction in progress",
+      "now": "Stage 35 three frozen scanner modes pass through rebuilt Onyx2D. Seven authored model fixtures have passing results; one empty startup timeout passed on retry. Strict independent reader rejects a null cross-reference entry in saved output.",
+      "next": "Correct trailer key removal, rerun unchanged independent oracle, then integrate and test normal installed PDFKit."
+    },
+    {
+      "title": "Graphics clipping",
+      "owner": "Coordinator + independent merge review",
+      "phase": "Reviewed source merged; installed runtime tests pending",
+      "now": "Public path and mask coverage source is merged with existing guards; three native sanitizer suites pass. This change is not in the installed Stage 35 runtime.",
+      "next": "Finish independent merge review and run 38 frozen public clipping cases after the next exact build."
+    },
+    {
+      "title": "Audio playback",
+      "owner": "Sol high implementation from clean specification",
+      "phase": "Implementation underway",
+      "now": "Spotify clears atomic imports and stops at the audio-renderer key. CoreMedia PCM buffers, timing and renderer behavior require real implementation.",
+      "next": "Implement typed buffers, renderer queue and synchronizer with the existing audio backend; test actual output and app behavior."
     }
   ],
   "app_checkpoints": {
-    "textedit": "Stage 26 \u00b7 source fixture",
-    "discord": "Stage 26",
-    "vscode": "Stage 26",
+    "textedit": "Stage 26 · source fixture",
+    "discord": "Stage 34",
+    "vscode": "Stage 34",
     "firefox": "Stage 22",
     "keka": "Stage 22",
     "keepassxc": "Stage 30",
@@ -65,12 +78,18 @@
     "transmission": "Stage 4",
     "iina": "Stage 30",
     "cyberduck": "Stage 30",
-    "obsidian": "Stage 30"
+    "obsidian": "Stage 34",
+    "spotify": "Stage 34",
+    "whatsapp": "Stage 33",
+    "hex-fiend": "Stage 33",
+    "skim": "Stage 33",
+    "keycastr": "Stage 33",
+    "blender": "Stage 33"
   },
   "blockers": {
     "textedit": "New toolbar checks pass automatically; desktop acceptance, full editing workflow, macOS UI polish, GPU and stability remain.",
-    "discord": "HLG import cleared; missing CoreAudio property-listener block API prevents loading.",
-    "vscode": "HLG import cleared; missing CoreAudio property-listener block API prevents loading.",
+    "discord": "Missing MTLCommonCounterSetTimestamp import; workflow, UI, GPU and stability remain unqualified.",
+    "vscode": "Missing MTLCommonCounterSetTimestamp import; workflow, UI, GPU and stability remain unqualified.",
     "firefox": "Missing AVSpeechSynthesisVoice API.",
     "coteditor": "Missing AppIntents framework.",
     "keepassxc": "Startup failure; cause not established.",
@@ -79,10 +98,16 @@
     "transmission": "Partial initialization; controlled transfer and correct rendering not demonstrated.",
     "iina": "Missing PIP.framework dependency; playback, UI, GPU and stability remain untested.",
     "cyberduck": "Startup exit 134; cause unknown. Transfer workflow and desktop rendering remain unverified.",
-    "obsidian": "Stage 30 stops at CoreAudio block-listener import; Stage 31 API proof passes, but an app retake is still required."
+    "obsidian": "Missing MTLCommonCounterSetTimestamp import; workflow, UI, GPU and stability remain unqualified.",
+    "spotify": "Missing AVSampleBufferAudioRendererFlushTimeKey import; workflow, UI, GPU and stability remain unqualified.",
+    "whatsapp": "Missing Catalyst MobileCoreServices framework. Reviewed real UTI reexport wrapper awaits build and original-app retake.",
+    "hex-fiend": "Bounded launch timed out without captured UI; cause and application entry not established. Exact published file-open route is prepared for testing.",
+    "skim": "Missing PDFAnnotationKeyDefaultAppearance. PDF model tests pass but independent reader found a save compatibility defect still being corrected.",
+    "keycastr": "Startup exits 139; cause unknown. Input overlay and host event capture are unverified.",
+    "blender": "Startup exits 139; cause unknown. Viewport, render, device acceleration and stability are unverified."
   },
-  "framework_suite_stage": "Stage 25",
+  "framework_suite_stage": "Stage 32",
   "independent_scope": "Stage 25: PNG and window pixels. Stage 24: CLI and transport.",
-  "source_label": "Published framework source \u00b7 Stage 24",
-  "latest_checks": "Stage 31: typed CoreAudio import and all eight listener modes have passing results (one mixed-mode startup timeout retained; retry passes). Five standalone real-libdispatch IO-context controls pass, separately from installed API tests. Stage 30: seven Scrubber coding/rendering checks pass. Stage 29: RGB24 PNG and independent six-pixel oracle plus two bitmap layout controls pass. Stage 28: all 31 image codec modes have passing semantic results with the initial keyed timeout and retry preserved; dictionary/array lifetime and archive workflow pass. Full 55-check regression suite last ran on Stage 25."
+  "source_label": "Published framework source · Stage 24",
+  "latest_checks": "Stage 32 legacy suite: 54 pass, one obsolete expectation fails; original result retained. Stage 34 installed public atomic ABI and four normal installed Metal fixtures pass, including backend buffer copy/fill; no physical GPU, display or app qualification. Stage 35 frozen scanner caller passes all three modes through rebuilt Onyx2D. Seven authored PDF model fixtures have passing results (one empty startup timeout then retry); strict independent reader found a trailer compatibility defect, so the PDF model is not promoted."
 }

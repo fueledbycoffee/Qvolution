@@ -6,7 +6,7 @@
   <div class="viz-grid" aria-label="Project progress">
     <div class="card viz-stat"><span>Apps fully qualified</span><span class="viz-stat-value tabular-nums" id="qv-qualified">0 / 24</span><span class="text-small">All four quality gates required</span></div>
     <div class="card viz-stat"><span>Official inputs tried</span><span class="viz-stat-value tabular-nums" id="qv-attempted">11 / 24</span><span class="text-small">Source TextEdit counted separately</span></div>
-    <div class="card viz-stat"><span>Last full regression suite</span><span class="viz-stat-value tabular-nums" id="qv-checks">55 / 55</span><span class="text-small" id="qv-suite-stage"></span></div>
+    <div class="card viz-stat"><span>Last full regression suite</span><span class="viz-stat-value tabular-nums" id="qv-checks">54 / 55</span><span class="text-small" id="qv-suite-stage"></span></div>
   </div>
   <div class="nav nav-pills" role="tablist" aria-label="Progress view">
     <button class="nav-link active" id="qv-apps-tab" type="button" role="tab" aria-controls="qv-apps-panel" aria-selected="true">24 apps</button>
@@ -105,7 +105,7 @@
   find('qv-apps-tab').textContent = data.apps.length + ' apps';
   find('qv-qualified').textContent = data.qualified + ' / ' + data.apps.length;
   find('qv-attempted').textContent = data.officialAttempted + ' / ' + data.apps.length;
-  find('qv-checks').textContent = data.checkCount + ' / ' + data.checkCount;
+  find('qv-checks').textContent = data.checkPassed + ' / ' + data.checkTotal;
   find('qv-suite-stage').textContent = data.suiteStage + ' · latest focused checks below';
   find('qv-suite-caption').textContent = data.suiteStage + ' full regression suite';
   find('qv-latest-checks').textContent = data.latestChecks;
@@ -131,7 +131,7 @@
   find('qv-build').textContent = data.builtSource.slice(0, 9);
   for (const [label, value] of Object.entries(data.checkGroups)) {
     const tr = document.createElement('tr'), name = document.createElement('td'), count = document.createElement('td');
-    name.textContent = label; count.className = 'text-end tabular-nums'; count.textContent = value + ' / ' + value; tr.append(name, count); find('qv-check-groups').append(tr);
+    name.textContent = label; count.className = 'text-end tabular-nums'; count.textContent = value.passed + ' / ' + value.total; tr.append(name, count); find('qv-check-groups').append(tr);
   }
   find('qv-independent').textContent = data.cliCycles + ' CLI cycles; ' + data.transportChecks + ' transport checks; ' + data.pngVectors + ' PNG pixel vectors; ' + data.windowPixels + ' window pixel captures. ' + data.independentScope;
   find('qv-user-proof').textContent = data.userFeatures.join(' · ');

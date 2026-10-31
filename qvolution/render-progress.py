@@ -17,7 +17,7 @@ assert qualified <= {app['id'] for app in apps}
 items = []
 for app in apps:
     source = app.get('tested_variant') == 'Darling source fixture'
-    official = app.get('tested_variant') == 'Official unmodified macOS vendor bundle'
+    official = app.get('tested_variant') in {'Official unmodified macOS vendor bundle', 'Official macOS vendor bundle, unmodified executable'}
     if app['id'] in qualified:
         assert official and all(value == 'pass' for value in app['quality_gates'].values())
     if source:
@@ -43,8 +43,8 @@ for app in apps:
                       blocker=progress['blockers'].get(app['id'], default), gates=gates,
                       workflow=app['workflow']))
 data = dict(apps=items, updated=progress['updated_utc'], stage=progress['stage'],
-            qualified=len(qualified), officialAttempted=sum(app.get('tested_variant') == 'Official unmodified macOS vendor bundle' for app in apps),
-            checkCount=sum(progress['framework_checks'].values()), checkGroups=progress['framework_checks'],
+            qualified=len(qualified), officialAttempted=sum(app.get('tested_variant') in {'Official unmodified macOS vendor bundle', 'Official macOS vendor bundle, unmodified executable'} for app in apps),
+            checkPassed=sum(group['passed'] for group in progress['framework_checks'].values()), checkTotal=sum(group['total'] for group in progress['framework_checks'].values()), checkGroups=progress['framework_checks'],
             builtSource=progress['built_source'], workstreams=progress['workstreams'],
             userFeatures=progress['verified_user_features'], openUI=progress['open_ui'],
             cliCycles=progress['cli_cycles'], transportChecks=progress['transport_checks'],
@@ -59,4 +59,4 @@ fragment = template.replace('__QV_DATA__', payload)
 assert len(fragment.encode()) < 1_000_000
 args.output.parent.mkdir(parents=True, exist_ok=True)
 args.output.write_text(fragment)
-print(f"Rendered {len(items)} apps, {data['checkCount']} framework checks, {data['qualified']} qualified")
+print(f"Rendered {len(items)} apps, {data['checkPassed']}/{data['checkTotal']} framework checks, {data['qualified']} qualified")
