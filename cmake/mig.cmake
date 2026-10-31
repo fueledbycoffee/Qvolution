@@ -1,5 +1,9 @@
 function(mig defFileName)
         set(MIG_EXECUTABLE "${CMAKE_BINARY_DIR}/build-mig")
+        get_target_property(MIGCOM_EXECUTABLE migcom MIGCOM_PATH)
+        if (NOT MIGCOM_EXECUTABLE)
+                message(FATAL_ERROR "The migcom target must provide its host tool path")
+        endif()
 
         if (NOT MIG_USER_SOURCE_SUFFIX)
                 set (MIG_USER_SOURCE_SUFFIX "User.c")
@@ -79,6 +83,9 @@ function(mig defFileName)
 				${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${relativeName}${MIG_ARCH_SUFFIX}${MIG_XTRACE_SUFFIX}
 			DEPENDS
 				migexe migcom
+				"${MIGCOM_EXECUTABLE}"
+				"${MIG_EXECUTABLE}"
+				"${CMAKE_CURRENT_SOURCE_DIR}/${defFileName}"
 		)
 
 		if (NOT TARGET ${bareName}_xtrace_mig AND NOT MIG_NO_XTRACE)
