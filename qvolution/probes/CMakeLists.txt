@@ -31,6 +31,8 @@ endif ()
 add_darling_executable(qvolution_pty_contract pty-contract.c)
 add_darling_executable(qvolution_unix_output_capacity
     ${CMAKE_SOURCE_DIR}/src/external/xnu/darling/tests/qvolution/unix-output-capacity.c)
+add_darling_executable(qvolution_unix_root_alias
+    ${CMAKE_SOURCE_DIR}/src/external/xnu/darling/tests/qvolution/unix-root-alias-guest.c)
 
 if (TARGET CoreServices AND TARGET Foundation)
     add_darling_executable(qvolution_user_activity_forwarding user-activity-forwarding.m)
