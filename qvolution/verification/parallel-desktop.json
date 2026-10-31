@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-31",
+  "published_cocotron": "4222f879027fa99eafeee22f374e1ac2b5a9057a",
+  "cocotron_source_tree": "b5102680875c0f4c7d364bcb6d082ddd03f1a1ea",
+  "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+  "runtime": "workspace staged nonroot, native Wayland, no DYLD overrides",
+  "full_build": "passed; ninja -n: no work to do",
+  "host_regression_steps": 15,
+  "cli_boot_shutdown_cycles": 3,
+  "records": [
+    {
+      "check": "font-selection-before",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Setting up a new Darling prefix at /home/sean/Documents/Codex/Projects/Qvolution-work/prefixes/root-probe\n2026-10-31 00:04:58.586 font-selection[766794:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: full selection raised NSInvalidArgumentException\n",
+      "seconds": 2.7878086780037847,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "font-selection-after",
+      "exit": 0,
+      "stdout": "PASS: font conversion handles full selection, end caret and empty text\n",
+      "stderr": "2026-10-31 00:28:56.371 qvolution_text_font_selection[793883:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.984066374003305,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "underline-typing-before",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "2026-10-31 00:05:00.410 underline-typing[766828:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: end caret disables underline\n",
+      "seconds": 1.7699887519993354,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "underline-typing-after",
+      "exit": 0,
+      "stdout": "PASS: underline toggles empty/end typing, selections and delegate veto\n",
+      "stderr": "2026-10-31 00:28:58.213 qvolution_text_underline_typing[793919:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.808389770994836,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "alignment-caret-before",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "2026-10-31 00:14:54.802 alignment-caret[771971:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: typing paragraph properties preserved\n",
+      "seconds": 1.7994301579965395,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "alignment-caret-after",
+      "exit": 0,
+      "stdout": "PASS: alignment empty/trailing caret, selection and editing guards\n",
+      "stderr": "2026-10-31 00:29:00.064 qvolution_text_alignment_caret[793952:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.8097387029993115,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "inspector-before",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "2026-10-31 00:10:34.132 text-inspector[770048:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: rich text must create inspector controls\n",
+      "seconds": 1.838053385996318,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "inspector-after-final",
+      "exit": 0,
+      "stdout": "PASS: rich inspector layout, formatting, selection, caret, modes and nested pages\n",
+      "stderr": "2026-10-31 00:35:58.445 qvolution_text_inspector_bar[807543:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.983652811999491,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "inspector-window-focus-before",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "2026-10-31 00:42:57.363 inspector-window-focus[810035:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: windowed size action preserves requested value across focus sync\n",
+      "seconds": 1.8159461579998606,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "inspector-window-focus-after",
+      "exit": 0,
+      "stdout": "PASS: windowed inspector font actions survive focus synchronization\n",
+      "stderr": "2026-10-31 00:53:07.991 qvolution_text_inspector_window_focus[826124:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.8921494520036504,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "popup-viewport-before",
+      "exit": 134,
+      "stdout": "",
+      "stderr": "2026-10-31 00:47:08.014 popup-viewport[813460:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nAssertion failed: (NSContainsRect([[window screen] visibleFrame], [window frame])), function main, file /home/sean/Documents/Codex/Projects/Qvolution-work/parallel/popup/tests/appkit-popup-viewport.m, line 61.\n",
+      "seconds": 3.6136614630013355,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "popup-viewport-after",
+      "exit": 0,
+      "stdout": "PASS: bounded 400-item popup, selection and scroll reachability\n",
+      "stderr": "2026-10-31 00:53:20.640 qvolution_popup_viewport[826199:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 2.034677288000239,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "inspector-after-popup",
+      "exit": 0,
+      "stdout": "PASS: rich inspector layout, formatting, selection, caret, modes and nested pages\n",
+      "stderr": "2026-10-31 00:53:26.805 qvolution_text_inspector_bar[826307:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.7829470190044958,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "orbit-registration-before",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "2026-10-31 00:14:56.631 orbit-registration-test[772053:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: native Wayland Orbit registration is missing\n",
+      "seconds": 1.7488475230056792,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "orbit-registration-after",
+      "exit": 0,
+      "stdout": "PASS: native Orbit registration, no-XID wire data, local-menu fallback and daemon restart\n",
+      "stderr": "2026-10-31 00:29:17.108 qvolution_orbit_registration[794244:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.8130022949990234,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "pty-integrated",
+      "exit": 0,
+      "stdout": "PASS: two controlling PTYs, foreground groups, UTF-8 I/O, resize/SIGWINCH, isolation and clean exit\n",
+      "stderr": "PHASE: first session launch\nPHASE: forkpty session 1 begin\nPHASE: forkpty session 1 returned 794171\nPHASE: forkpty session 2 begin\nPHASE: forkpty session 2 returned 794172\nPHASE: cleanup first\nPHASE: cleanup second\n",
+      "seconds": 1.6566696160007268,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "pty-integrated-negative",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "PHASE: first session launch\nPHASE: forkpty session 1 begin\nPHASE: forkpty session 1 returned 794202\nPHASE: forkpty session 2 begin\nPHASE: forkpty session 2 returned 794203\nFAIL: expected SIZE:1:41:132:; received PHASE: forkpty session 1 returned 0\nREADY:1\ncaf\u00e9 \ud83d\udc27\nREPLY:1:caf\u00e9 \ud83d\udc27\nSIZE\nSIZE:1:24:80:0\n\nFAIL: resize dimensions and SIGWINCH\nPHASE: cleanup first\nPHASE: cleanup second\n",
+      "seconds": 4.67013240900269,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "gpu-opengl-integrated",
+      "exit": 0,
+      "stdout": "renderer=NVIDIA GeForce RTX 4070/PCIe/SSE2\nvendor=NVIDIA Corporation\nversion=3.2.0 NVIDIA 595.99.02\nreadback=64,127,191,255 gl_error=0\nPASS: guest CGL hardware renderer and shader triangle readback\n",
+      "stderr": "2026-10-31 00:29:03.714 qvolution_gpu_opengl[794025:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.8601659609994385,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "gpu-opengl-integrated-negative",
+      "exit": 1,
+      "stdout": "renderer=NVIDIA GeForce RTX 4070/PCIe/SSE2\nvendor=NVIDIA Corporation\nversion=3.2.0 NVIDIA 595.99.02\nreadback=64,127,191,255 gl_error=0\n",
+      "stderr": "2026-10-31 00:29:05.582 qvolution_gpu_opengl[794072:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: GPU triangle readback\n",
+      "seconds": 1.8480044179959805,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "gpu-metal-integrated-final",
+      "exit": 0,
+      "stdout": "experimental_metal_opt_in=1\ndevice=NVIDIA GeForce RTX 4070\nPASS: guest Metal device and GPU buffer-fill readback\n",
+      "stderr": "",
+      "seconds": 1.8118888979952317,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "gpu-metal-integrated-final-negative",
+      "exit": 1,
+      "stdout": "experimental_metal_opt_in=1\ndevice=NVIDIA GeForce RTX 4070\n",
+      "stderr": "FAIL: Metal buffer readback at 0: 90\n",
+      "seconds": 1.797726902004797,
+      "shutdown_exit": 0
+    },
+    {
+      "check": "normal-expansion-parallel",
+      "timeout": true,
+      "seconds": 36.07805816800101,
+      "shutdown_exit": 0,
+      "diagnostic_swift_override": false
+    },
+    {
+      "check": "expansion-parallel-repeat",
+      "exit": 0,
+      "stdout": "PASS: real save-panel nib, root and /tmp expansion and display\n",
+      "stderr": "2026-10-31 00:32:38.009 qvolution_save_browser_expansion[797135:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n2026-10-31 00:32:38.092 qvolution_save_browser_expansion[797135:3e8] [NSControl initWithCoder: NSButton] start\n2026-10-31 00:32:38.092 qvolution_save_browser_expansion[797135:3e8] NSFont decoding done\n2026-10-31 00:32:38.093 qvolution_save_browser_expansion[797135:3e8] [NSControl initWithCoder: NSButton] start\n2026-10-31 00:32:38.094 qvolution_save_browser_expansion[797135:3e8] [NSControl initWithCoder: NSOutlineView] start\n2026-10-31 00:32:38.094 qvolution_save_browser_expansion[797135:3e8] NSFont decoding done\n2026-10-31 00:32:38.097 qvolution_save_browser_expansion[797135:3e8] [NSControl initWithCoder: NSScroller] start\n2026-10-31 00:32:38.097 qvolution_save_browser_expansion[797135:3e8] [NSControl initWithCoder: NSScroller] start\n2026-10-31 00:32:38.098 qvolution_save_browser_expansion[797135:3e8] NSScanner: nil string argument, caller stack:\n1   Foundation                          0x00007b992097f30f -[NSConcreteScanner initWithString:] + 47\n2   Foundation                          0x00007b992097cca7 +[NSScanner scannerWithString:] + 55\n3   Foundation                          0x00007b99208f0d2c NSSizeFromString + 44\n4   Foundation                          0x00007b99208ba304 -[NSCoder(NSKeyedGeometryCoding) decodeSizeForKey:] + 52\n5   AppKit                              0x00007b9920e89fa8 -[NSWindowTemplate initWithCoder:] + 168\n6   Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n7   Foundation                          0x00007b9920907ba9 -[NSKeyedUnarchiver _decodeArrayOfObjectsForKey:] + 1641\n8   Foundation                          0x00007b99208ae310 -[NSArray(NSArray) initWithCoder:] + 208\n9   Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n10  Foundation                          0x00007b992090641e _decodeObject + 190\n11  Foundation                          0x00007b9920909845 -[NSKeyedUnarchiver decodeObjectForKey:] + 69\n12  AppKit                              0x00007b9920e8c6c7 -[NSIBObjectData initWithCoder:] + 423\n13  Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n14  Foundation                          0x00007b992090641e _decodeObject + 190\n15  Foundation                          0x00007b9920909845 -[NSKeyedUnarchiver decodeObjectForKey:] + 69\n16  AppKit                              0x00007b9920e8774c -[NSNib _instantiateWithNameTable] + 316\n17  AppKit                              0x00007b9920e87554 -[NSNib instantiateNibWithExternalNameTable:] + 68\n18  AppKit                              0x00007b9920e90212 -[NSBundle(NSNibLoading) loadNibFile:externalNameTable:withZone:] + 658\n19  AppKit                              0x00007b9920e8ff6b +[NSBundle(NSNibLoading) loadNibNamed:owner:] + 171\n20  AppKit                              0x00007b9920fcb2d9 +[NSSavePanel savePanel] + 265\n21  qvolution_save_browser_expansion    0x00000001000009d9 main + 89\n2026-10-31 00:32:38.099 qvolution_save_browser_expansion[797135:3e8] NSScanner: nil string argument, caller stack:\n1   Foundation                          0x00007b992097f30f -[NSConcreteScanner initWithString:] + 47\n2   Foundation                          0x00007b992097cca7 +[NSScanner scannerWithString:] + 55\n3   Foundation                          0x00007b99208f0d2c NSSizeFromString + 44\n4   Foundation                          0x00007b99208ba304 -[NSCoder(NSKeyedGeometryCoding) decodeSizeForKey:] + 52\n5   AppKit                              0x00007b9920e89fec -[NSWindowTemplate initWithCoder:] + 236\n6   Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n7   Foundation                          0x00007b9920907ba9 -[NSKeyedUnarchiver _decodeArrayOfObjectsForKey:] + 1641\n8   Foundation                          0x00007b99208ae310 -[NSArray(NSArray) initWithCoder:] + 208\n9   Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n10  Foundation                          0x00007b992090641e _decodeObject + 190\n11  Foundation                          0x00007b9920909845 -[NSKeyedUnarchiver decodeObjectForKey:] + 69\n12  AppKit                              0x00007b9920e8c6c7 -[NSIBObjectData initWithCoder:] + 423\n13  Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n14  Foundation                          0x00007b992090641e _decodeObject + 190\n15  Foundation                          0x00007b9920909845 -[NSKeyedUnarchiver decodeObjectForKey:] + 69\n16  AppKit                              0x00007b9920e8774c -[NSNib _instantiateWithNameTable] + 316\n17  AppKit                              0x00007b9920e87554 -[NSNib instantiateNibWithExternalNameTable:] + 68\n18  AppKit                              0x00007b9920e90212 -[NSBundle(NSNibLoading) loadNibFile:externalNameTable:withZone:] + 658\n19  AppKit                              0x00007b9920e8ff6b +[NSBundle(NSNibLoading) loadNibNamed:owner:] + 171\n20  AppKit                              0x00007b9920fcb2d9 +[NSSavePanel savePanel] + 265\n21  qvolution_save_browser_expansion    0x00000001000009d9 main + 89\n2026-10-31 00:32:38.100 qvolution_save_browser_expansion[797135:3e8] NSScanner: nil string argument, caller stack:\n1   Foundation                          0x00007b992097f30f -[NSConcreteScanner initWithString:] + 47\n2   Foundation                          0x00007b992097cca7 +[NSScanner scannerWithString:] + 55\n3   Foundation                          0x00007b99208f0d2c NSSizeFromString + 44\n4   Foundation                          0x00007b99208ba304 -[NSCoder(NSKeyedGeometryCoding) decodeSizeForKey:] + 52\n5   AppKit                              0x00007b9920e8a32d -[NSWindowTemplate initWithCoder:] + 1069\n6   Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n7   Foundation                          0x00007b9920907ba9 -[NSKeyedUnarchiver _decodeArrayOfObjectsForKey:] + 1641\n8   Foundation                          0x00007b99208ae310 -[NSArray(NSArray) initWithCoder:] + 208\n9   Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n10  Foundation                          0x00007b992090641e _decodeObject + 190\n11  Foundation                          0x00007b9920909845 -[NSKeyedUnarchiver decodeObjectForKey:] + 69\n12  AppKit                              0x00007b9920e8c6c7 -[NSIBObjectData initWithCoder:] + 423\n13  Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n14  Foundation                          0x00007b992090641e _decodeObject + 190\n15  Foundation                          0x00007b9920909845 -[NSKeyedUnarchiver decodeObjectForKey:] + 69\n16  AppKit                              0x00007b9920e8774c -[NSNib _instantiateWithNameTable] + 316\n17  AppKit                              0x00007b9920e87554 -[NSNib instantiateNibWithExternalNameTable:] + 68\n18  AppKit                              0x00007b9920e90212 -[NSBundle(NSNibLoading) loadNibFile:externalNameTable:withZone:] + 658\n19  AppKit                              0x00007b9920e8ff6b +[NSBundle(NSNibLoading) loadNibNamed:owner:] + 171\n20  AppKit                              0x00007b9920fcb2d9 +[NSSavePanel savePanel] + 265\n21  qvolution_save_browser_expansion    0x00000001000009d9 main + 89\n2026-10-31 00:32:38.101 qvolution_save_browser_expansion[797135:3e8] NSScanner: nil string argument, caller stack:\n1   Foundation                          0x00007b992097f30f -[NSConcreteScanner initWithString:] + 47\n2   Foundation                          0x00007b992097cca7 +[NSScanner scannerWithString:] + 55\n3   Foundation                          0x00007b99208f0d2c NSSizeFromString + 44\n4   Foundation                          0x00007b99208ba304 -[NSCoder(NSKeyedGeometryCoding) decodeSizeForKey:] + 52\n5   AppKit                              0x00007b9920e8a383 -[NSWindowTemplate initWithCoder:] + 1155\n6   Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n7   Foundation                          0x00007b9920907ba9 -[NSKeyedUnarchiver _decodeArrayOfObjectsForKey:] + 1641\n8   Foundation                          0x00007b99208ae310 -[NSArray(NSArray) initWithCoder:] + 208\n9   Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n10  Foundation                          0x00007b992090641e _decodeObject + 190\n11  Foundation                          0x00007b9920909845 -[NSKeyedUnarchiver decodeObjectForKey:] + 69\n12  AppKit                              0x00007b9920e8c6c7 -[NSIBObjectData initWithCoder:] + 423\n13  Foundation                          0x00007b99209092b1 _decodeObjectBinary + 2161\n14  Foundation                          0x00007b992090641e _decodeObject + 190\n15  Foundation                          0x00007b9920909845 -[NSKeyedUnarchiver decodeObjectForKey:] + 69\n16  AppKit                              0x00007b9920e8774c -[NSNib _instantiateWithNameTable] + 316\n17  AppKit                              0x00007b9920e87554 -[NSNib instantiateNibWithExternalNameTable:] + 68\n18  AppKit                              0x00007b9920e90212 -[NSBundle(NSNibLoading) loadNibFile:externalNameTable:withZone:] + 658\n19  AppKit                              0x00007b9920e8ff6b +[NSBundle(NSNibLoading) loadNibNamed:owner:] + 171\n20  AppKit                              0x00007b9920fcb2d9 +[NSSavePanel savePanel] + 265\n21  qvolution_save_browser_expansion    0x00000001000009d9 main + 89\n2026-10-31 00:32:38.101 qvolution_save_browser_expansion[797135:3e8] NSWindowTemplate awakeAfterUsingCoder: created window 0x7b99019346a0, class NSSavePanel, title 'Window', wtFlags=0xa4780000\nsavePanel created: 0.054s\noutline reloaded: 0.054s\nroot expanded: 0.055s\nexpanding /tmp\ntmp expanded: 3.341s\nrows: 59600\npanel displayed: 3.442s\n",
+      "seconds": 5.690094251003757,
+      "shutdown_exit": 0
+    }
+  ],
+  "user_textedit": "Inspector visible; B/I/U and left/center/right alignment confirmed. After focus correction, screenshot shows DejaVu Serif at size 16 applied. Interactive popup acceptance FAILED: overflows, scrolling slow; user also reports pixelated fonts and lag when changing fonts. Passing synthetic viewport fixture does not qualify real multi-output placement.",
+  "orbit": "Five-file bridge installed with receipt and backups; user logout/login required to activate. Private-bus registration/restart/fallback fixture passes; actual focused MetaWindow PID association and top-bar rendering unverified. Local menus remain visible.",
+  "limitations": [
+    "No app GPU qualification; native AppKit remains CPU raster/shm.",
+    "OpenGL shader output and explicitly experimental Metal buffer fill pass on RTX 4070; negative controls fail.",
+    "No vendor Terminal.app run; PTY prerequisite only.",
+    "One initial PTY timeout and one save-panel timeout remain unexplained; later valid controls pass.",
+    "No long-term stability qualification or complete 20-app workflows.",
+    "Actual multi-output popup sizing, scroll performance and font quality remain open defects."
+  ]
+}
