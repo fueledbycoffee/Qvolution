@@ -6,6 +6,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unicode/uloc.h>
+#include <unicode/uscript.h>
 #include <unicode/utf8.h>
 
 struct writer { uint8_t *bytes; size_t length; enum qv_catalog_status status; };
@@ -59,7 +60,13 @@ enum qv_language_status qv_canonical_language(const char *raw, char *out, size_t
     }
     if (strlen(parts[0])<2 || strlen(parts[0])>3) return QV_LANGUAGE_UNSUPPORTED;
     size_t region=1;
-    if (count>1 && strlen(parts[1])==4) region=2;
+    if (count>1 && strlen(parts[1])==4) {
+        UScriptCode code; UErrorCode script_error=U_ZERO_ERROR;
+        int32_t found=uscript_getCode(parts[1],&code,1,&script_error);
+        if (U_FAILURE(script_error)||found!=1||code==USCRIPT_UNKNOWN||
+            strcasecmp(parts[1],uscript_getShortName(code))) return QV_LANGUAGE_UNSUPPORTED;
+        region=2;
+    }
     if (count>region+1 || (count>region && strlen(parts[region])!=2)) return QV_LANGUAGE_UNSUPPORTED;
     /* Historical eSpeak labels en-sc/en-wi mean dialects, not ISO countries. */
     if (!strcasecmp(raw,"en-sc") || !strcasecmp(raw,"en-wi") || !strcasecmp(raw,"en-uk")) return QV_LANGUAGE_UNSUPPORTED;
