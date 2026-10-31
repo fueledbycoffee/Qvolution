@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 namespace Darling::Surface {
 
@@ -91,6 +92,13 @@ private:
 };
 
 struct Transfer {
+	Transfer() = default;
+	Transfer(Descriptor descriptor, NativeFd memory, NativeFd ready, NativeFd released) noexcept :
+		descriptor(std::move(descriptor)), memory(std::move(memory)), ready(std::move(ready)), released(std::move(released)) {}
+	Transfer(Transfer&&) noexcept = default;
+	Transfer& operator=(Transfer&&) noexcept = default;
+	Transfer(const Transfer&) = delete;
+	Transfer& operator=(const Transfer&) = delete;
 	Descriptor descriptor;
 	NativeFd memory, ready, released;
 };
@@ -103,7 +111,9 @@ struct ExpectedTransfer {
 // Connected native AF_UNIX/SOCK_SEQPACKET only; receiver needs SO_PASSCRED.
 // Caller must independently obtain expected metadata from an audited broker grant.
 // These APIs neither authenticate Mach rights nor translate guest descriptor tables.
-void sendTransfer(int nativeSocket, const Transfer& transfer);
+// Sending consumes the bundle at entry on every outcome. No transport retry is
+// permitted; a failed/ambiguous delivery requires broker retirement/recovery.
+void sendTransfer(int nativeSocket, Transfer transfer);
 Transfer receiveTransfer(int nativeSocket, const ExpectedTransfer& expected);
 
 }

@@ -52,8 +52,10 @@ static void validateFd(int fd)
 	if (!(flags & FD_CLOEXEC)) throw Failure(Error::Transport, "native descriptor lacks CLOEXEC");
 }
 
-void sendTransfer(int socket, const Transfer& transfer)
+void sendTransfer(int socket, Transfer transfer)
 {
+	if (transfer.memory.get() < 0 || transfer.ready.get() < 0 || transfer.released.get() < 0)
+		throw Failure(Error::InvalidState, "native transfer is empty or already consumed");
 	validateSocket(socket, false);
 	auto wire = encode(transfer.descriptor);
 	const int fds[] = {transfer.memory.get(), transfer.ready.get(), transfer.released.get()};
@@ -66,8 +68,7 @@ void sendTransfer(int socket, const Transfer& transfer)
 	auto header = CMSG_FIRSTHDR(&message);
 	header->cmsg_level = SOL_SOCKET; header->cmsg_type = SCM_RIGHTS; header->cmsg_len = CMSG_LEN(sizeof(fds));
 	memcpy(CMSG_DATA(header), fds, sizeof(fds));
-	ssize_t sent;
-	do { sent = sendmsg(socket, &message, MSG_NOSIGNAL); } while (sent < 0 && errno == EINTR);
+	const auto sent = sendmsg(socket, &message, MSG_NOSIGNAL);
 	if (sent < 0) throw Failure(Error::System, "send native GPU descriptors", errno);
 	if (sent != ssize_t(wire.size())) throw Failure(Error::Transport, "short native descriptor packet");
 }

@@ -10,9 +10,13 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 using namespace Darling::Surface;
+
+static_assert(!std::is_copy_constructible_v<Transfer> && !std::is_copy_assignable_v<Transfer>);
+static_assert(std::is_nothrow_move_constructible_v<Transfer> && std::is_nothrow_move_assignable_v<Transfer>);
 
 static void require(bool condition, const char* message)
 {
@@ -78,7 +82,7 @@ static int child(int socket, const char* mode)
 {
 	Transfer transfer{fixture(), payload(0x12345678), payload(0xabcdef), payload(0x987654)};
 	if (!strcmp(mode, "valid") || !strcmp(mode, "peer") || !strcmp(mode, "uid") || !strcmp(mode, "gid"))
-		sendTransfer(socket, transfer);
+		sendTransfer(socket, std::move(transfer));
 	else sendRaw(socket, mode, transfer);
 	return 0;
 }
@@ -148,6 +152,58 @@ template<class Function> static void rejects(Error code, Function function)
 	throw std::runtime_error("invalid value accepted");
 }
 
+static void singleUseControls()
+{
+	const auto baseline = fdCount();
+	{
+		int first[2], second[2];
+		require(!socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, first), "create first single-use pair");
+		NativeFd firstReceiver(first[0]), firstSender(first[1]);
+		require(!socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, second), "create second single-use pair");
+		NativeFd secondReceiver(second[0]), secondSender(second[1]);
+		const int enabled = 1;
+		require(!setsockopt(firstReceiver.get(), SOL_SOCKET, SO_PASSCRED, &enabled, sizeof(enabled)), "enable single-use credentials");
+		Transfer transfer{fixture(), payload(1), payload(2), payload(3)};
+		sendTransfer(firstSender.get(), std::move(transfer));
+		ExpectedTransfer expected{fixture(), uint32_t(getpid()), uint32_t(getuid()), uint32_t(getgid())};
+		auto received = receiveTransfer(firstReceiver.get(), expected);
+		bool rejected = false;
+		try { sendTransfer(secondSender.get(), std::move(transfer)); }
+		catch (const Failure& f) { rejected = f.code == Error::InvalidState; }
+		require(rejected, "same initial transfer delivered to a second recipient");
+		require(transfer.memory.get() < 0 && transfer.ready.get() < 0 && transfer.released.get() < 0,
+			"sender retained delivered transfer descriptors");
+		char byte;
+		require(recv(secondReceiver.get(), &byte, 1, MSG_DONTWAIT) < 0 && (errno == EAGAIN || errno == EWOULDBLOCK),
+			"second recipient received an unexpected packet");
+		Transfer failed{fixture(), payload(4), payload(5), payload(6)};
+		rejects(Error::Transport, [&] { sendTransfer(-1, std::move(failed)); });
+		require(failed.memory.get() < 0 && failed.ready.get() < 0 && failed.released.get() < 0,
+			"failed validation retained a retryable transfer");
+		rejects(Error::InvalidState, [&] { sendTransfer(secondSender.get(), std::move(failed)); });
+		const int bufferSize = 4096;
+		require(!setsockopt(secondSender.get(), SOL_SOCKET, SO_SNDBUF, &bufferSize, sizeof(bufferSize)), "set bounded send buffer");
+		const auto flags = fcntl(secondSender.get(), F_GETFL);
+		require(flags >= 0 && !fcntl(secondSender.get(), F_SETFL, flags | O_NONBLOCK), "set nonblocking failure control");
+		const std::array<char, 256> padding{};
+		bool full = false;
+		for (unsigned i = 0; i < 1024; ++i) {
+			if (send(secondSender.get(), padding.data(), padding.size(), MSG_NOSIGNAL) < 0) {
+				full = errno == EAGAIN || errno == EWOULDBLOCK; break;
+			}
+		}
+		require(full, "unable to fill bounded control queue");
+		Transfer blocked{fixture(), payload(7), payload(8), payload(9)};
+		bool terminal = false;
+		try { sendTransfer(secondSender.get(), std::move(blocked)); }
+		catch (const Failure& f) { terminal = f.code == Error::System && (f.detail == EAGAIN || f.detail == EWOULDBLOCK); }
+		require(terminal && blocked.memory.get() < 0 && blocked.ready.get() < 0 && blocked.released.get() < 0,
+			"sendmsg failure retained a retryable transfer");
+		rejects(Error::InvalidState, [&] { sendTransfer(firstSender.get(), std::move(blocked)); });
+	}
+	require(fdCount() == baseline, "single-use transfer leaked native descriptors");
+}
+
 static void descriptorControls()
 {
 	const auto d = fixture();
@@ -183,12 +239,15 @@ static void descriptorControls()
 	ExpectedTransfer expected{d, uint32_t(getpid()), uint32_t(getuid()), uint32_t(getgid())};
 	rejects(Error::Transport, [&] { receiveTransfer(receiver.get(), expected); });
 	Transfer transfer{d, NativeFd(), payload(2), payload(3)};
-	rejects(Error::System, [&] { sendTransfer(sender.get(), transfer); });
-	transfer.memory = payload(1); receiver = NativeFd();
+	rejects(Error::InvalidState, [&] { sendTransfer(sender.get(), std::move(transfer)); });
+	transfer = Transfer{d, payload(1), payload(2), payload(3)}; receiver = NativeFd();
 	bool rejected = false;
-	try { sendTransfer(sender.get(), transfer); }
+	try { sendTransfer(sender.get(), std::move(transfer)); }
 	catch (const Failure& f) { rejected = f.code == Error::System || f.code == Error::Transport; }
 	require(rejected, "closed peer accepted native transfer");
+	require(transfer.memory.get() < 0 && transfer.ready.get() < 0 && transfer.released.get() < 0,
+		"failed delivery retained a retryable transfer");
+	rejects(Error::InvalidState, [&] { sendTransfer(sender.get(), std::move(transfer)); });
 }
 
 int main(int argc, char** argv)
@@ -199,6 +258,7 @@ int main(int argc, char** argv)
 			for (int i = 2; i < 5; ++i) require(fcntl(std::stoi(argv[i]), F_GETFD) < 0 && errno == EBADF, "native FD crossed exec");
 			return 0;
 		}
+		singleUseControls();
 		descriptorControls();
 		for (unsigned repeat = 0; repeat < 8; ++repeat) {
 			runProcessCase("valid", true);

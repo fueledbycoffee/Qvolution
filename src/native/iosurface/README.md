@@ -5,8 +5,14 @@ It implements one dedicated Vulkan BGRA8 optimal image, an initial clear and
 release to the same-device external queue family, and one initial opaque-FD
 handoff with two binary semaphores. Imports preserve populated storage and
 consume a separate owned native descriptor on each successful Vulkan import.
-The initial ready signal can be transferred only once; multi-epoch access and
-fan-out require the broker/submission integration described below.
+Allocation permits one initial export. Sending consumes its move-only transfer
+at call entry: success, validation failure and send failure all release the
+sender's three FDs. Sending performs one syscall without an automatic retry;
+the consumed owner cannot deliver again to a second recipient. A failed or
+ambiguous delivery requires broker retirement/recovery rather than resending
+the binary signal. This ownership contract does not authorize explicit FD
+duplication or replace authenticated single-recipient broker coordination.
+Multi-epoch access and fan-out require the integration described below.
 Construction requires a finite caller-supplied initialization wait. Before
 submission it reserves a fence, retirement ticket and one of 32 native registry
 slots. Timeout or another non-completion error returns the original failure and
