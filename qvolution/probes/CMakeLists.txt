@@ -11,6 +11,21 @@ if (TARGET Metal)
     add_darling_executable(qvolution_gpu_metal gpu-metal.m)
     target_link_libraries(qvolution_gpu_metal Foundation)
     add_dependencies(qvolution_gpu_metal Metal)
+    add_darling_executable(qvolution_metal_stage_input
+        ${CMAKE_SOURCE_DIR}/src/external/metal/tests/metal-stage-input.m)
+    target_compile_options(qvolution_metal_stage_input PRIVATE -UNDEBUG)
+    target_link_libraries(qvolution_metal_stage_input Foundation Metal)
+    if (TARGET Metal_private)
+        add_darling_executable(qvolution_metal_stage_conversion
+            ${CMAKE_SOURCE_DIR}/src/external/metal/tests/metal-stage-input-conversion.mm)
+        target_compile_options(qvolution_metal_stage_conversion PRIVATE -UNDEBUG)
+        target_include_directories(qvolution_metal_stage_conversion PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/external/metal/deps/indium/include)
+        set_target_properties(qvolution_metal_stage_conversion PROPERTIES
+            CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
+            OBJCXX_STANDARD 17 OBJCXX_STANDARD_REQUIRED ON OBJCXX_EXTENSIONS OFF)
+        target_link_libraries(qvolution_metal_stage_conversion Foundation Metal Metal_private cxx)
+    endif ()
 endif ()
 
 add_darling_executable(qvolution_pty_contract pty-contract.c)
@@ -68,6 +83,21 @@ if (TARGET AppKit)
     target_include_directories(qvolution_font_phase_cache PRIVATE
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include ${QVOLUTION_FREETYPE_INCLUDE_DIRS})
     target_link_libraries(qvolution_font_phase_cache Foundation Onyx2D FreeType)
+    foreach(fixture IN ITEMS xref-stream invalid-input)
+        string(REPLACE "-" "_" target_suffix "${fixture}")
+        add_darling_executable(qvolution_pdf_${target_suffix}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coregraphics-pdf-${fixture}.m)
+        target_include_directories(qvolution_pdf_${target_suffix} PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include)
+        target_compile_options(qvolution_pdf_${target_suffix} PRIVATE -UNDEBUG)
+        target_link_libraries(qvolution_pdf_${target_suffix} Foundation CoreGraphics Onyx2D)
+    endforeach()
+    add_darling_executable(qvolution_pdf_predictors
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/onyx-pdf-predictors.m)
+    target_include_directories(qvolution_pdf_predictors PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include)
+    target_compile_options(qvolution_pdf_predictors PRIVATE -UNDEBUG)
+    target_link_libraries(qvolution_pdf_predictors Foundation Onyx2D)
     pkg_check_modules(QVOLUTION_DBUS dbus-1)
     if (QVOLUTION_DBUS_FOUND)
         add_darling_executable(qvolution_orbit_registration
