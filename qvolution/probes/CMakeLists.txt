@@ -1,6 +1,11 @@
 if (TARGET OpenGL)
     add_darling_executable(qvolution_gpu_opengl gpu-opengl.m)
     target_link_libraries(qvolution_gpu_opengl AppKit OpenGL)
+    if (TARGET QuartzCore)
+        add_darling_executable(qvolution_gpu_composition
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/quartzcore-gpu-composition.m)
+        target_link_libraries(qvolution_gpu_composition AppKit QuartzCore OpenGL)
+    endif ()
 endif ()
 if (TARGET Metal)
     add_darling_executable(qvolution_gpu_metal gpu-metal.m)
@@ -11,6 +16,12 @@ endif ()
 add_darling_executable(qvolution_pty_contract pty-contract.c)
 
 if (TARGET AppKit)
+    add_darling_executable(qvolution_qt_public_keys
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-qt-public-keys.m)
+    target_link_libraries(qvolution_qt_public_keys AppKit)
+    add_darling_executable(qvolution_backing_scale
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-backing-scale-observation.m)
+    target_link_libraries(qvolution_backing_scale AppKit)
     foreach(fixture IN ITEMS font-selection underline-typing alignment-caret inspector-bar inspector-window-focus)
         string(REPLACE "-" "_" target_suffix "${fixture}")
         add_darling_executable(qvolution_text_${target_suffix}
@@ -46,6 +57,17 @@ if (TARGET AppKit)
     target_include_directories(qvolution_font_fractional_origin PRIVATE
         ${QVOLUTION_FREETYPE_INCLUDE_DIRS})
     target_link_libraries(qvolution_font_fractional_origin Foundation CoreGraphics FreeType)
+    foreach(fixture IN ITEMS flags throughput)
+        add_darling_executable(qvolution_font_phase_${fixture}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/coregraphics-font-phase-${fixture}.m)
+        target_include_directories(qvolution_font_phase_${fixture} PRIVATE ${QVOLUTION_FREETYPE_INCLUDE_DIRS})
+        target_link_libraries(qvolution_font_phase_${fixture} Foundation CoreGraphics FreeType)
+    endforeach()
+    add_darling_executable(qvolution_font_phase_cache
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/freetype-font-phase-cache.m)
+    target_include_directories(qvolution_font_phase_cache PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/Onyx2D/include ${QVOLUTION_FREETYPE_INCLUDE_DIRS})
+    target_link_libraries(qvolution_font_phase_cache Foundation Onyx2D FreeType)
     pkg_check_modules(QVOLUTION_DBUS dbus-1)
     if (QVOLUTION_DBUS_FOUND)
         add_darling_executable(qvolution_orbit_registration
