@@ -20,3 +20,9 @@
 #include <CoreMedia/CMSampleBuffer.h>
 
 const CFStringRef kCMSampleAttachmentKey_DisplayImmediately = CFSTR("DisplayImmediately");
+
+// Public API specifies a CFString key with CFBoolean values and no default.
+// GUESS: bare-key spelling follows the existing NotSync/DisplayImmediately
+// convention. Native constant bytes and sample/codec interoperability are not
+// established by this project data policy; absent metadata stays unknown.
+const CFStringRef kCMSampleAttachmentKey_IsDependedOnByOthers = CFSTR("IsDependedOnByOthers");
