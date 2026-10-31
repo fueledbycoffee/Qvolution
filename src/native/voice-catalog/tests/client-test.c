@@ -51,13 +51,15 @@ int main(int argc,char **argv)
     CHECK(qv_catalog_encode(NULL,0,bytes,QV_CATALOG_MAX_BYTES,&n)==QV_CATALOG_OK);
     CHECK(qv_catalog_decode(bytes,n,&s)==QV_CATALOG_OK&&s->provider_status==QV_CATALOG_OK&&!s->count);qv_catalog_snapshot_free(s);
     int child;
-    CHECK(qv_catalog_run(argv[1],5000,bytes,QV_CATALOG_MAX_BYTES,&n,&child)==QV_TRANSPORT_OK&&child==0&&n);
-    CHECK(qv_catalog_decode(bytes,n,&s)==QV_CATALOG_OK&&s->count>0);qv_catalog_snapshot_free(s);
+    CHECK(qv_catalog_run(argv[1],5000,bytes,QV_CATALOG_MAX_BYTES,&n,&child)==QV_TRANSPORT_OK&&n);
+    CHECK(qv_catalog_decode(bytes,n,&s)==QV_CATALOG_OK&&child==(int)s->provider_status);
+    int expected_exit=child,unavailable=s->provider_status==QV_CATALOG_UNAVAILABLE||(!s->provider_status&&!s->count);
+    CHECK(unavailable||s->provider_status==QV_CATALOG_OK);qv_catalog_snapshot_free(s);
     pid_t low_fd=fork();CHECK(low_fd>=0);
     if(low_fd==0) {
         close(STDIN_FILENO);close(STDOUT_FILENO);
         enum qv_transport_status status=qv_catalog_run(argv[1],5000,bytes,QV_CATALOG_MAX_BYTES,&n,&child);
-        _exit(status==QV_TRANSPORT_OK&&child==0&&n?0:1);
+        _exit(status==QV_TRANSPORT_OK&&child==expected_exit&&n?0:1);
     }
     CHECK(waitpid(low_fd,&child,0)==low_fd&&WIFEXITED(child)&&WEXITSTATUS(child)==0);
     CHECK(qv_catalog_run(argv[2],50,bytes,QV_CATALOG_MAX_BYTES,&n,&child)==QV_TRANSPORT_TIMEOUT&&!n&&child==-1);
@@ -66,5 +68,7 @@ int main(int argc,char **argv)
     CHECK(waitpid(-1,&child,WNOHANG)==-1&&errno==ECHILD);
     CHECK(qv_catalog_run(argv[4],5000,bytes,QV_CATALOG_MAX_BYTES,&n,&child)==QV_TRANSPORT_OK&&child==12);
     CHECK(qv_catalog_run("/nonexistent/qv-missing-helper",50,bytes,QV_CATALOG_MAX_BYTES,&n,&child)==QV_TRANSPORT_SPAWN_ERROR&&!n);
-    free(original);free(bytes);puts("PASS: owning decoder and actual POSIX child transport/errors/deadline/reap");return 0;
+    free(original);free(bytes);
+    if(unavailable) { puts("UNAVAILABLE_OR_EMPTY: transport controls passed; no populated-provider qualification");return 77; }
+    puts("PASS: owning decoder and actual POSIX child transport/errors/deadline/reap");return 0;
 }

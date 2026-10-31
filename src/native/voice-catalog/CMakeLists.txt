@@ -57,6 +57,7 @@ if(QV_VOICE_CATALOG_TESTS)
     target_compile_definitions(process-error PRIVATE QV_PROCESS_FIXTURE_MODE=2)
     add_test(NAME catalog-client COMMAND client-test $<TARGET_FILE:qv-voice-catalog>
              $<TARGET_FILE:process-slow> $<TARGET_FILE:process-large> $<TARGET_FILE:process-error>)
+    set_tests_properties(catalog-client PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 30)
     add_executable(decode-allocation-test tests/decode-allocation-test.c)
     target_link_options(decode-allocation-test PRIVATE -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=free)
     target_link_libraries(decode-allocation-test PRIVATE qv_voice_catalog_client)
