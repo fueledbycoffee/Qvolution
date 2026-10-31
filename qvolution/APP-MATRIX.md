@@ -1,20 +1,21 @@
 # Qvolution: 20 Mac application targets
 
-Source TextEdit has partial, user-confirmed workflow evidence. Seven official bundles—KeePassXC, VLC, Transmission, Firefox, VS Code, CotEditor and Keka—have bounded launch records; their UI and real workflows remain unverified. No target has passed all UI/UX, GPU and stability gates. This is the work order, not a promise of compatibility. Catalog metadata and tested artifact versions are recorded separately. Pin the actual artifact hash, architecture and runtime on each run. Discord is counted once. Dia means The Browser Company browser.
+Source TextEdit has partial, user-confirmed workflow evidence. Eight official bundles—KeePassXC, VLC, Transmission, Firefox, VS Code, CotEditor, Keka and Discord—have bounded launch records; their UI and real workflows remain unverified. No target has passed all UI/UX, GPU and stability gates. This is the work order, not a promise of compatibility. Catalog metadata and tested artifact versions are recorded separately. Pin the actual artifact hash, architecture and runtime on each run. Discord is counted once. Dia means The Browser Company browser.
 
-Evidence checkpoint: **through stage 12**. The latest retained launch stage varies by app; stages below are not inferred retakes. All seven official archives have publisher SHA256 verification and unchanged executable hashes after their recorded runs. Universal bundles remain unthinned, targeting x86_64. No vendor UI/workflow, GPU or stability pass is established. TextEdit remains a partial source fixture.
+Evidence checkpoint: **through stage 14**. The latest retained launch stage varies by app; stages below are not inferred retakes. Seven inputs have publisher SHA256 verification. Discord has official HTTPS/CDN MD5 transport verification and a pinned local SHA256 only; no publisher SHA256, signature or notarization verification is claimed for it. All eight main executable hashes are unchanged after their recorded runs. Universal bundles remain unthinned, targeting x86_64. No vendor UI/workflow, GPU or stability pass is established. TextEdit remains a partial source fixture.
 
 | Official input | Latest retained launch | Current recorded gate |
 | --- | --- | --- |
 | KeePassXC 2.8.0-1 Intel | stage 12 | Earlier placeholder selector cleared; unexplained startup exit 139 without an exception reason. Cause unknown. |
-| Firefox 159.0 universal | stage 12 | XPCOM load stops at missing `kCMTimingInfoInvalid`; earlier web-authentication/dependency-key imports cleared. |
+| Firefox 159.0 universal | stage 14 | XPCOM load stops at `NSAccessibilityPopoverRole`, exit 255; earlier timing-info import cleared. |
 | CotEditor 7.1.3 universal | stage 11 | Missing `AppIntents.framework` dependency image, exit 139. |
 | Keka 1.6.8 universal | stage 11 | Distributed-notification transport initialization exception reports errno 48, exit 134. |
-| Visual Studio Code 1.144.0 Intel | stage 9 | Missing `LSSetDefaultHandlerForURLScheme`, exit 139; no later app retake recorded. |
+| Visual Studio Code 1.144.0 Intel | stage 14 | URL setter and CoreServices class re-export gates cleared; missing `UNNotificationAttachmentOptionsTypeHintKey`, exit 139. |
 | VLC 3.0.24 Intel64 | stage 6 | Earlier PDF cross-reference exception cleared; rendering/playback remain unverified with audio/PDF/slider diagnostics and a bounded timeout. |
 | Transmission 4.1.4 universal | stage 4 | Interface/layout diagnostics and a bounded timeout; controlled transfer/rendering remain unverified. |
+| Discord 0.0.420 universal | stage 14 | CoreServices class re-export gate cleared; missing `UNNotificationAttachmentOptionsTypeHintKey`, exit 139. |
 
-Every recorded exact-prefix shutdown returned 0; that is cleanup evidence, not clean app exit or workflow success. Timeouts establish neither a hang nor a working app. Stage12 own-source semantic-color/opacity and CoreMedia data probes pass independently; they do not qualify KeePassXC or Firefox. Historical stage-labelled records remain in apps.json.
+Every recorded exact-prefix shutdown returned 0; that is cleanup evidence, not clean app exit or workflow success. Timeouts establish neither a hang nor a working app. Stage12 own-source semantic-color/opacity and CoreMedia data probes pass independently; they do not qualify KeePassXC or Firefox. Stage 13 URL-handler registry checks pass basic/locking/path policy plus the 19-step persistence/blocked/fallback harness, each with successful exact-prefix cleanup; actual URL delivery remains unqualified. Stage 14 CoreServices forwarding and typed timing-data probes pass independently. Historical stage-labelled records remain in apps.json.
 
 | Order | App | Wave | First useful workflow |
 | --- | --- | --- | --- |
