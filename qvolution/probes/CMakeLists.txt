@@ -43,7 +43,9 @@ if (TARGET SharedFileList)
 endif()
 
 if (TARGET AppKit)
-    foreach(fixture IN ITEMS screen-colorspace colorspace-icc-profile graphics-context-nil-state
+    foreach(fixture IN ITEMS screen-colorspace screen-localized-name screen-name-metadata
+            colorspace-icc-profile graphics-context-nil-state
+            semantic-dark-colors semantic-control-surface
             effective-appearance-inheritance appearance-observer-lifetime
             appearance-reentrancy appearance-direct-lifetime drawing-appearance
             color-dynamic-provider client-capture-window)
