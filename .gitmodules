@@ -300,7 +300,7 @@
 	url = ../darling-opendirectory.git
 [submodule "src/external/iokitd"]
 	path = src/external/iokitd
-	url = ../darling-iokitd.git
+	url = https://github.com/fueledbycoffee/Qvolution-iokitd.git
 [submodule "src/external/OpenAL"]
 	path = src/external/OpenAL
 	url = ../darling-openal.git
@@ -457,4 +457,4 @@
 	url = https://github.com/fueledbycoffee/Qvolution-metal.git
 [submodule "src/external/xnu"]
 	path = src/external/xnu
-	url = ../darling-xnu.git
+	url = https://github.com/fueledbycoffee/Qvolution-xnu.git
