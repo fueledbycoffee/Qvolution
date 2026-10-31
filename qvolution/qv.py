@@ -86,6 +86,7 @@ def host_tests():
         for name, source in [
             ('prefix-state', 'tests/launcher/prefix-state.c'),
             ('profile-prefix', 'tests/launcher/profile-prefix.c'),
+            ('prefix-socket-paths', 'tests/launcher/prefix-socket-paths.c'),
             ('fractional-geometry', 'src/external/cocotron/AppKit/Wayland.backend/tests/fractional-geometry.c'),
         ]:
             binary = str(Path(tmp) / name)

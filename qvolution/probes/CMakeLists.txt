@@ -1,0 +1,28 @@
+if (TARGET OpenGL)
+    add_darling_executable(qvolution_gpu_opengl gpu-opengl.m)
+    target_link_libraries(qvolution_gpu_opengl AppKit OpenGL)
+endif ()
+if (TARGET Metal)
+    add_darling_executable(qvolution_gpu_metal gpu-metal.m)
+    target_link_libraries(qvolution_gpu_metal Foundation)
+    add_dependencies(qvolution_gpu_metal Metal)
+endif ()
+
+add_darling_executable(qvolution_pty_contract pty-contract.c)
+
+if (TARGET AppKit)
+    foreach(fixture IN ITEMS font-selection underline-typing alignment-caret inspector-bar)
+        string(REPLACE "-" "_" target_suffix "${fixture}")
+        add_darling_executable(qvolution_text_${target_suffix}
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-text-${fixture}.m)
+        target_link_libraries(qvolution_text_${target_suffix} AppKit)
+    endforeach()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(QVOLUTION_DBUS dbus-1)
+    if (QVOLUTION_DBUS_FOUND)
+        add_darling_executable(qvolution_orbit_registration
+            ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-orbit-wayland-registration.m)
+        target_include_directories(qvolution_orbit_registration PRIVATE ${QVOLUTION_DBUS_INCLUDE_DIRS})
+        target_link_libraries(qvolution_orbit_registration AppKit dbus)
+    endif()
+endif()

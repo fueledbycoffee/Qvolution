@@ -598,6 +598,10 @@ if (QVOLUTION_BUILD_TEXTEDIT)
 	endif ()
 endif ()
 
+if (ENABLE_TESTS)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/qvolution/probes ${CMAKE_BINARY_DIR}/qvolution/probes)
+endif ()
+
 # Subprojects after this line need C++ headers
 
 include_directories(BEFORE

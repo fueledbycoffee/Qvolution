@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "runtime_source": "ebea37b08719c492d2c79e270251438905e8df16",
+  "cocotron_commit": "bd0582741d065003413dd47470d42a0e0c437fee",
+  "foundation_commit": "cbde81c88373c1417c9bfece7f45e68c56834518",
+  "records": [
+    {
+      "name": "gpu-opengl-before",
+      "exit": 0,
+      "stdout": "renderer=NVIDIA GeForce RTX 4070/PCIe/SSE2\nvendor=NVIDIA Corporation\nversion=3.2.0 NVIDIA 595.99.02\nreadback=64,127,191,255 gl_error=0\nPASS: guest CGL hardware renderer and shader triangle readback\n",
+      "stderr": "2026-10-31 00:10:35.967 gpu-opengl[770095:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\n",
+      "seconds": 1.9560822720013675,
+      "shutdown_exit": 0
+    },
+    {
+      "name": "gpu-opengl-negative",
+      "exit": 1,
+      "stdout": "renderer=NVIDIA GeForce RTX 4070/PCIe/SSE2\nvendor=NVIDIA Corporation\nversion=3.2.0 NVIDIA 595.99.02\nreadback=64,127,191,255 gl_error=0\n",
+      "stderr": "2026-10-31 00:14:50.210 gpu-opengl[771792:3e8] Wayland backend: connected, 3 output(s), seat present, decorations unavailable\nFAIL: GPU triangle readback\n",
+      "seconds": 1.80377341699932,
+      "shutdown_exit": 0
+    },
+    {
+      "name": "gpu-metal-before",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "FAIL: no Metal device\n",
+      "seconds": 1.6479034099975252,
+      "shutdown_exit": 0
+    },
+    {
+      "name": "gpu-metal-opt-in",
+      "exit": 0,
+      "stdout": "experimental_metal_opt_in=1\ndevice=NVIDIA GeForce RTX 4070\nPASS: guest Metal device and GPU buffer-fill readback\n",
+      "stderr": "",
+      "seconds": 1.9037322610020055,
+      "shutdown_exit": 0
+    },
+    {
+      "name": "gpu-metal-negative",
+      "exit": 1,
+      "stdout": "experimental_metal_opt_in=1\ndevice=NVIDIA GeForce RTX 4070\n",
+      "stderr": "FAIL: Metal buffer readback at 0: 90\n",
+      "seconds": 1.9665344399982132,
+      "shutdown_exit": 0
+    }
+  ],
+  "scope": "guest hardware API primitives; no app GPU qualification or native AppKit acceleration claim"
+}
