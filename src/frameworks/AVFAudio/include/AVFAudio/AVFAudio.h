@@ -22,6 +22,7 @@
 #define _AVFAudio_H_
 
 #import <Foundation/Foundation.h>
+#import <AVFAudio/AVSpeechSynthesisVoice.h>
 
 #import <AVFAudio/AVAudio3DMixing.h>
 #import <AVFAudio/AVAudioMixing.h>

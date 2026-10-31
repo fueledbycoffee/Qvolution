@@ -4,6 +4,9 @@ set(DYLIB_COMPAT_VERSION "1.0.0")
 set(DYLIB_CURRENT_VERSION "2.0.0")
 set(FRAMEWORK_VERSION "A")
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../native/voice-catalog
+                    ${CMAKE_SOURCE_DIR}/src/external/icu/icuSources/common)
+
 remove_sdk_framework(AVFAudio
 )
 
@@ -19,6 +22,11 @@ add_framework(AVFAudio
 
 	SOURCES
 		src/AVFAudio.m
+        src/AVSpeechSynthesisVoice.m
+        ../../native/voice-catalog/language.c
+        ../../native/voice-catalog/identity.c
+        ../../native/voice-catalog/catalog-decode.c
+        ../../native/voice-catalog/catalog-process.c
         src/AVAudioIONode.m
         src/AVAudioOutputNode.m
         src/AVAudioInputNode.m
@@ -77,4 +85,9 @@ add_framework(AVFAudio
 		system
 		objc
 		Foundation
+        icucore
 )
+
+if(TARGET qv-voice-catalog)
+    add_dependencies(AVFAudio qv-voice-catalog)
+endif()
