@@ -45,7 +45,7 @@ endif()
 if (TARGET AppKit)
     foreach(fixture IN ITEMS screen-colorspace screen-localized-name screen-name-metadata
             colorspace-icc-profile graphics-context-nil-state
-            semantic-dark-colors semantic-control-surface
+            semantic-dark-colors semantic-control-surface textview-semantic-defaults
             effective-appearance-inheritance appearance-observer-lifetime
             appearance-reentrancy appearance-direct-lifetime drawing-appearance
             color-dynamic-provider client-capture-window)
