@@ -422,7 +422,7 @@
         "Extract into a fresh directory",
         "Compare file hashes and test a Unicode filename"
       ],
-      "notes": "Official publisher SHA256 verified; original universal x86_64+arm64 bundle retained unthinned. Stage 16 clears the earlier distributed-notification transport exception and reaches settings client rendering. One diagnostic CPU client image (699x432) was captured, with generic SF-symbol box placeholders and a duplicate title visible in the client output. The 25-second bounded launch timed out; exit is unknown and exact-prefix cleanup returned 0. All 749 extracted regular-file/link entries were rechecked unchanged. Compositor visibility, real archive/extraction workflows, clean app exit, GPU and stability remain unqualified.",
+      "notes": "Official publisher SHA256 verified; original universal x86_64+arm64 bundle retained unthinned. Stage 16 clears the earlier distributed-notification transport exception and reaches settings client rendering. One diagnostic CPU client image (699x432) was captured, with generic SF-symbol box placeholders and a duplicate title visible in the client output. The 25-second bounded launch timed out; exit is unknown and exact-prefix cleanup returned 0. All 749 extracted regular-file/link entries were rechecked unchanged. Compositor visibility, real archive/extraction workflows, clean app exit, GPU and stability remain unqualified. Stage 19 repeats partial CPU settings rendering after font/title regressions pass, but generic symbols and duplicated title/controls remain visible; the titleVisibility API correction does not resolve that observed application appearance.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -430,8 +430,8 @@
         "stability": "not_qualified"
       },
       "vendor_results": {
-        "stage_label": "stage16",
-        "evidence_checkpoint": "through_stage16",
+        "stage_label": "stage19",
+        "evidence_checkpoint": "through_stage19",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
         "render": "one_cpu_client_image_captured",
@@ -440,18 +440,18 @@
         "exit": null,
         "timeout": true,
         "timeout_seconds": 25,
-        "seconds": 26.047565977991326,
+        "seconds": 26.060010204993887,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "51c730ac9b3d385434fff9e96d0881a458d1fb9513970fffe61b874068085d27",
         "recorded_runtime": {
-          "superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
-          "built_runtime_superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
-          "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
-          "launcher_sha256": "a3c0be4c86737ad9cb1ff3e54d952c2ea6c07b20e9b86f5e9de37bd81081aac4",
+          "superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+          "built_runtime_superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+          "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+          "launcher_sha256": "c83b3e02931a9e397ba241eb549a64ff5f06193ef5d34376d8491c5e9c9e6372",
           "components": {
-            "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+            "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
             "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
             "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
             "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
@@ -472,7 +472,7 @@
           "qualification": "client_render_only_not_compositor_visibility_or_workflow"
         },
         "extracted_payload_members_unchanged": 749,
-        "first_concrete_gate": "Settings client pixels captured; presentation and real workflows remain unverified",
+        "first_concrete_gate": "Settings client pixels repeat; generic symbols and duplicate title/controls remain; presentation and workflows unverified",
         "failure_cause": "timeout_does_not_establish_cause",
         "stage11_retake": {
           "stage_label": "stage11",
@@ -496,6 +496,75 @@
           },
           "first_concrete_gate": "Distributed notification transport initialization exception: errno 48",
           "failure_cause": "unknown"
+        },
+        "stage16_retake": {
+          "stage_label": "stage16",
+          "evidence_checkpoint": "through_stage16",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "one_cpu_client_image_captured",
+          "visible_ui": "compositor_visibility_not_verified",
+          "functional_workflow": "not_tested",
+          "exit": null,
+          "timeout": true,
+          "timeout_seconds": 25,
+          "seconds": 26.047565977991326,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "51c730ac9b3d385434fff9e96d0881a458d1fb9513970fffe61b874068085d27",
+          "recorded_runtime": {
+            "superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
+            "built_runtime_superproject": "b138dbbd188390b679793d3d0b444dd05a4f3ce5",
+            "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+            "launcher_sha256": "a3c0be4c86737ad9cb1ff3e54d952c2ea6c07b20e9b86f5e9de37bd81081aac4",
+            "components": {
+              "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+              "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+              "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+              "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+              "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+            }
+          },
+          "capture_diagnostic_requested": true,
+          "client_capture": {
+            "count": 1,
+            "width": 699,
+            "height": 432,
+            "render_path": "CPU_client_pixels",
+            "observed_content": "settings",
+            "known_quality_gaps": [
+              "generic_SF_symbol_box_placeholders",
+              "duplicate_title"
+            ],
+            "qualification": "client_render_only_not_compositor_visibility_or_workflow"
+          },
+          "extracted_payload_members_unchanged": 749,
+          "first_concrete_gate": "Settings client pixels captured; presentation and real workflows remain unverified",
+          "failure_cause": "timeout_does_not_establish_cause",
+          "stage11_retake": {
+            "stage_label": "stage11",
+            "evidence_checkpoint": "through_stage14",
+            "bounded_launch_only": true,
+            "application_entry": "not_separately_instrumented",
+            "render": "not_verified",
+            "visible_ui": "not_verified",
+            "functional_workflow": "not_tested",
+            "exit": 134,
+            "timeout": false,
+            "seconds": 4.232424913003342,
+            "exact_prefix_shutdown_exit": 0,
+            "diagnostic_dyld_overrides": false,
+            "executable_unchanged": true,
+            "executable_sha256": "51c730ac9b3d385434fff9e96d0881a458d1fb9513970fffe61b874068085d27",
+            "recorded_runtime": {
+              "superproject": "554309ab4bcab21ad80ba3c7a39c7b587186ea96",
+              "cocotron": "9ffc6409fe77a15a8ef3e659b1a56b9c8c719671",
+              "launcher_sha256": "315e73d1ffdb7242eb1c3e6ec6443d235dc6d9ff75f88e282accc13447d20caf"
+            },
+            "first_concrete_gate": "Distributed notification transport initialization exception: errno 48",
+            "failure_cause": "unknown"
+          }
         }
       },
       "tested_variant": "Official unmodified macOS vendor bundle",
@@ -692,7 +761,7 @@
         "Add and copy a dummy password",
         "Save, lock, reopen and verify the dummy entry"
       ],
-      "notes": "Official unmodified Intel bundle acquired and publisher SHA256 verified. Stage4 stopped at an AppKit image-hint import; stage5 progressed to missing Metal stage-input descriptors. Stage6 passed those loader gates and reached native Wayland initialization, then exited 134 on the screen color-space API. No visible UI, dummy-vault workflow or GPU qualification is established. Stage7 adds the screen color-space bridge: the unchanged bundle clears that selector and stops at the next missing NSColorSpace.ICCProfileData method. This is still an initialization failure. Stage9 cleared the compositor-backed localizedName selector and stopped at missing CGDisplayIsOnline. The screen metadata/API regressions pass independently; the application remains blocked during initialization. Stage 11 clears CGDisplayIsOnline and stops at +[NSColor placeholderTextColor] (exit 134). Stage 12 clears that missing selector but exits139 during startup without an exception reason; cause remains unknown. Targeted semantic-color/opacity contracts pass independently, without qualifying the application UI or vault workflow.",
+      "notes": "Official unmodified Intel bundle acquired and publisher SHA256 verified. Stage4 stopped at an AppKit image-hint import; stage5 progressed to missing Metal stage-input descriptors. Stage6 passed those loader gates and reached native Wayland initialization, then exited 134 on the screen color-space API. No visible UI, dummy-vault workflow or GPU qualification is established. Stage7 adds the screen color-space bridge: the unchanged bundle clears that selector and stops at the next missing NSColorSpace.ICCProfileData method. This is still an initialization failure. Stage9 cleared the compositor-backed localizedName selector and stopped at missing CGDisplayIsOnline. The screen metadata/API regressions pass independently; the application remains blocked during initialization. Stage 11 clears CGDisplayIsOnline and stops at +[NSColor placeholderTextColor] (exit 134). Stage 12 clears that missing selector but exits139 during startup without an exception reason; cause remains unknown. Targeted semantic-color/opacity contracts pass independently, without qualifying the application UI or vault workflow. Stage 19 real UI-font roles, face traits and name-attribute regressions pass independently; the unchanged app still exits139 without an exception reason, so the startup cause remains unknown.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -701,8 +770,8 @@
       },
       "tested_variant": "Official unmodified macOS vendor bundle",
       "vendor_results": {
-        "stage_label": "stage12",
-        "evidence_checkpoint": "through_stage14",
+        "stage_label": "stage19",
+        "evidence_checkpoint": "through_stage19",
         "bounded_launch_only": true,
         "application_entry": "not_separately_instrumented",
         "render": "not_verified",
@@ -710,15 +779,23 @@
         "functional_workflow": "not_tested",
         "exit": 139,
         "timeout": false,
-        "seconds": 3.4176914829949965,
+        "seconds": 3.215687511008582,
         "exact_prefix_shutdown_exit": 0,
         "diagnostic_dyld_overrides": false,
         "executable_unchanged": true,
         "executable_sha256": "fc5446601a86316fc713bda590a8ced2d6458b28acca6596a329837bc48eecbe",
         "recorded_runtime": {
-          "superproject": "c9f1dcd666fe74c0fc815c20b437519fb75e8449",
-          "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
-          "launcher_sha256": "238a8167ed9cc707dca0759b35f3acb8ec802bfd730d96413846c6819c94f171"
+          "superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+          "built_runtime_superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+          "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+          "launcher_sha256": "c83b3e02931a9e397ba241eb549a64ff5f06193ef5d34376d8491c5e9c9e6372",
+          "components": {
+            "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+            "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+            "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+            "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+            "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+          }
         },
         "stage7_retake": {
           "exit_code": 134,
@@ -778,7 +855,88 @@
           "first_concrete_gate": "Missing +[NSColor placeholderTextColor] during initialization"
         },
         "first_concrete_gate": "Unexplained exit 139 during startup; no exception reason recorded",
-        "failure_cause": "unknown"
+        "failure_cause": "unknown",
+        "stage12_retake": {
+          "stage_label": "stage12",
+          "evidence_checkpoint": "through_stage14",
+          "bounded_launch_only": true,
+          "application_entry": "not_separately_instrumented",
+          "render": "not_verified",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "exit": 139,
+          "timeout": false,
+          "seconds": 3.4176914829949965,
+          "exact_prefix_shutdown_exit": 0,
+          "diagnostic_dyld_overrides": false,
+          "executable_unchanged": true,
+          "executable_sha256": "fc5446601a86316fc713bda590a8ced2d6458b28acca6596a329837bc48eecbe",
+          "recorded_runtime": {
+            "superproject": "c9f1dcd666fe74c0fc815c20b437519fb75e8449",
+            "cocotron": "4ab2ce309207c8dffad86094b5bae0beb87abd66",
+            "launcher_sha256": "238a8167ed9cc707dca0759b35f3acb8ec802bfd730d96413846c6819c94f171"
+          },
+          "stage7_retake": {
+            "exit_code": 134,
+            "next_missing_api": "NSColorSpace.ICCProfileData",
+            "earlier_screen_color_space_gate_cleared": true,
+            "executable_unchanged": true,
+            "prefix_shutdown_exit": 0,
+            "workflow_and_ui_qualified": false
+          },
+          "stage9_retake": {
+            "exit_code": 134,
+            "next_missing_api": "CGDisplayIsOnline",
+            "localized_name_gate_cleared": true,
+            "executable_unchanged": true,
+            "prefix_shutdown_exit": 0,
+            "workflow_and_ui_qualified": false
+          },
+          "stage6_retake": {
+            "stage_label": "stage6",
+            "bounded_launch_only": true,
+            "application_entry": "not_separately_instrumented",
+            "render": "not_verified",
+            "visible_ui": "not_verified",
+            "functional_workflow": "not_tested",
+            "exit": 134,
+            "timeout": false,
+            "exact_prefix_shutdown_exit": 0,
+            "diagnostic_dyld_overrides": false,
+            "executable_unchanged": true,
+            "recorded_runtime": {
+              "superproject": "af3a9009062dc45e08d2179fdc65406d666526a6",
+              "cocotron": "fcc1240c8f7aac6028873976e3f03f9d9f24e3b1",
+              "launcher_sha256": "781cc0e1a45d99b7e3300d46828dd0e899d09b5a479e1e1f1f5e234e111174e1"
+            },
+            "first_concrete_gate": "Native Wayland screen color-space selector unavailable"
+          },
+          "stage11_retake": {
+            "stage_label": "stage11",
+            "bounded_launch_only": true,
+            "application_entry": "not_separately_instrumented",
+            "render": "not_verified",
+            "visible_ui": "not_verified",
+            "functional_workflow": "not_tested",
+            "exit": 134,
+            "timeout": false,
+            "seconds": 3.3133388249989366,
+            "exact_prefix_shutdown_exit": 0,
+            "diagnostic_dyld_overrides": false,
+            "executable_unchanged": true,
+            "executable_sha256": "fc5446601a86316fc713bda590a8ced2d6458b28acca6596a329837bc48eecbe",
+            "recorded_runtime": {
+              "superproject": "554309ab4bcab21ad80ba3c7a39c7b587186ea96",
+              "cocotron": "9ffc6409fe77a15a8ef3e659b1a56b9c8c719671",
+              "launcher_sha256": "315e73d1ffdb7242eb1c3e6ec6443d235dc6d9ff75f88e282accc13447d20caf"
+            },
+            "next_missing_api": "NSColor.placeholderTextColor",
+            "first_concrete_gate": "Missing +[NSColor placeholderTextColor] during initialization"
+          },
+          "first_concrete_gate": "Unexplained exit 139 during startup; no exception reason recorded",
+          "failure_cause": "unknown"
+        },
+        "extracted_payload_members_unchanged": 154
       },
       "artifact_source": {
         "source_url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.8.0/KeePassXC-2.8.0-1-x86_64.dmg",

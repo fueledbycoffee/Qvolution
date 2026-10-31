@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "stage_label": "stage19",
+  "scope": "Original runtime font/title regressions and bounded unchanged vendor retakes; no app qualification",
+  "built_runtime": {
+    "superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+    "built_runtime_superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+    "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+    "launcher_sha256": "c83b3e02931a9e397ba241eb549a64ff5f06193ef5d34376d8491c5e9c9e6372",
+    "components": {
+      "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+      "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+      "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+      "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+      "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+    }
+  },
+  "build": {
+    "completed": true,
+    "edges": 759,
+    "no_remaining_work": true,
+    "private_install_exit": 0
+  },
+  "original_regressions": [
+    {
+      "label": "ui-font-roles",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.7260558749985648
+    },
+    {
+      "label": "font-traits-dictionary",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.5573255860072095
+    },
+    {
+      "label": "font-name-attribute",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.5629523540119408
+    },
+    {
+      "label": "font-metadata",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.5650959630002035
+    },
+    {
+      "label": "font-ctfont-bridge",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.6186998280027183
+    },
+    {
+      "label": "title-visibility",
+      "exit": 0,
+      "timeout": null,
+      "shutdown_exit": 0,
+      "seconds": 1.7893300660070963
+    }
+  ],
+  "vendor_results": {
+    "keka": {
+      "stage_label": "stage19",
+      "evidence_checkpoint": "through_stage19",
+      "bounded_launch_only": true,
+      "application_entry": "not_separately_instrumented",
+      "render": "one_cpu_client_image_captured",
+      "visible_ui": "compositor_visibility_not_verified",
+      "functional_workflow": "not_tested",
+      "exit": null,
+      "timeout": true,
+      "timeout_seconds": 25,
+      "seconds": 26.060010204993887,
+      "exact_prefix_shutdown_exit": 0,
+      "diagnostic_dyld_overrides": false,
+      "executable_unchanged": true,
+      "executable_sha256": "51c730ac9b3d385434fff9e96d0881a458d1fb9513970fffe61b874068085d27",
+      "recorded_runtime": {
+        "superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+        "built_runtime_superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+        "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+        "launcher_sha256": "c83b3e02931a9e397ba241eb549a64ff5f06193ef5d34376d8491c5e9c9e6372",
+        "components": {
+          "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+          "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+          "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+          "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+          "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+        }
+      },
+      "capture_diagnostic_requested": true,
+      "client_capture": {
+        "count": 1,
+        "width": 699,
+        "height": 432,
+        "render_path": "CPU_client_pixels",
+        "observed_content": "settings",
+        "known_quality_gaps": [
+          "generic_SF_symbol_box_placeholders",
+          "duplicate_title"
+        ],
+        "qualification": "client_render_only_not_compositor_visibility_or_workflow"
+      },
+      "extracted_payload_members_unchanged": 749,
+      "first_concrete_gate": "Settings client pixels repeat; generic symbols and duplicate title/controls remain; presentation and workflows unverified",
+      "failure_cause": "timeout_does_not_establish_cause"
+    },
+    "keepassxc": {
+      "stage_label": "stage19",
+      "evidence_checkpoint": "through_stage19",
+      "bounded_launch_only": true,
+      "application_entry": "not_separately_instrumented",
+      "render": "not_verified",
+      "visible_ui": "not_verified",
+      "functional_workflow": "not_tested",
+      "exit": 139,
+      "timeout": false,
+      "seconds": 3.215687511008582,
+      "exact_prefix_shutdown_exit": 0,
+      "diagnostic_dyld_overrides": false,
+      "executable_unchanged": true,
+      "executable_sha256": "fc5446601a86316fc713bda590a8ced2d6458b28acca6596a329837bc48eecbe",
+      "recorded_runtime": {
+        "superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+        "built_runtime_superproject": "7e196470de62d71bdd48aadc4f3750851c956745",
+        "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+        "launcher_sha256": "c83b3e02931a9e397ba241eb549a64ff5f06193ef5d34376d8491c5e9c9e6372",
+        "components": {
+          "cocotron": "a4cc4c0db849f1612812e64caf433b6686074729",
+          "xnu": "b269e51431391d9005d3602a63d1c4c30db9b02b",
+          "darlingserver": "b52ef1125cd74eaee3106fdb049a02ca2af8f9fd",
+          "foundation": "cbde81c88373c1417c9bfece7f45e68c56834518",
+          "metal": "49e6093336061a9a9a97d48b0bb25751f6cf5513"
+        }
+      },
+      "first_concrete_gate": "Unexplained exit 139 during startup; no exception reason recorded",
+      "failure_cause": "unknown",
+      "extracted_payload_members_unchanged": 154
+    }
+  },
+  "limitations": [
+    "CPU client raster is not compositor visibility, user interaction, GPU rasterization or workflow proof",
+    "Keka duplicate title and traffic lights remain; its titleVisibility intent was not observed",
+    "KeePassXC startup exit139 cause remains unknown; no diagnostic text establishes it",
+    "All20 workflow/UI/GPU/stability requirements remain open"
+  ]
+}

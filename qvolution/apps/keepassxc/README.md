@@ -1,10 +1,12 @@
 # KeePassXC
 
-Status: **not tested**. Wave 2; priority 13.
+Status: **bounded startup failure, stage 19**. Wave 2; priority 13.
 
 Source: https://keepassxc.org/
 
 Use synthetic vault contents only during compatibility testing.
+
+The official unchanged 2.8.0-1 Intel bundle still exits 139 during bounded startup, with no exception reason. All 154 regular-file/link entries were rechecked unchanged. The independently passing real UI-font-role and metadata regressions do not establish the startup cause or an app workflow. Exact-prefix cleanup returns 0. See [stage19 evidence](../../verification/stage19-fonts-title.json).
 
 ## Acceptance workflow
 

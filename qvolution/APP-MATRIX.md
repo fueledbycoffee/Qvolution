@@ -2,14 +2,14 @@
 
 Source TextEdit has partial, user-confirmed workflow evidence. Eight official bundles—KeePassXC, VLC, Transmission, Firefox, VS Code, CotEditor, Keka and Discord—have bounded launch records; Keka additionally has one diagnostic CPU client image, while compositor visibility and real workflows remain unverified. No target has passed all UI/UX, GPU and stability gates. This is the work order, not a promise of compatibility. Catalog metadata and tested artifact versions are recorded separately. Pin the actual artifact hash, architecture and runtime on each run. Discord is counted once. Dia means The Browser Company browser.
 
-Evidence checkpoint: **through stage 17**. The latest retained launch stage varies by app; stages below are not inferred retakes. Seven inputs have publisher SHA256 verification. Discord has official HTTPS/CDN MD5 transport verification and a pinned local SHA256 only; no publisher SHA256, signature or notarization verification is claimed for it. All eight main executable hashes are unchanged after their recorded runs. Universal bundles remain unthinned, targeting x86_64. One Keka settings client image is rendering evidence only; no vendor compositor-visible UI/workflow, GPU or stability pass is established. TextEdit remains a partial source fixture.
+Evidence checkpoint: **through stage 19**. The latest retained launch stage varies by app; stages below are not inferred retakes. Seven inputs have publisher SHA256 verification. Discord has official HTTPS/CDN MD5 transport verification and a pinned local SHA256 only; no publisher SHA256, signature or notarization verification is claimed for it. All eight main executable hashes are unchanged after their recorded runs. Universal bundles remain unthinned, targeting x86_64. One Keka settings client image is rendering evidence only; no vendor compositor-visible UI/workflow, GPU or stability pass is established. TextEdit remains a partial source fixture.
 
 | Official input | Latest retained launch | Current recorded gate |
 | --- | --- | --- |
-| KeePassXC 2.8.0-1 Intel | stage 12 | Earlier placeholder selector cleared; unexplained startup exit 139 without an exception reason. Cause unknown. |
+| KeePassXC 2.8.0-1 Intel | stage 19 | Earlier placeholder selector cleared; unexplained startup exit 139 without an exception reason. Cause unknown. |
 | Firefox 159.0 universal | stage 17 | Popover role data import cleared; XPCOM load stops at `NSAccessibilityCustomAction`, exit 255. |
 | CotEditor 7.1.3 universal | stage 11 | Missing `AppIntents.framework` dependency image, exit 139. |
-| Keka 1.6.8 universal | stage 16 | Earlier transport exception cleared; one 699×432 CPU settings client image captured with SF-symbol box placeholders and duplicate title. Bounded 25s timeout; desktop visibility and archive workflows unverified. |
+| Keka 1.6.8 universal | stage 19 | Earlier transport exception cleared; one 699×432 CPU settings client image captured with SF-symbol box placeholders and duplicate title. Bounded 25s timeout; desktop visibility and archive workflows unverified. |
 | Visual Studio Code 1.144.0 Intel | stage 17 | Attachment type-hint data import cleared; missing `NSScrubberImageItemView`, exit 139. |
 | VLC 3.0.24 Intel64 | stage 6 | Earlier PDF cross-reference exception cleared; rendering/playback remain unverified with audio/PDF/slider diagnostics and a bounded timeout. |
 | Transmission 4.1.4 universal | stage 4 | Interface/layout diagnostics and a bounded timeout; controlled transfer/rendering remain unverified. |
@@ -54,3 +54,5 @@ Every row must pass artifact/architecture, its full workflow, polished UI/UX, ve
 Historical stage 7 retake: KeePassXC cleared `NSScreen.colorSpace` and stopped at missing `NSColorSpace.ICCProfileData` (exit134). It remains blocked during initialization; no UI/workflow promotion.
 
 Historical stage 9 added publisher-verified Firefox159.0 universal and VSCode1.144.0 Intel inputs. Their earlier import failures cleared; Firefox then needed `ASWebAuthenticationSessionErrorDomain`, VSCode needed `LSSetDefaultHandlerForURLScheme`, and KeePassXC needed `CGDisplayIsOnline`. All remain unqualified; no new app pass is recorded.
+
+Stage 19 real UI-role fonts, symbolic traits, PostScript name attributes, bridge ownership and title visibility raster/invalidation regressions pass. The unchanged KeePassXC retake still exits 139 without a reason. Keka repeats partial settings client rendering, with generic symbols and duplicate title/controls still visible. All 154 KeePassXC and 749 Keka file/link entries are unchanged. These results do not qualify either workflow or desktop UI. See [stage19-fonts-title.json](verification/stage19-fonts-title.json).
