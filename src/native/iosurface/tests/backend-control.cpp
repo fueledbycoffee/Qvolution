@@ -2,6 +2,9 @@
 #include "fake-vulkan.hpp"
 #include <dirent.h>
 #include <iostream>
+#include <functional>
+#include <sys/wait.h>
+#include <unistd.h>
 
 using namespace Darling::Surface;
 namespace F = FakeVulkan;
@@ -25,18 +28,41 @@ template<class Function> static void rejects(Function f)
 	throw std::runtime_error("fault was accepted");
 }
 
+// Each setup/fault scenario starts before the process cache exists. No test-only
+// cache reset is linked into the production lifetime implementation.
+static unsigned isolated(const std::function<unsigned()>& run)
+{
+	int channel[2]; require(!pipe(channel), "control result pipe");
+	const auto child = fork(); require(child >= 0, "control fork");
+	if (!child) {
+		close(channel[0]);
+		try {
+			const auto result = run();
+			require(write(channel[1], &result, sizeof(result)) == sizeof(result), "control result write");
+			close(channel[1]); std::exit(0);
+		} catch (const std::exception& e) { std::cerr << e.what() << '\n'; std::exit(1); }
+	}
+	close(channel[1]); unsigned result = 0;
+	const auto received = read(channel[0], &result, sizeof(result)); close(channel[0]);
+	int status; require(waitpid(child, &status, 0) == child, "control wait");
+	require(WIFEXITED(status) && !WEXITSTATUS(status) && received == sizeof(result), "isolated control failed");
+	return result;
+}
+
 static void retirementControls()
 {
-	F::reset();
-	unsigned createOperations, submitOperation;
-	{
-		auto device = Device::open(F::identity()); F::failAt(0);
+	const auto createOperations = isolated([] {
+		F::reset(); auto device = Device::open(F::identity()); F::failAt(0);
 		auto allocation = Allocation::create(device, binding(), image(), 1000000);
-		createOperations = F::operations();
-		submitOperation = F::submitOperation();
-	}
-	const auto baseline = fdCount();
-	{
+		return F::operations();
+	});
+	const auto submitOperation = isolated([] {
+		F::reset(); auto device = Device::open(F::identity()); F::failAt(0);
+		auto allocation = Allocation::create(device, binding(), image(), 1000000);
+		return F::submitOperation();
+	});
+	isolated([&] {
+		F::reset();
 		auto device = Device::open(F::identity());
 		F::submitError(VK_ERROR_UNKNOWN); F::failAt(submitOperation);
 		std::shared_ptr<RetirementTicket> ticket;
@@ -45,10 +71,12 @@ static void retirementControls()
 		require(ticket && ticket->originalFailure() == VK_ERROR_UNKNOWN, "ambiguous submit destroyed its resources");
 		F::fenceStatus(VK_NOT_READY); require(ticket->retry().state == RetirementState::Pending, "ambiguous submit retired early");
 		F::fenceStatus(VK_SUCCESS); pollRetirements();
-	}
-	require(!F::liveObjects() && !pendingRetirements(), "ambiguous submit leaked completed state");
-	for (auto failure : {VK_TIMEOUT, VK_ERROR_OUT_OF_HOST_MEMORY}) {
+		require(F::liveObjects() == 2 && !pendingRetirements(), "ambiguous submit leaked completed state");
+		return 0;
+	});
+	for (auto failure : {VK_TIMEOUT, VK_ERROR_OUT_OF_HOST_MEMORY}) isolated([&] {
 		F::reset();
+		const auto baseline = fdCount();
 		auto device = Device::open(F::identity());
 		std::weak_ptr<Device> weak = device;
 		F::waitError(failure); F::failAt(createOperations);
@@ -72,57 +100,64 @@ static void retirementControls()
 				"non-completion retry freed or rewrote pending state");
 		}
 		F::fenceStatus(VK_SUCCESS);
-		require(ticket->retry().state == RetirementState::Complete && !pendingRetirements() && weak.expired(),
-			"completed retirement retained context");
+		require(ticket->retry().state == RetirementState::Complete && !pendingRetirements() && !weak.expired(),
+			"completed retirement lost process context");
 		ticket.reset();
-		require(!F::liveObjects() && fdCount() == baseline, "completed ticket leaked resources");
-	}
-	F::reset();
-	{
+		require(F::liveObjects() == 2 && fdCount() == baseline, "completed ticket leaked resources");
+		return 0;
+	});
+	isolated([&] {
+		F::reset();
 		auto device = Device::open(F::identity());
 		F::waitError(VK_TIMEOUT); F::failAt(createOperations);
 		try { Allocation::create(device, binding(), image(), 1000000); } catch (const Failure&) {}
 		F::fenceStatus(VK_ERROR_DEVICE_LOST); pollRetirements();
 		require(!pendingRetirements(), "actual device loss failed to retire");
 		rejects([&] { device->query(image()); });
-	}
-	require(!F::liveObjects(), "lost device context leaked");
-	F::reset();
-	auto device = Device::open(F::identity());
-	std::weak_ptr<Device> weak = device;
-	F::waitError(VK_TIMEOUT); F::fenceStatus(VK_NOT_READY);
-	for (size_t i = 0; i < RetirementCapacity; ++i) {
-		F::failAt(createOperations);
+		require(F::liveObjects() == 2, "lost device context leaked allocation objects");
+		return 0;
+	});
+	isolated([&] {
+		F::reset();
+		const auto baseline = fdCount();
+		auto device = Device::open(F::identity());
+		std::weak_ptr<Device> weak = device;
+		F::waitError(VK_TIMEOUT); F::fenceStatus(VK_NOT_READY);
+		for (size_t i = 0; i < RetirementCapacity; ++i) {
+			F::failAt(createOperations);
+			try { Allocation::create(device, binding(), image(), 1000000); }
+			catch (const Failure& f) { require(f.retirement && f.detail == VK_TIMEOUT, "missing orphan retirement ticket"); }
+			require(pendingRetirements() == i + 1, "orphan pending owner lost");
+		}
+		F::failAt(0);
+		bool rejected = false;
 		try { Allocation::create(device, binding(), image(), 1000000); }
-		catch (const Failure& f) { require(f.retirement && f.detail == VK_TIMEOUT, "missing orphan retirement ticket"); }
-		require(pendingRetirements() == i + 1, "orphan pending owner lost");
-	}
-	F::failAt(0);
-	bool rejected = false;
-	try { Allocation::create(device, binding(), image(), 1000000); }
-	catch (const Failure& f) { rejected = f.code == Error::RetirementCapacity; }
-	require(rejected && pendingRetirements() == RetirementCapacity, "retirement registry exceeded bound");
-	device.reset(); pollRetirements();
-	require(!weak.expired() && pendingRetirements() == RetirementCapacity, "orphan context retired without completion");
-	F::fenceStatus(VK_SUCCESS); pollRetirements();
-	require(weak.expired() && !pendingRetirements() && !F::liveObjects() && fdCount() == baseline,
-		"explicit orphan retry did not release complete context");
+		catch (const Failure& f) { rejected = f.code == Error::RetirementCapacity; }
+		require(rejected && pendingRetirements() == RetirementCapacity, "retirement registry exceeded bound");
+		device.reset(); pollRetirements();
+		require(!weak.expired() && pendingRetirements() == RetirementCapacity, "orphan context retired without completion");
+		F::fenceStatus(VK_SUCCESS); pollRetirements();
+		require(!weak.expired() && !pendingRetirements() && F::liveObjects() == 2 && fdCount() == baseline,
+			"explicit orphan retry did not release complete resources");
+		return 0;
+	});
 }
 
 int main()
 {
 	try {
-		const auto baseline = fdCount();
-		F::reset();
-		unsigned deviceOperations;
-		{ auto device = Device::open(F::identity()); deviceOperations = F::operations(); }
-		for (unsigned i = 1; i <= deviceOperations; ++i) {
+		const auto baseline = fdCount() + 1; // Isolated child owns its result pipe.
+		const auto deviceOperations = isolated([] {
+			F::reset(); auto device = Device::open(F::identity()); return F::operations();
+		});
+		for (unsigned i = 1; i <= deviceOperations; ++i) isolated([&] {
 			F::reset(); F::failAt(i);
 			rejects([] { Device::open(F::identity()); });
-			require(!F::liveObjects() && fdCount() == baseline, "device failure leaked ownership");
-		}
-		F::reset();
-		{
+			require(F::liveObjects() == (i == 1 ? 0u : 1u) && fdCount() == baseline, "device failure leaked ownership");
+			return 0;
+		});
+		isolated([&] {
+			F::reset();
 			auto device = Device::open(F::identity());
 			const auto deviceObjects = F::liveObjects();
 			unsigned createOperations;
@@ -189,13 +224,16 @@ int main()
 			F::semaphoreFeatures(VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT);
 			rejects([&] { Allocation::create(device, binding(), image(), 1000000); });
 			require(F::liveObjects() == deviceObjects, "unsupported capabilities allocated objects");
-		}
-		F::reset(); F::extensions(false); rejects([] { Device::open(F::identity()); });
-		F::reset(); F::deviceType(VK_PHYSICAL_DEVICE_TYPE_CPU); rejects([] { Device::open(F::identity()); });
-		F::reset();
-		auto wrong = F::identity(); wrong.device[0] ^= 1;
-		rejects([&] { Device::open(wrong); });
-		require(!F::liveObjects() && fdCount() == baseline, "native backend controls leaked resources");
+			return 0;
+		});
+		isolated([] { F::reset(); F::extensions(false); rejects([] { Device::open(F::identity()); }); return 0; });
+		isolated([] { F::reset(); F::deviceType(VK_PHYSICAL_DEVICE_TYPE_CPU); rejects([] { Device::open(F::identity()); }); return 0; });
+		isolated([&] {
+			F::reset(); auto wrong = F::identity(); wrong.device[0] ^= 1;
+			rejects([&] { Device::open(wrong); });
+			require(F::liveObjects() == 1 && fdCount() == baseline, "native backend controls leaked resources");
+			return 0;
+		});
 		retirementControls();
 		std::cout << "native backend failure controls passed; control-only Vulkan, no GPU execution\n";
 		return 0;

@@ -8,6 +8,8 @@
 
 namespace {
 unsigned operation = 0, failure = 0, initialized = 0;
+unsigned instancesCreated = 0, instancesDestroyed = 0, devicesCreated = 0, devicesDestroyed = 0;
+unsigned destroyOrder = 0, deviceDestroyOrder = 0, instanceDestroyOrder = 0;
 uint64_t nextHandle = 100;
 std::map<uint64_t, int> live;
 uint32_t typeBits = 1;
@@ -51,6 +53,11 @@ void reset() {
 void failAt(unsigned index) { operation = 0; failure = index; }
 unsigned operations() { return operation; }
 unsigned liveObjects() { return live.size(); }
+unsigned instanceCreates() { return instancesCreated; }
+unsigned instanceDestroys() { return instancesDestroyed; }
+unsigned deviceCreates() { return devicesCreated; }
+unsigned deviceDestroys() { return devicesDestroyed; }
+bool teardownOrdered() { return deviceDestroyOrder && deviceDestroyOrder < instanceDestroyOrder; }
 unsigned initializationCount() { return initialized; }
 void memoryTypeBits(uint32_t bits) { typeBits = bits; }
 void imageFeatures(VkExternalMemoryFeatureFlags flags) { memoryFlags = flags; }
@@ -67,8 +74,8 @@ Darling::Surface::DeviceIdentity identity() {
 }
 
 extern "C" {
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo*, const VkAllocationCallbacks*, VkInstance* out) { return create(out); }
-VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance value, const VkAllocationCallbacks*) { destroy(value); }
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo*, const VkAllocationCallbacks*, VkInstance* out) { const auto r = create(out); if (r == VK_SUCCESS) ++instancesCreated; return r; }
+VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance value, const VkAllocationCallbacks*) { instanceDestroyOrder = ++destroyOrder; ++instancesDestroyed; destroy(value); }
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance, uint32_t* count, VkPhysicalDevice* out) {
 	if (failed()) return VK_ERROR_OUT_OF_HOST_MEMORY;
 	*count = 1; if (out) *out = handle<VkPhysicalDevice>(1); return VK_SUCCESS;
@@ -90,8 +97,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDe
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice, uint32_t* count, VkQueueFamilyProperties* out) {
 	*count = 1; if (out) { out->queueCount = 1; out->queueFlags = VK_QUEUE_GRAPHICS_BIT; }
 }
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice, const VkDeviceCreateInfo*, const VkAllocationCallbacks*, VkDevice* out) { return create(out); }
-VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice value, const VkAllocationCallbacks*) { destroy(value); }
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice, const VkDeviceCreateInfo*, const VkAllocationCallbacks*, VkDevice* out) { const auto r = create(out); if (r == VK_SUCCESS) ++devicesCreated; return r; }
+VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice value, const VkAllocationCallbacks*) { deviceDestroyOrder = ++destroyOrder; ++devicesDestroyed; destroy(value); }
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue* out) { *out = handle<VkQueue>(2); }
 static VkResult VKAPI_CALL exportMemory(VkDevice, const VkMemoryGetFdInfoKHR*, int* out) {
 	if (failed()) return VK_ERROR_OUT_OF_DEVICE_MEMORY;

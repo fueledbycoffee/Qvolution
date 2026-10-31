@@ -71,10 +71,9 @@ std::vector<DeviceInfo> enumerateDevices(uint32_t run = 0, uint32_t passes = 1);
 class Context : public std::enable_shared_from_this<Context> {
 public:
 	static std::shared_ptr<Context> open(const DeviceIdentity& identity);
-	~Context();
 	Context(const Context&) = delete;
 	Context& operator=(const Context&) = delete;
-	VkInstance instance = VK_NULL_HANDLE;
+	std::shared_ptr<Device> owner;
 	VkPhysicalDevice physical = VK_NULL_HANDLE;
 	VkDevice device = VK_NULL_HANDLE;
 	VkQueue queue = VK_NULL_HANDLE;
@@ -82,7 +81,9 @@ public:
 	DeviceInfo info;
 	VkPhysicalDeviceMemoryProperties memory{};
 	PFN_vkImportSemaphoreFdKHR importSemaphore = nullptr;
-	bool lost = false;
+	bool lost() const;
+	void markLost();
+	VkResult submit(const VkSubmitInfo&, VkFence);
 private:
 	Context() = default;
 };

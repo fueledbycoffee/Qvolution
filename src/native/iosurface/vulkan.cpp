@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <vector>
 #include <utility>
+#include <map>
 
 namespace Darling::Surface {
 
@@ -14,19 +15,52 @@ static void checked(VkResult result, const char* operation)
 	if (result != VK_SUCCESS) throw Failure(Error::Vulkan, operation, result);
 }
 
-std::shared_ptr<Device> Device::open(const DeviceIdentity& required)
+Instance::Instance()
 {
-	auto result = std::shared_ptr<Device>(new Device);
 	VkApplicationInfo application{VK_STRUCTURE_TYPE_APPLICATION_INFO};
 	application.pApplicationName = "Darling native surface";
 	application.apiVersion = VK_API_VERSION_1_1;
 	VkInstanceCreateInfo instance{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
 	instance.pApplicationInfo = &application;
-	checked(vkCreateInstance(&instance, nullptr, &result->_instance), "create native Vulkan instance");
+	checked(vkCreateInstance(&instance, nullptr, &_instance), "create native Vulkan instance");
+}
+
+std::shared_ptr<Instance> Instance::open()
+{
+	static const auto instance = std::shared_ptr<Instance>(new Instance);
+	return instance;
+}
+
+Instance::~Instance() { vkDestroyInstance(_instance, nullptr); }
+
+std::vector<VkPhysicalDevice> Instance::physicalDevices()
+{
+	std::lock_guard<std::mutex> lock(_mutex);
 	uint32_t count = 0;
-	checked(vkEnumeratePhysicalDevices(result->_instance, &count, nullptr), "count Vulkan devices");
+	checked(vkEnumeratePhysicalDevices(_instance, &count, nullptr), "count Vulkan devices");
 	std::vector<VkPhysicalDevice> physicals(count);
-	checked(vkEnumeratePhysicalDevices(result->_instance, &count, physicals.data()), "enumerate Vulkan devices");
+	checked(vkEnumeratePhysicalDevices(_instance, &count, physicals.data()), "enumerate Vulkan devices");
+	physicals.resize(count);
+	return physicals;
+}
+
+std::shared_ptr<Device> Device::open(const DeviceIdentity& required)
+{
+	auto instance = Instance::open();
+	using Key = std::pair<UUID, UUID>;
+	static std::mutex mutex;
+	static std::map<Key, std::shared_ptr<Device>> devices;
+	std::lock_guard<std::mutex> lock(mutex);
+	const Key key{required.device, required.driver};
+	const auto found = devices.find(key);
+	if (found != devices.end()) {
+		found->second->check(VK_SUCCESS, "reopen native Vulkan device");
+		return found->second;
+	}
+	auto result = std::shared_ptr<Device>(new Device);
+	result->_instance = std::move(instance);
+	const auto physicals = result->_instance->physicalDevices();
+	uint32_t count = uint32_t(physicals.size());
 	for (uint32_t i = 0; i < count; ++i) {
 		VkPhysicalDeviceIDProperties ids{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES};
 		VkPhysicalDeviceProperties2 properties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
@@ -73,13 +107,13 @@ std::shared_ptr<Device> Device::open(const DeviceIdentity& required)
 	result->_importSemaphoreFd = reinterpret_cast<PFN_vkImportSemaphoreFdKHR>(vkGetDeviceProcAddr(result->_device, "vkImportSemaphoreFdKHR"));
 	if (!result->_getMemoryFd || !result->_getSemaphoreFd || !result->_importSemaphoreFd)
 		throw Failure(Error::MissingExtension, "native external-object entry point unresolved");
+	devices.emplace(key, result);
 	return result;
 }
 
 Device::~Device()
 {
 	if (_device) vkDestroyDevice(_device, nullptr);
-	if (_instance) vkDestroyInstance(_instance, nullptr);
 }
 
 Capabilities Device::query(const ImageSpec& image) const

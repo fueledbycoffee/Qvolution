@@ -5,16 +5,6 @@
 #include <fcntl.h>
 
 namespace SurfaceProbe {
-static VkInstance newInstance()
-{
-	VkApplicationInfo app{VK_STRUCTURE_TYPE_APPLICATION_INFO};
-	app.pApplicationName = "owned surface Vulkan probe"; app.apiVersion = VK_API_VERSION_1_1;
-	VkInstanceCreateInfo info{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO}; info.pApplicationInfo = &app;
-	VkInstance result = VK_NULL_HANDLE;
-	checked(vkCreateInstance(&info, nullptr, &result), "probe vkCreateInstance");
-	return result;
-}
-
 static DeviceInfo deviceInfo(VkPhysicalDevice physical)
 {
 	DeviceInfo out;
@@ -34,64 +24,44 @@ static DeviceInfo deviceInfo(VkPhysicalDevice physical)
 std::vector<DeviceInfo> enumerateDevices(uint32_t run, uint32_t passes)
 {
 	auditFds("enumeration_before_instance", run);
-	const auto instance = newInstance();
+	const auto instance = Instance::open();
+	auditFds("enumeration_instance_reused", run);
 	std::vector<DeviceInfo> result;
-	try {
-		auditFds("enumeration_instance_created", run);
-		for (uint32_t pass = 0; pass < passes; ++pass) {
-			auditFds("enumeration_pass_begin", pass);
-			uint32_t count = 0;
-			checked(vkEnumeratePhysicalDevices(instance, &count, nullptr), "probe count physical devices");
-			std::vector<VkPhysicalDevice> physicals(count);
-			checked(vkEnumeratePhysicalDevices(instance, &count, physicals.data()), "probe physical devices");
-			auditFds("enumeration_physicals_observed", pass);
-			result.clear();
-			for (uint32_t i = 0; i < count; ++i) result.push_back(deviceInfo(physicals[i]));
-			auditFds("enumeration_pass_end", pass);
-		}
-		auditFds("enumeration_before_destroy", run);
-	} catch (...) { vkDestroyInstance(instance, nullptr); throw; }
-	vkDestroyInstance(instance, nullptr);
-	auditFds("enumeration_instance_destroyed", run);
+	for (uint32_t pass = 0; pass < passes; ++pass) {
+		auditFds("enumeration_pass_begin", pass);
+		const auto physicals = instance->physicalDevices();
+		auditFds("enumeration_physicals_observed", pass);
+		result.clear();
+		for (const auto physical : physicals) result.push_back(deviceInfo(physical));
+		auditFds("enumeration_pass_end", pass);
+	}
 	return result;
 }
 
 std::shared_ptr<Context> Context::open(const DeviceIdentity& identity)
 {
 	auto c = std::shared_ptr<Context>(new Context);
-	c->instance = newInstance();
-	uint32_t count = 0;
-	checked(vkEnumeratePhysicalDevices(c->instance, &count, nullptr), "probe count selected devices");
-	std::vector<VkPhysicalDevice> devices(count);
-	checked(vkEnumeratePhysicalDevices(c->instance, &count, devices.data()), "probe selected devices");
-	for (uint32_t i = 0; i < count; ++i) {
-		auto info = deviceInfo(devices[i]);
-		if (info.identity.device != identity.device || info.identity.driver != identity.driver) continue;
-		validateHardwarePair(identity, info.identity, info.properties.deviceType);
-		require(info.properties.apiVersion >= VK_API_VERSION_1_1, "probe requires Vulkan 1.1");
-		c->physical = devices[i]; c->info = std::move(info); break;
-	}
-	require(c->physical != VK_NULL_HANDLE, "probe UUID pair not found");
-	const char* extensions[] = {VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME, VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME};
-	for (const auto extension : extensions)
-		require(std::find(c->info.extensions.begin(), c->info.extensions.end(), extension) != c->info.extensions.end(), "probe missing FD extension");
-	vkGetPhysicalDeviceQueueFamilyProperties(c->physical, &count, nullptr);
-	std::vector<VkQueueFamilyProperties> families(count);
-	vkGetPhysicalDeviceQueueFamilyProperties(c->physical, &count, families.data());
-	auto found = std::find_if(families.begin(), families.begin() + count, [](const auto& f) { return f.queueCount && (f.queueFlags & VK_QUEUE_GRAPHICS_BIT); });
-	require(found != families.begin() + count, "probe graphics queue missing"); c->family = uint32_t(found - families.begin());
-	const float priority = 1;
-	VkDeviceQueueCreateInfo queue{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
-	queue.queueFamilyIndex = c->family; queue.queueCount = 1; queue.pQueuePriorities = &priority;
-	VkDeviceCreateInfo device{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO}; device.queueCreateInfoCount = 1; device.pQueueCreateInfos = &queue;
-	device.enabledExtensionCount = 2; device.ppEnabledExtensionNames = extensions;
-	checked(vkCreateDevice(c->physical, &device, nullptr, &c->device), "probe vkCreateDevice");
-	vkGetDeviceQueue(c->device, c->family, 0, &c->queue);
+	c->owner = Device::open(identity);
+	c->physical = c->owner->_physical;
+	c->device = c->owner->_device;
+	c->queue = c->owner->_queue;
+	c->family = c->owner->_family;
+	c->info = deviceInfo(c->physical);
 	vkGetPhysicalDeviceMemoryProperties(c->physical, &c->memory);
-	c->importSemaphore = reinterpret_cast<PFN_vkImportSemaphoreFdKHR>(vkGetDeviceProcAddr(c->device, "vkImportSemaphoreFdKHR"));
-	require(c->importSemaphore, "probe semaphore import unresolved"); return c;
+	c->importSemaphore = c->owner->_importSemaphoreFd;
+	return c;
 }
-Context::~Context() { if (device) vkDestroyDevice(device, nullptr); if (instance) vkDestroyInstance(instance, nullptr); }
+
+bool Context::lost() const { return owner->_lost.load(); }
+void Context::markLost() { owner->_lost.store(true); }
+VkResult Context::submit(const VkSubmitInfo& info, VkFence fence)
+{
+	std::lock_guard<std::mutex> lock(owner->_queueMutex);
+	if (lost()) return VK_ERROR_DEVICE_LOST;
+	const auto result = vkQueueSubmit(queue, 1, &info, fence);
+	if (result == VK_ERROR_DEVICE_LOST) markLost();
+	return result;
+}
 
 Image::~Image()
 {

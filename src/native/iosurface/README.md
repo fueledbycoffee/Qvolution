@@ -28,6 +28,11 @@ does not tear down the process-lifetime registry's unresolved GPU resources.
 The device must match both caller-supplied device and driver UUIDs and be a
 discrete or integrated GPU. Callers must obtain those UUIDs from the actual
 interoperating context. Device names and extension strings are insufficient.
+The process owns one Vulkan instance and retains one logical device for each exact
+UUID pair until process exit. Concurrent opens share the same context and queue
+mutex; a lost device remains lost and is never silently replaced. Allocation and
+transfer retirement releases per-surface resources, not the process context.
+Pending retirement tickets keep both device and instance alive through teardown.
 The exact image and binary semaphore combinations are queried before allocation.
 All images are dedicated, including when the driver requires dedication.
 Opaque FD metadata preserves the exporter allocation size and memory type;
@@ -59,11 +64,14 @@ cmake --build <private-native-build> -j2
 ctest --test-dir <private-native-build> --output-on-failure
 ```
 
-The two controls make no GPU calls. Transport uses self-authored memfd payloads
+The native controls make no GPU calls. Transport uses self-authored memfd payloads
 in independently exec'd processes, including malformed/truncated messages,
 wrong peers/bindings and FD cleanup checks. Backend controls link an isolated
 fake Vulkan implementation instead of libvulkan and inject failures at every
-fallible create/import/export operation. These controls are never linked into
+fallible create/import/export operation in fresh processes, without a cache-reset
+hook. The reuse control checks 32 production export/import creator drops,
+concurrent first opens/reopens, exact UUID rejection, sticky loss and device-before-
+instance exit teardown. These controls are never linked into
 the production library. They establish local validation/ownership properties;
 they do not establish device capability, valid GPU pixels or guest behavior.
 
@@ -71,11 +79,14 @@ they do not establish device capability, valid GPU pixels or guest behavior.
 `surface-vulkan-hardware-probe`, which links the production library and real
 Vulkan loader. It is never a CTest. Configure a reviewed
 `DARLING_SURFACE_PROBE_SOURCE_ID` before root schedules enumeration or GPU
-execution. It supports actual production import and a separate payload round
-trip, same-process/cross-exec, creator drop and reverse producer roles. Each
-endpoint creates a distinct Vulkan instance and matches exact image metadata;
-the harness adds no raw-handle access to production objects. Only the payload
-case checks shared pixels, nonzero readback sentinels and padded canaries.
+execution. It supports actual production import and a payload round trip,
+same-process/cross-exec, creator drop and reverse producer roles. Enumeration,
+production allocation/import and payload work share the production process
+instance and selected device. A private friend adapter gives the payload harness
+access to that device and its queue mutex/lost state; no guest API exposes them.
+Exec endpoints have separate process owners and match exact image metadata.
+Only the payload case checks shared pixels, nonzero readback sentinels and
+padded canaries.
 Initial ready is waited once, released is signaled/waited once, and directional
 return-reader FDs are retained explicitly rather than cloning an initial grant.
 
@@ -105,15 +116,15 @@ does not prove shared open-file-description identity or authorize closing a
 driver-owned FD. The audit is evidence collection, not a driver-cache waiver.
 Diagnostic JSON escapes non-ASCII/control bytes as `\u00XX`, preserving distinct
 native path bytes instead of replacing them with question marks.
-`--enumeration-only --fd-audit --runs 2` isolates instance/physical-device
-discovery without logical devices, allocation/export or submitted work. It
-retains the strict post-first-run FD gate and never qualifies GPU storage.
-`--enumeration-only --enumeration-passes 32 --runs 1 --fd-audit` enumerates
-32 times in a single instance, then destroys it. Compare its API-boundary
-snapshots with `--enumeration-only --runs 2 --fd-audit` to distinguish retention
-per physical-device enumeration from retention per instance lifecycle. This
-diagnostic adds no logical device or storage, closes no driver FDs, and cannot
-establish that a retained descriptor is expected process-lifetime state.
+`--enumeration-only --fd-audit --runs 32` repeats physical-device discovery
+through the production process instance without logical devices, allocation,
+export or submitted work. It retains the strict post-first-run FD gate and
+never qualifies GPU storage. `--enumeration-passes 32 --runs 1` performs the
+same 32 discovery passes within one outer run; both forms now reuse the same
+instance until process exit. The previous per-call instance diagnostic was
+used to establish round 2 retention and is no longer the production design.
+This diagnostic closes no driver FDs and cannot establish that any retained
+descriptor is expected process state.
 The new native-only `surface-probe-fd-control` verifies actual memfd duplicate
 identity/flags and that the auditor itself neither retains nor changes FDs.
 Its `--negative-control` deliberately loses an owned duplicate while closing

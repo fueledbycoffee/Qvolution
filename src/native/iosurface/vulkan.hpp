@@ -3,6 +3,9 @@
 #include "surface.hpp"
 #include <atomic>
 #include <mutex>
+#include <vector>
+
+namespace SurfaceProbe { class Context; }
 
 namespace Darling::Surface {
 
@@ -22,6 +25,19 @@ constexpr size_t RetirementCapacity = 32;
 size_t pendingRetirements();
 void pollRetirements();
 
+class Instance {
+public:
+	static std::shared_ptr<Instance> open();
+	~Instance();
+	Instance(const Instance&) = delete;
+	Instance& operator=(const Instance&) = delete;
+	std::vector<VkPhysicalDevice> physicalDevices();
+private:
+	Instance();
+	VkInstance _instance = VK_NULL_HANDLE;
+	std::mutex _mutex;
+};
+
 class Device : public std::enable_shared_from_this<Device> {
 public:
 	static std::shared_ptr<Device> open(const DeviceIdentity& required);
@@ -33,9 +49,10 @@ public:
 private:
 	Device() = default;
 	friend class Allocation;
+	friend class SurfaceProbe::Context;
 	friend class RetirementTicket;
 	void check(VkResult result, const char* operation);
-	VkInstance _instance = VK_NULL_HANDLE;
+	std::shared_ptr<Instance> _instance;
 	VkPhysicalDevice _physical = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
 	DeviceIdentity _identity;
