@@ -642,17 +642,17 @@
       },
       "catalog_source": "https://formulae.brew.sh/api/cask/cyberduck.json",
       "catalog_checked": "2026-10-30",
-      "architecture": "select-and-record-artifact",
-      "status": "not_tested",
-      "tested_version": null,
-      "artifact_sha256": null,
+      "architecture": "universal_x86_64_arm64; x86_64_execution_target",
+      "status": "blocked_initialization",
+      "tested_version": "9.5.4",
+      "artifact_sha256": "9398777ad01bfac7228db3990aed1c834437a599664e0f3e27a68feb53cbcebf",
       "milestones": {
-        "acquire": "not_tested",
-        "install": "not_tested",
-        "load": "not_tested",
-        "launch": "not_tested",
+        "acquire": "official_publisher_checksum_verified",
+        "install": "isolated_bundle_extracted",
+        "load": "not_separately_verified",
+        "launch": "startup_exit134_cause_unknown",
         "workflow": "not_tested",
-        "gnome": "not_tested",
+        "gnome": "not_verified",
         "stability": "not_tested"
       },
       "workflow": [
@@ -660,12 +660,42 @@
         "Upload and download a fixture",
         "Compare hashes and save a test bookmark"
       ],
-      "notes": "Use local test credentials, not personal servers.",
+      "notes": "Use local test credentials, not personal servers. Stage30 bounded launch: Exit 134 during startup; cause unknown; exit 134, exact-prefix shutdown 0, main executable unchanged. Visible UI, workflow, GPU and stability remain unqualified.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_tested",
         "gpu": "not_qualified",
         "stability": "not_qualified"
+      },
+      "tested_variant": "Official unmodified macOS vendor bundle",
+      "artifact_source": {
+        "source_url": "https://update.cyberduck.io/Cyberduck-9.5.4.45528.zip",
+        "publisher_page": "https://media.cyberduck.io/download/",
+        "publisher_checksum": {
+          "algorithm": "md5",
+          "value": "190509aae0ed6f11b0ddc5d3b58c72bd",
+          "verified": true
+        },
+        "publisher_sha256_verified": false,
+        "signature_validation": "Publisher checksum verified; independent code signature validation not performed"
+      },
+      "vendor_results": {
+        "stage_label": "stage30",
+        "bounded_launch_only": true,
+        "application_entry": "not_separately_instrumented",
+        "render": "not_verified",
+        "visible_ui": "not_verified",
+        "functional_workflow": "not_tested",
+        "exit": 134,
+        "timeout": false,
+        "seconds": 4.5207351760036545,
+        "exact_prefix_shutdown_exit": 0,
+        "executable_unchanged": true,
+        "executable_sha256": "b4434cfab3ca1114cf4501d7094cbd8f480e843d09fe8621d6fd7aaa5f7e4b8f",
+        "built_runtime_superproject": "bd03c70da210f5b64c6d20b946132efef436c0c8",
+        "first_concrete_gate": "Exit 134 during startup; cause unknown",
+        "evidence_record": "cyberduck-launch-20261031T122710945925-68d26a05.json",
+        "failure_cause": "unknown"
       }
     },
     {
@@ -753,17 +783,17 @@
       },
       "catalog_source": "https://formulae.brew.sh/api/cask/iina.json",
       "catalog_checked": "2026-10-30",
-      "architecture": "select-and-record-artifact",
-      "status": "not_tested",
-      "tested_version": null,
-      "artifact_sha256": null,
+      "architecture": "universal_x86_64_arm64; x86_64_execution_target",
+      "status": "blocked_loading",
+      "tested_version": "1.5.0",
+      "artifact_sha256": "8fad50479b10e09645053457cec46bd53d054ced2242cfe68f74586735a20dc7",
       "milestones": {
-        "acquire": "not_tested",
-        "install": "not_tested",
-        "load": "not_tested",
-        "launch": "not_tested",
+        "acquire": "official_publisher_checksum_verified",
+        "install": "isolated_bundle_extracted",
+        "load": "blocked_missing_framework",
+        "launch": "not_reached",
         "workflow": "not_tested",
-        "gnome": "not_tested",
+        "gnome": "not_verified",
         "stability": "not_tested"
       },
       "workflow": [
@@ -771,12 +801,41 @@
         "Seek and render subtitles",
         "Resize, enter fullscreen and exit cleanly"
       ],
-      "notes": "Graphics, media backend and Swift dependencies need testing.",
+      "notes": "Graphics, media backend and Swift dependencies need testing. Stage30 bounded launch: PIP.framework dependency image unavailable; exit 139, exact-prefix shutdown 0, main executable unchanged. Visible UI, workflow, GPU and stability remain unqualified.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_tested",
         "gpu": "not_qualified",
         "stability": "not_qualified"
+      },
+      "tested_variant": "Official unmodified macOS vendor bundle",
+      "artifact_source": {
+        "source_url": "https://github.com/iina/iina/releases/download/v1.5.0/IINA.v1.5.0.dmg",
+        "publisher_page": "https://api.github.com/repos/iina/iina/releases/tags/v1.5.0",
+        "publisher_checksum": {
+          "algorithm": "sha256",
+          "value": "8fad50479b10e09645053457cec46bd53d054ced2242cfe68f74586735a20dc7",
+          "verified": true
+        },
+        "publisher_sha256_verified": true,
+        "signature_validation": "Publisher checksum verified; independent code signature validation not performed"
+      },
+      "vendor_results": {
+        "stage_label": "stage30",
+        "bounded_launch_only": true,
+        "application_entry": "not_separately_instrumented",
+        "render": "not_verified",
+        "visible_ui": "not_verified",
+        "functional_workflow": "not_tested",
+        "exit": 139,
+        "timeout": false,
+        "seconds": 3.8109053100051824,
+        "exact_prefix_shutdown_exit": 0,
+        "executable_unchanged": true,
+        "executable_sha256": "ed663a567c85d74a4cfde444788e4dc5b2263f560b427da34b2939e620c6abae",
+        "built_runtime_superproject": "bd03c70da210f5b64c6d20b946132efef436c0c8",
+        "first_concrete_gate": "PIP.framework dependency image unavailable",
+        "evidence_record": "iina-launch-20261031T122706224988-42060f90.json"
       }
     },
     {
@@ -815,7 +874,7 @@
         "Add and copy a dummy password",
         "Save, lock, reopen and verify the dummy entry"
       ],
-      "notes": "Official unmodified Intel bundle acquired and publisher SHA256 verified. Stage4 stopped at an AppKit image-hint import; stage5 progressed to missing Metal stage-input descriptors. Stage6 passed those loader gates and reached native Wayland initialization, then exited 134 on the screen color-space API. No visible UI, dummy-vault workflow or GPU qualification is established. Stage7 adds the screen color-space bridge: the unchanged bundle clears that selector and stops at the next missing NSColorSpace.ICCProfileData method. This is still an initialization failure. Stage9 cleared the compositor-backed localizedName selector and stopped at missing CGDisplayIsOnline. The screen metadata/API regressions pass independently; the application remains blocked during initialization. Stage 11 clears CGDisplayIsOnline and stops at +[NSColor placeholderTextColor] (exit 134). Stage 12 clears that missing selector but exits139 during startup without an exception reason; cause remains unknown. Targeted semantic-color/opacity contracts pass independently, without qualifying the application UI or vault workflow. Stage 19 real UI-font roles, face traits and name-attribute regressions pass independently; the unchanged app still exits139 without an exception reason, so the startup cause remains unknown. Stage 22 still exits139 without a reason after all11 font/icon/model regressions pass; the cause remains unknown and all154 bundle entries are unchanged.",
+      "notes": "Official unmodified Intel bundle acquired and publisher SHA256 verified. Stage4 stopped at an AppKit image-hint import; stage5 progressed to missing Metal stage-input descriptors. Stage6 passed those loader gates and reached native Wayland initialization, then exited 134 on the screen color-space API. No visible UI, dummy-vault workflow or GPU qualification is established. Stage7 adds the screen color-space bridge: the unchanged bundle clears that selector and stops at the next missing NSColorSpace.ICCProfileData method. This is still an initialization failure. Stage9 cleared the compositor-backed localizedName selector and stopped at missing CGDisplayIsOnline. The screen metadata/API regressions pass independently; the application remains blocked during initialization. Stage 11 clears CGDisplayIsOnline and stops at +[NSColor placeholderTextColor] (exit 134). Stage 12 clears that missing selector but exits139 during startup without an exception reason; cause remains unknown. Targeted semantic-color/opacity contracts pass independently, without qualifying the application UI or vault workflow. Stage 19 real UI-font roles, face traits and name-attribute regressions pass independently; the unchanged app still exits139 without an exception reason, so the startup cause remains unknown. Stage 22 still exits139 without a reason after all11 font/icon/model regressions pass; the cause remains unknown and all154 bundle entries are unchanged. Stage30 unchanged main executable retake exits 139; cause remains unknown and no UI or workflow is qualified.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_verified",
@@ -1022,6 +1081,21 @@
           "first_concrete_gate": "Unexplained exit 139 during startup; no exception reason recorded",
           "failure_cause": "unknown",
           "extracted_payload_members_unchanged": 154
+        },
+        "stage30_retake": {
+          "stage_label": "stage30",
+          "bounded_launch_only": true,
+          "exit": 139,
+          "timeout": false,
+          "seconds": 3.8542280370020308,
+          "exact_prefix_shutdown_exit": 0,
+          "executable_unchanged": true,
+          "executable_sha256": "fc5446601a86316fc713bda590a8ced2d6458b28acca6596a329837bc48eecbe",
+          "built_runtime_superproject": "bd03c70da210f5b64c6d20b946132efef436c0c8",
+          "failure_cause": "unknown",
+          "visible_ui": "not_verified",
+          "functional_workflow": "not_tested",
+          "evidence_record": "keepassxc-launch-20261031T122620573609-21272f91.json"
         }
       },
       "artifact_source": {
@@ -1294,17 +1368,17 @@
       },
       "catalog_source": "https://formulae.brew.sh/api/cask/obsidian.json",
       "catalog_checked": "2026-10-30",
-      "architecture": "select-and-record-artifact",
-      "status": "not_tested",
-      "tested_version": null,
-      "artifact_sha256": null,
+      "architecture": "universal_x86_64_arm64; x86_64_execution_target",
+      "status": "blocked_loading",
+      "tested_version": "1.14.5",
+      "artifact_sha256": "be79e6410d80fa705218aa4e8cb24ce8418cf16e13be4036227a5659b1f6aab2",
       "milestones": {
-        "acquire": "not_tested",
-        "install": "not_tested",
-        "load": "not_tested",
-        "launch": "not_tested",
+        "acquire": "official_publisher_checksum_verified",
+        "install": "isolated_bundle_extracted",
+        "load": "blocked_missing_dynamic_import",
+        "launch": "not_reached",
         "workflow": "not_tested",
-        "gnome": "not_tested",
+        "gnome": "not_verified",
         "stability": "not_tested"
       },
       "workflow": [
@@ -1312,12 +1386,41 @@
         "Edit and link two notes",
         "Restart and verify note contents"
       ],
-      "notes": "Mac Electron candidate; disable optional community plugins in baseline tests.",
+      "notes": "Mac Electron candidate; disable optional community plugins in baseline tests. Stage30 bounded launch: Missing AudioObjectAddPropertyListenerBlock; exit 139, exact-prefix shutdown 0, main executable unchanged. Visible UI, workflow, GPU and stability remain unqualified.",
       "quality_gates": {
         "workflow": "not_tested",
         "ui_ux": "not_tested",
         "gpu": "not_qualified",
         "stability": "not_qualified"
+      },
+      "tested_variant": "Official unmodified macOS vendor bundle",
+      "artifact_source": {
+        "source_url": "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.14.5/Obsidian-1.14.5.dmg",
+        "publisher_page": "https://api.github.com/repos/obsidianmd/obsidian-releases/tags/v1.14.5",
+        "publisher_checksum": {
+          "algorithm": "sha256",
+          "value": "be79e6410d80fa705218aa4e8cb24ce8418cf16e13be4036227a5659b1f6aab2",
+          "verified": true
+        },
+        "publisher_sha256_verified": true,
+        "signature_validation": "Publisher checksum verified; independent code signature validation not performed"
+      },
+      "vendor_results": {
+        "stage_label": "stage30",
+        "bounded_launch_only": true,
+        "application_entry": "not_separately_instrumented",
+        "render": "not_verified",
+        "visible_ui": "not_verified",
+        "functional_workflow": "not_tested",
+        "exit": 139,
+        "timeout": false,
+        "seconds": 4.018122598994523,
+        "exact_prefix_shutdown_exit": 0,
+        "executable_unchanged": true,
+        "executable_sha256": "463924b01b4974167a48279d086fa03beb14309ead8d485d7f3ee9f4b368b57d",
+        "built_runtime_superproject": "bd03c70da210f5b64c6d20b946132efef436c0c8",
+        "first_concrete_gate": "Missing AudioObjectAddPropertyListenerBlock",
+        "evidence_record": "obsidian-launch-20261031T122715203633-e98d4771.json"
       }
     },
     {
