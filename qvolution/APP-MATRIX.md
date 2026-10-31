@@ -1,8 +1,21 @@
 # Qvolution: 20 Mac application targets
 
-Source TextEdit has partial, user-confirmed workflow evidence. Official KeePassXC, VLC, Transmission, Firefox and VS Code bundles now have bounded launch records; their UI and real workflows remain unverified. No target has passed all UI/UX, GPU and stability gates. This is the work order, not a promise of compatibility. Catalog metadata and tested artifact versions are recorded separately. Pin the actual artifact hash, architecture and runtime on each run. Discord is counted once. Dia means The Browser Company browser.
+Source TextEdit has partial, user-confirmed workflow evidence. Seven official bundles—KeePassXC, VLC, Transmission, Firefox, VS Code, CotEditor and Keka—have bounded launch records; their UI and real workflows remain unverified. No target has passed all UI/UX, GPU and stability gates. This is the work order, not a promise of compatibility. Catalog metadata and tested artifact versions are recorded separately. Pin the actual artifact hash, architecture and runtime on each run. Discord is counted once. Dia means The Browser Company browser.
 
-Current tested inputs: KeePassXC 2.8.0-1 Intel, VLC 3.0.24 Intel64 and Transmission 4.1.4 universal (x86_64 execution target); publisher SHA256 checks passed and executable hashes were unchanged after the recorded runs. Stage6 KeePassXC reached native initialization but stopped at the screen color-space API. Stage6 VLC progressed beyond its earlier PDF cross-reference exception, but still has unverified rendering/playback and audio/PDF/slider diagnostics. Transmission has stage4 UI-initialization evidence and a layout diagnostic, without a stage5/6 retake. Timeouts establish neither a hang nor a working app. TextEdit remains a source-fixture result, not an Apple vendor-bundle pass.
+Evidence checkpoint: **through stage 12**. The latest retained launch stage varies by app; stages below are not inferred retakes. All seven official archives have publisher SHA256 verification and unchanged executable hashes after their recorded runs. Universal bundles remain unthinned, targeting x86_64. No vendor UI/workflow, GPU or stability pass is established. TextEdit remains a partial source fixture.
+
+| Official input | Latest retained launch | Current recorded gate |
+| --- | --- | --- |
+| KeePassXC 2.8.0-1 Intel | stage 12 | Earlier placeholder selector cleared; unexplained startup exit 139 without an exception reason. Cause unknown. |
+| Firefox 159.0 universal | stage 12 | XPCOM load stops at missing `kCMTimingInfoInvalid`; earlier web-authentication/dependency-key imports cleared. |
+| CotEditor 7.1.3 universal | stage 11 | Missing `AppIntents.framework` dependency image, exit 139. |
+| Keka 1.6.8 universal | stage 11 | Distributed-notification transport initialization exception reports errno 48, exit 134. |
+| Visual Studio Code 1.144.0 Intel | stage 9 | Missing `LSSetDefaultHandlerForURLScheme`, exit 139; no later app retake recorded. |
+| VLC 3.0.24 Intel64 | stage 6 | Earlier PDF cross-reference exception cleared; rendering/playback remain unverified with audio/PDF/slider diagnostics and a bounded timeout. |
+| Transmission 4.1.4 universal | stage 4 | Interface/layout diagnostics and a bounded timeout; controlled transfer/rendering remain unverified. |
+
+Every recorded exact-prefix shutdown returned 0; that is cleanup evidence, not clean app exit or workflow success. Timeouts establish neither a hang nor a working app. Stage12 own-source semantic-color/opacity and CoreMedia data probes pass independently; they do not qualify KeePassXC or Firefox. Historical stage-labelled records remain in apps.json.
+
 | Order | App | Wave | First useful workflow |
 | --- | --- | --- | --- |
 | 1 | TextEdit | 1 | Create a Unicode document; Edit, undo, copy and paste |
@@ -37,6 +50,6 @@ See [apps.json](apps.json) for official URLs, catalog metadata, the full workflo
 
 Every row must pass artifact/architecture, its full workflow, polished UI/UX, verified GPU behavior and stability qualification from [the delivery roadmap](ROADMAP.md). Launch-only and source-fixture results are recorded but do not qualify a vendor application. GPU presentation, composition and rendering are recorded separately so a CPU path cannot silently count as hardware acceleration. Work on shared UI, menu, PTY, GPU and browser/media foundations proceeds in parallel.
 
-Stage7 retake: KeePassXC clears `NSScreen.colorSpace` and stops at missing `NSColorSpace.ICCProfileData` (exit134). It remains blocked during initialization; no UI/workflow promotion.
+Historical stage 7 retake: KeePassXC cleared `NSScreen.colorSpace` and stopped at missing `NSColorSpace.ICCProfileData` (exit134). It remains blocked during initialization; no UI/workflow promotion.
 
-Stage9 adds publisher-verified Firefox159.0 universal and VSCode1.144.0 Intel inputs. Their earlier import failures clear; Firefox now needs `ASWebAuthenticationSessionErrorDomain`, VSCode needs `LSSetDefaultHandlerForURLScheme`, and KeePassXC needs `CGDisplayIsOnline`. All remain unqualified; no new app pass is recorded.
+Historical stage 9 added publisher-verified Firefox159.0 universal and VSCode1.144.0 Intel inputs. Their earlier import failures cleared; Firefox then needed `ASWebAuthenticationSessionErrorDomain`, VSCode needed `LSSetDefaultHandlerForURLScheme`, and KeePassXC needed `CGDisplayIsOnline`. All remain unqualified; no new app pass is recorded.
