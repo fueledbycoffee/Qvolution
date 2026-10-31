@@ -103,7 +103,8 @@ endif()
 if (TARGET AppKit)
     add_darling_executable(qvolution_scrubber_contract
         ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-scrubber-contract.m
-        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-scrubber-layout-header.m)
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-scrubber-layout-header.m
+        ${CMAKE_SOURCE_DIR}/src/external/cocotron/tests/appkit-scrubber-image-header.m)
     target_link_libraries(qvolution_scrubber_contract AppKit CoreGraphics)
     foreach(fixture IN ITEMS semantic-symbols symbol-rendering font-weight-constants)
         string(REPLACE "-" "_" target_suffix "${fixture}")
