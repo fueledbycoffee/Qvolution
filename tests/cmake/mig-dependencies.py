@@ -70,8 +70,9 @@ def run(command, cwd, log):
         raise RuntimeError(f'{command[0]} failed; see {log}')
     return result.stdout
 
-for mode in ['custom', 'native']:
-    case = a.output / mode
+for mode, order in [('custom', 'tool-first'), ('native', 'tool-first'),
+                    ('custom', 'consumer-first'), ('native', 'consumer-first')]:
+    case = a.output / (mode if order == 'tool-first' else mode + '-consumer-first')
     source = case / 'source'
     build = case / 'build'
     for directory in ['tool/migcom.tproj', 'tool/darling/src', 'consumer/input']:
@@ -85,12 +86,11 @@ for mode in ['custom', 'native']:
     awk_source.write_text(dummy_awk)
     definitions.write_text('authored definitions revision 1\n')
     (source / 'tool/launcher.c').write_text(launcher)
+    directories = ['tool', 'consumer'] if order == 'tool-first' else ['consumer', 'tool']
     (source / 'CMakeLists.txt').write_text('''cmake_minimum_required(VERSION 3.18)
 project(mig_dependency_fixture C)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
-add_subdirectory(tool)
-add_subdirectory(consumer)
-''')
+''' + ''.join('add_subdirectory(' + name + ')\n' for name in directories))
     tool_cmake = '''if (FIXTURE_NATIVE)
   add_executable(migcom launcher.c)
   target_compile_definitions(migcom PRIVATE DUMMY_PYTHON="${Python3_EXECUTABLE}" DUMMY_SCRIPT="${CMAKE_CURRENT_SOURCE_DIR}/dummy-tool.py")
@@ -115,8 +115,14 @@ add_custom_target(generated ALL DEPENDS
   "${CMAKE_CURRENT_BINARY_DIR}/input/task-x86_64-User.c"
   "${CMAKE_CURRENT_BINARY_DIR}/input/task-i386-User.c")
 ''')
-    run(['cmake', '-G', 'Ninja', '-S', str(source), '-B', str(build),
-         '-DFIXTURE_NATIVE=' + ('ON' if mode == 'native' else 'OFF')], case, case / 'configure.log')
+    configure = subprocess.run(['cmake', '-G', 'Ninja', '-S', str(source), '-B', str(build),
+                                '-DFIXTURE_NATIVE=' + ('ON' if mode == 'native' else 'OFF')],
+                               cwd=case, text=True, capture_output=True)
+    (case / 'configure.log').write_text(configure.stdout + configure.stderr)
+    if configure.returncode:
+        records.append({'mode': mode, 'order': order, 'phase': 'configure', 'exit': configure.returncode})
+        failures.append(mode + '/' + order + ': configure failed')
+        continue
     run(['ninja', '-C', str(build)], case, case / 'initial-build.log')
     log_file = build / 'invocations.jsonl'
     outputs = [build / f'consumer/input/task-{arch}-User.c' for arch in ['x86_64', 'i386']]
@@ -162,13 +168,38 @@ add_custom_target(generated ALL DEPENDS
         run(['ninja', '-C', str(build)], case, case / (label + '-build.log'))
         after = count()
         regenerated = after - before
-        records.append({'mode': mode, 'edit': label, 'invocations_added': regenerated})
+        records.append({'mode': mode, 'order': order, 'edit': label, 'invocations_added': regenerated})
         if regenerated != 2:
-            failures.append(mode + ': stale after ' + label)
+            failures.append(mode + '/' + order + ': stale after ' + label)
         idle_count = count()
         idle = run(['ninja', '-C', str(build)], case, case / (label + '-idle.log'))
         if count() != idle_count or 'no work to do' not in idle:
-            failures.append(mode + ': no-op after ' + label)
+            failures.append(mode + '/' + order + ': no-op after ' + label)
+
+# A genuinely missing target is rejected during generation, after configuration.
+# A missing property on an existing target expands empty by CMake's documented
+# contract; the paired pinned bootstrap producer always supplies that property.
+negative = a.output / 'missing-target'
+negative.mkdir()
+(negative / 'task.defs').write_text('authored missing-target definition\n')
+(negative / 'CMakeLists.txt').write_text('''cmake_minimum_required(VERSION 3.18)
+project(mig_missing_target NONE)
+set(MIG_NO_XTRACE TRUE)
+set(APPLE_ARCH_PRIMARY x86_64)
+set(APPLE_TARGET_TRIPLET_PRIMARY fixture-apple-darwin)
+include("''' + str(macro) + '''")
+mig(task.defs)
+add_custom_target(generated ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/taskUser.c")
+''')
+missing = subprocess.run(['cmake', '-G', 'Ninja', '-S', str(negative), '-B', str(negative / 'build')],
+                         text=True, capture_output=True)
+diagnostic = missing.stdout + missing.stderr
+(negative / 'configure.log').write_text(diagnostic)
+rejected_at_generation = (missing.returncode != 0 and 'Configuring done' in diagnostic and
+                          'Generate step failed' in diagnostic and 'migcom' in diagnostic)
+records.append({'control': 'missing-target-generation', 'rejected': rejected_at_generation})
+if not rejected_at_generation:
+    failures.append('missing target was not rejected at generation')
 
 summary = {'purpose': 'authored dummy scheduling test, not MIG output semantics',
            'test_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),

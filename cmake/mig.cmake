@@ -1,9 +1,7 @@
 function(mig defFileName)
         set(MIG_EXECUTABLE "${CMAKE_BINARY_DIR}/build-mig")
-        get_target_property(MIGCOM_EXECUTABLE migcom MIGCOM_PATH)
-        if (NOT MIGCOM_EXECUTABLE)
-                message(FATAL_ERROR "The migcom target must provide its host tool path")
-        endif()
+        # Some callers precede bootstrap_cmds; resolve its path at generation.
+        set(MIGCOM_EXECUTABLE "$<TARGET_PROPERTY:migcom,MIGCOM_PATH>")
 
         if (NOT MIG_USER_SOURCE_SUFFIX)
                 set (MIG_USER_SOURCE_SUFFIX "User.c")
