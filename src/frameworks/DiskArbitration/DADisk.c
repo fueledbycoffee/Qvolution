@@ -1,5 +1,6 @@
 #include <DiskArbitration/DiskArbitration.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 #include <CoreFoundation/CFRuntime.h>
 #include <CoreFoundation/CFBase.h>
@@ -180,4 +181,63 @@ CFDictionaryRef DADiskCopyDescription(DADiskRef disk)
 DADiskRef DADiskCopyWholeDisk(DADiskRef disk)
 {
 	return (DADiskRef) CFRetain(disk);
+}
+
+CFDictionaryRef kDADiskDescriptionMatchVolumeMountable;
+CFArrayRef kDADiskDescriptionWatchVolumePath;
+
+__attribute__((constructor))
+static void DADiskInitializeMatching(void)
+{
+    const void *key = kDADiskDescriptionVolumeMountableKey;
+    const void *value = kCFBooleanTrue;
+    kDADiskDescriptionMatchVolumeMountable = CFDictionaryCreate(NULL, &key, &value,
+        1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    key = kDADiskDescriptionVolumePathKey;
+    kDADiskDescriptionWatchVolumePath = CFArrayCreate(NULL, &key, 1, &kCFTypeArrayCallBacks);
+}
+
+static DADissenterRef unsupportedDiskOperation(DADiskRef disk)
+{
+    DADissenterRef dissenter = DADissenterCreate(NULL,
+        disk ? kDAReturnUnsupported : kDAReturnBadArgument, NULL);
+    /* A NULL dissenter means success, so allocation failure cannot be ignored. */
+    if (!dissenter) abort();
+    return dissenter;
+}
+
+void DADiskClaim(DADiskRef disk, DADiskClaimOptions options,
+    DADiskClaimReleaseCallback release, void *releaseContext,
+    DADiskClaimCallback callback, void *callbackContext)
+{
+    if (callback) {
+        DADissenterRef dissenter = unsupportedDiskOperation(disk);
+        callback(disk, dissenter, callbackContext);
+        CFRelease(dissenter);
+    }
+}
+
+void DADiskUnmount(DADiskRef disk, DADiskUnmountOptions options,
+    DADiskUnmountCallback callback, void *context)
+{
+    if (callback) {
+        DADissenterRef dissenter = unsupportedDiskOperation(disk);
+        callback(disk, dissenter, context);
+        CFRelease(dissenter);
+    }
+}
+
+void DADiskEject(DADiskRef disk, DADiskEjectOptions options,
+    DADiskEjectCallback callback, void *context)
+{
+    if (callback) {
+        DADissenterRef dissenter = unsupportedDiskOperation(disk);
+        callback(disk, dissenter, context);
+        CFRelease(dissenter);
+    }
+}
+
+void DADiskUnclaim(DADiskRef disk)
+{
+    /* Claims are never acquired by this backend. */
 }
