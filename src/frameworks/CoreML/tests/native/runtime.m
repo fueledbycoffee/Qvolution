@@ -13,6 +13,7 @@
 - (void)dealloc {}
 - (id)autorelease { return self; }
 - (id)copy { return [self respondsToSelector:@selector(copyWithZone:)] ? [(id<NSCopying>)self copyWithZone:NULL] : self; }
+- (id)copyWithZone:(NSZone *)zone { return self; }
 - (Class)class { return object_getClass(self); }
 - (BOOL)isKindOfClass:(Class)cls { for (Class c = [self class]; c; c = class_getSuperclass(c)) if (c == cls) return YES; return NO; }
 - (BOOL)respondsToSelector:(SEL)s { return class_getInstanceMethod([self class], s) != NULL; }

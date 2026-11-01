@@ -18,7 +18,7 @@ __attribute__((objc_root_class))
 @interface NSObject { Class isa; }
 + (id)alloc; + (id)allocWithZone:(NSZone *)zone; + (id)new; + (Class)class;
 - (id)init; - (id)retain; - (void)release; - (void)dealloc; - (id)autorelease;
-- (id)copy; - (Class)class; - (BOOL)isKindOfClass:(Class)cls;
+- (id)copy; - (id)copyWithZone:(NSZone *)zone; - (Class)class; - (BOOL)isKindOfClass:(Class)cls;
 - (BOOL)respondsToSelector:(SEL)selector;
 @end
 @interface NSString : NSObject
