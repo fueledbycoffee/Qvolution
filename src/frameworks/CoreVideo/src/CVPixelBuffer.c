@@ -433,6 +433,11 @@ CFTypeRef CVBufferGetAttachment(CVBufferRef buffer, CFStringRef key, CVAttachmen
 	return CFDictionaryGetValue(buffer->attachments, key);
 }
 
+Boolean CVBufferHasAttachment(CVBufferRef buffer, CFStringRef key)
+{
+    return CVBufferGetAttachment(buffer, key, NULL) != NULL;
+}
+
 CFTypeRef CVBufferCopyAttachment(CVBufferRef buffer, CFStringRef key, CVAttachmentMode *attachmentMode)
 {
 	CFTypeRef val = CVBufferGetAttachment(buffer, key, attachmentMode);
@@ -733,6 +738,13 @@ static bool cleanApertureNumber(CFDictionaryRef dict, CFStringRef key, double *v
     CFTypeRef number = CFDictionaryGetValue(dict, key);
     return number && CFGetTypeID(number) == CFNumberGetTypeID() &&
         CFNumberGetValue(number, kCFNumberDoubleType, value) && isfinite(*value);
+}
+
+Boolean CVIsCompressedPixelFormatAvailable(OSType pixelFormatType)
+{
+    /* Neither CPU allocation nor the IOSurface backend supports compression. */
+    (void)pixelFormatType;
+    return false;
 }
 
 CGRect CVImageBufferGetCleanRect(CVImageBufferRef buffer)

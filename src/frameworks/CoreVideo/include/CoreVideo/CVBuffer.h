@@ -21,6 +21,7 @@ CV_EXPORT void CVBufferRelease(CVBufferRef buffer);
 
 CV_EXPORT void CVBufferSetAttachment(CVBufferRef buffer, CFStringRef key, CFTypeRef value, CVAttachmentMode attachmentMode);
 CV_EXPORT CFTypeRef CVBufferGetAttachment(CVBufferRef buffer, CFStringRef key, CVAttachmentMode *attachmentMode);
+CV_EXPORT Boolean CVBufferHasAttachment(CVBufferRef buffer, CFStringRef key);
 CV_EXPORT CFTypeRef CVBufferCopyAttachment(CVBufferRef buffer, CFStringRef key, CVAttachmentMode *attachmentMode);
 CV_EXPORT void CVBufferRemoveAttachment(CVBufferRef buffer, CFStringRef key);
 CV_EXPORT void CVBufferRemoveAllAttachments(CVBufferRef buffer);

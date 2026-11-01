@@ -3,3 +3,5 @@ _CVPixelBufferPoolFlush
 _kCVImageBufferAmbientViewingEnvironmentKey
 _kCVImageBufferColorPrimaries_DCI_P3
 _kCVImageBufferColorPrimaries_P3_D65
+_CVBufferHasAttachment
+_CVIsCompressedPixelFormatAvailable
