@@ -19,8 +19,8 @@
 
 #import <CoreTelephony/CTCall.h>
 
-/* Darling has no cellular service, so a CTCall never stands for a call in
- * progress: it has no identifier and no state. */
+/* GUESS: nil is conservative for an unsupported device; the documented
+ * callID/callState getters do not specify manually constructed calls. */
 @implementation CTCall
 
 - (NSString *)callID
