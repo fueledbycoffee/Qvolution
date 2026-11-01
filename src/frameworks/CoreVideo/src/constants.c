@@ -67,3 +67,8 @@ const CFStringRef kCVImageBufferCleanApertureWidthKey = CFSTR("CleanApertureWidt
 const CFStringRef kCVImageBufferCleanApertureHeightKey = CFSTR("CleanApertureHeight");
 const CFStringRef kCVImageBufferCleanApertureHorizontalOffsetKey = CFSTR("CleanApertureHorizontalOffset");
 const CFStringRef kCVImageBufferCleanApertureVerticalOffsetKey = CFSTR("CleanApertureVerticalOffset");
+
+/* GUESS (rungs 5-6): literal spellings lack a local public value source. */
+const CFStringRef kCVImageBufferAmbientViewingEnvironmentKey = CFSTR("AmbientViewingEnvironment");
+const CFStringRef kCVImageBufferColorPrimaries_DCI_P3 = CFSTR("DCI_P3");
+const CFStringRef kCVImageBufferColorPrimaries_P3_D65 = CFSTR("P3_D65");

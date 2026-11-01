@@ -23,6 +23,9 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFAudio/AVSpeechSynthesisVoice.h>
+#import <AVFAudio/AVSpeechUtterance.h>
+#import <AVFAudio/AVSpeechSynthesizer.h>
+#import <AVFAudio/AVAudioRoutingArbiter.h>
 
 #import <AVFAudio/AVAudio3DMixing.h>
 #import <AVFAudio/AVAudioMixing.h>

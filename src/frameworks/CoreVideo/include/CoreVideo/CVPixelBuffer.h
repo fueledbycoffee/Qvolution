@@ -141,6 +141,7 @@ CV_EXPORT CVReturn CVMetalTextureCacheCreateTextureFromImage(
 	/* CVMetalTextureRef* */ void *textureOut);
 
 CV_EXPORT /* id<MTLTexture> */ void* CVMetalTextureGetTexture(/* CVMetalTextureRef */ void *image);
+CV_EXPORT Boolean CVIsCompressedPixelFormatAvailable(OSType pixelFormatType);
 
 __END_DECLS
 

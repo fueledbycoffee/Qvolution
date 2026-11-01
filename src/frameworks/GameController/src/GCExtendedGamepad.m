@@ -21,6 +21,20 @@
 
 @implementation GCExtendedGamepad
 
+- (GCControllerButtonInput *)buttonA { return nil; }
+- (GCControllerButtonInput *)buttonB { return nil; }
+- (GCControllerButtonInput *)buttonX { return nil; }
+- (GCControllerButtonInput *)buttonY { return nil; }
+- (GCControllerButtonInput *)buttonMenu { return nil; }
+- (GCControllerButtonInput *)buttonOptions { return nil; }
+- (GCControllerDirectionPad *)dpad { return nil; }
+- (GCControllerDirectionPad *)leftThumbstick { return nil; }
+- (GCControllerDirectionPad *)rightThumbstick { return nil; }
+- (GCControllerButtonInput *)leftShoulder { return nil; }
+- (GCControllerButtonInput *)rightShoulder { return nil; }
+- (GCControllerButtonInput *)leftTrigger { return nil; }
+- (GCControllerButtonInput *)rightTrigger { return nil; }
+
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
 {
     return [NSMethodSignature signatureWithObjCTypes: "v@:"];

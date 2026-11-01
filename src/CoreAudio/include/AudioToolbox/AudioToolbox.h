@@ -1,6 +1,7 @@
 #ifndef AUDIOTOOLBOX_H
 #define AUDIOTOOLBOX_H
 
+#include <AudioToolbox/CAClock.h>
 #include <AudioToolbox/AudioQueue.h>
 #include <AudioToolbox/AudioServices.h>
 #include <AudioToolbox/AudioFile.h>

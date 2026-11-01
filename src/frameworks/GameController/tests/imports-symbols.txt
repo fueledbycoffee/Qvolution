@@ -1,0 +1,12 @@
+_GCHapticDurationInfinite
+_GCHapticsLocalityDefault
+_GCHapticsLocalityLeftHandle
+_GCHapticsLocalityLeftTrigger
+_GCHapticsLocalityRightHandle
+_GCHapticsLocalityRightTrigger
+_OBJC_CLASS_$_GCDualSenseGamepad
+_OBJC_CLASS_$_GCDualShockGamepad
+_OBJC_CLASS_$_GCXboxGamepad
+_OBJC_METACLASS_$_GCDualSenseGamepad
+_OBJC_METACLASS_$_GCDualShockGamepad
+_OBJC_METACLASS_$_GCXboxGamepad

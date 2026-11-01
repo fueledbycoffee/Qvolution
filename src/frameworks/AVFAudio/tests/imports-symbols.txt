@@ -1,0 +1,8 @@
+_AVSpeechUtteranceDefaultSpeechRate
+_AVSpeechUtteranceMaximumSpeechRate
+_OBJC_CLASS_$_AVAudioRoutingArbiter
+_OBJC_CLASS_$_AVSpeechSynthesizer
+_OBJC_CLASS_$_AVSpeechUtterance
+_OBJC_METACLASS_$_AVAudioRoutingArbiter
+_OBJC_METACLASS_$_AVSpeechSynthesizer
+_OBJC_METACLASS_$_AVSpeechUtterance

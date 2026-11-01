@@ -22,6 +22,8 @@
 #define _AVFoundation_H_
 
 #import <Foundation/Foundation.h>
+FOUNDATION_EXPORT NSString *const AVSampleBufferAudioRendererFlushTimeKey;
+FOUNDATION_EXPORT NSString *const AVVideoCodecTypeJPEG;
 
 #import <AVFoundation/AVAssetReaderOutputAdaptor.h>
 #import <AVFoundation/AVAssetResourceLoaderRequest.h>

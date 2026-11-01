@@ -35,3 +35,8 @@ const CFStringRef kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEn
 // Both values observed on macOS 26 by printing the public constants (rung 4).
 const CFStringRef kVTCompressionPropertyKey_BaseLayerFrameRateFraction = CFSTR("BaseLayerFrameRateFraction");
 const CFStringRef kVTVideoEncoderSpecification_EnableLowLatencyRateControl = CFSTR("EnableLowLatencyRateControl");
+
+/* GUESS (rungs 5-6): literal spellings lack a local public value source. */
+const CFStringRef kVTCompressionPropertyKey_EncoderID = CFSTR("EncoderID");
+const CFStringRef kVTCompressionPropertyKey_ReferenceBufferCount = CFSTR("ReferenceBufferCount");
+const CFStringRef kVTEncodeFrameOptionKey_BaseFrameQP = CFSTR("BaseFrameQP");

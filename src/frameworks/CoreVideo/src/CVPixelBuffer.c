@@ -16,6 +16,7 @@
 #include <CoreGraphics/CGColorSpace.h>
 #include <dispatch/dispatch.h>
 #include <stdint.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -432,6 +433,11 @@ CFTypeRef CVBufferGetAttachment(CVBufferRef buffer, CFStringRef key, CVAttachmen
 	return CFDictionaryGetValue(buffer->attachments, key);
 }
 
+Boolean CVBufferHasAttachment(CVBufferRef buffer, CFStringRef key)
+{
+    return CVBufferGetAttachment(buffer, key, NULL) != NULL;
+}
+
 CFTypeRef CVBufferCopyAttachment(CVBufferRef buffer, CFStringRef key, CVAttachmentMode *attachmentMode)
 {
 	CFTypeRef val = CVBufferGetAttachment(buffer, key, attachmentMode);
@@ -718,4 +724,46 @@ CVReturn CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
 		return kCVReturnInvalidPixelBufferAttributes;
 
 	return CVPixelBufferCreate(allocator, width, height, format, pixelBufferPool->pixelBufferAttributes, pixelBufferOut);
+}
+
+/* No pixel buffers are retained by this implementation's pool. */
+void CVPixelBufferPoolFlush(CVPixelBufferPoolRef pool, CVPixelBufferPoolFlushFlags options)
+{
+    (void)pool;
+    (void)options;
+}
+
+static bool cleanApertureNumber(CFDictionaryRef dict, CFStringRef key, double *value)
+{
+    CFTypeRef number = CFDictionaryGetValue(dict, key);
+    return number && CFGetTypeID(number) == CFNumberGetTypeID() &&
+        CFNumberGetValue(number, kCFNumberDoubleType, value) && isfinite(*value);
+}
+
+Boolean CVIsCompressedPixelFormatAvailable(OSType pixelFormatType)
+{
+    /* Neither CPU allocation nor the IOSurface backend supports compression. */
+    (void)pixelFormatType;
+    return false;
+}
+
+CGRect CVImageBufferGetCleanRect(CVImageBufferRef buffer)
+{
+    CGSize size = CVImageBufferGetEncodedSize(buffer);
+    CGRect full = CGRectMake(0, 0, size.width, size.height);
+    CFTypeRef aperture = buffer ? CVBufferGetAttachment(buffer, kCVImageBufferCleanApertureKey, NULL) : NULL;
+    if (!aperture || CFGetTypeID(aperture) != CFDictionaryGetTypeID()) return full;
+    double width, height, x = 0, y = 0;
+    if (!cleanApertureNumber(aperture, kCVImageBufferCleanApertureWidthKey, &width) ||
+        !cleanApertureNumber(aperture, kCVImageBufferCleanApertureHeightKey, &height) ||
+        width <= 0 || height <= 0 || width > size.width || height > size.height) return full;
+    if (CFDictionaryContainsKey(aperture, kCVImageBufferCleanApertureHorizontalOffsetKey) &&
+        !cleanApertureNumber(aperture, kCVImageBufferCleanApertureHorizontalOffsetKey, &x)) return full;
+    if (CFDictionaryContainsKey(aperture, kCVImageBufferCleanApertureVerticalOffsetKey) &&
+        !cleanApertureNumber(aperture, kCVImageBufferCleanApertureVerticalOffsetKey, &y)) return full;
+    /* Offsets use image coordinates, with positive vertical offset upward. */
+    x += (size.width - width) / 2;
+    y += (size.height - height) / 2;
+    if (x < 0 || y < 0 || x + width > size.width || y + height > size.height) return full;
+    return CGRectMake(x, y, width, height);
 }

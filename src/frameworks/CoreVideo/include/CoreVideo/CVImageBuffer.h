@@ -67,7 +67,13 @@ extern CFStringRef const kCVImageBufferCleanApertureHeightKey;
 extern CFStringRef const kCVImageBufferCleanApertureHorizontalOffsetKey;
 extern CFStringRef const kCVImageBufferCleanApertureVerticalOffsetKey;
 
+CV_EXPORT CGRect CVImageBufferGetCleanRect(CVImageBufferRef imageBuffer);
+
 CV_EXPORT CGSize CVImageBufferGetEncodedSize(CVImageBufferRef imageBuffer);
+
+extern const CFStringRef kCVImageBufferAmbientViewingEnvironmentKey;
+extern const CFStringRef kCVImageBufferColorPrimaries_DCI_P3;
+extern const CFStringRef kCVImageBufferColorPrimaries_P3_D65;
 
 __END_DECLS
 

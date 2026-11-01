@@ -29,6 +29,14 @@ MP_EXTERN NSString *const MPNowPlayingInfoPropertyPlaybackProgress;
 MP_EXTERN NSString *const MPNowPlayingInfoPropertyPlaybackRate;
 MP_EXTERN NSString *const MPNowPlayingInfoPropertyIsLiveStream;
 
+MP_EXTERN NSString *const MPNowPlayingInfoPropertyAssetURL;
+MP_EXTERN NSString *const MPNowPlayingInfoPropertyChapterCount;
+MP_EXTERN NSString *const MPNowPlayingInfoPropertyChapterNumber;
+MP_EXTERN NSString *const MPNowPlayingInfoPropertyCurrentPlaybackDate;
+MP_EXTERN NSString *const MPNowPlayingInfoPropertyDefaultPlaybackRate;
+MP_EXTERN NSString *const MPNowPlayingInfoPropertyPlaybackQueueCount;
+MP_EXTERN NSString *const MPNowPlayingInfoPropertyPlaybackQueueIndex;
+
 @interface MPMediaItemArtwork : NSObject {
     NSImage *_image;
 }
@@ -82,6 +90,18 @@ MP_EXTERN NSString *const MPNowPlayingInfoPropertyIsLiveStream;
     NSTimeInterval _positionTime;
 }
 @property(readonly) NSTimeInterval positionTime;
+@end
+
+@interface MPChangePlaybackRateCommandEvent : MPRemoteCommandEvent {
+    float _playbackRate;
+}
+@property(readonly) float playbackRate;
+@end
+
+@interface MPSkipIntervalCommandEvent : MPRemoteCommandEvent {
+    NSTimeInterval _interval;
+}
+@property(readonly) NSTimeInterval interval;
 @end
 
 @interface MPRemoteCommandCenter : NSObject {

@@ -260,3 +260,20 @@ static MPRemoteCommandCenter *s_sharedCommandCenter = nil;
 }
 
 @end
+
+/* GUESS (rungs 5-6): public key names used as opaque metadata keys. */
+NSString *const MPNowPlayingInfoPropertyAssetURL = @"MPNowPlayingInfoPropertyAssetURL";
+NSString *const MPNowPlayingInfoPropertyChapterCount = @"MPNowPlayingInfoPropertyChapterCount";
+NSString *const MPNowPlayingInfoPropertyChapterNumber = @"MPNowPlayingInfoPropertyChapterNumber";
+NSString *const MPNowPlayingInfoPropertyCurrentPlaybackDate = @"MPNowPlayingInfoPropertyCurrentPlaybackDate";
+NSString *const MPNowPlayingInfoPropertyDefaultPlaybackRate = @"MPNowPlayingInfoPropertyDefaultPlaybackRate";
+NSString *const MPNowPlayingInfoPropertyPlaybackQueueCount = @"MPNowPlayingInfoPropertyPlaybackQueueCount";
+NSString *const MPNowPlayingInfoPropertyPlaybackQueueIndex = @"MPNowPlayingInfoPropertyPlaybackQueueIndex";
+
+@implementation MPChangePlaybackRateCommandEvent
+@synthesize playbackRate = _playbackRate;
+@end
+
+@implementation MPSkipIntervalCommandEvent
+@synthesize interval = _interval;
+@end

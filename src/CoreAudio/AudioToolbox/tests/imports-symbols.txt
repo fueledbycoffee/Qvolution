@@ -1,0 +1,8 @@
+_CAClockDispose
+_CAClockGetCurrentTime
+_CAClockGetStartTime
+_CAClockNew
+_CAClockSetCurrentTime
+_CAClockSetProperty
+_CAClockStart
+_CAClockStop
