@@ -34,6 +34,13 @@ fi
 "$D" shutdown >> "$L/evidence/guest/shutdown.log" 2>&1
 mkdir -p "$DPREFIX/Applications/imp-vision"
 cp -a "$L/candidate/tests/load-exports" "$L/candidate/tests/coreml-behavior" "$L/candidate/payloads/Vision" "$L/candidate/payloads/CoreML" "$DPREFIX/Applications/imp-vision/"
+mkdir -p "$DPREFIX/Applications/imp-vision/baseline"
+cp -a "$W/parallel/stage41/build/src/frameworks/Vision/Vision" "$W/parallel/stage41/build/src/frameworks/load-only/CoreML" "$DPREFIX/Applications/imp-vision/baseline/"
+if "$D" shell /Applications/imp-vision/load-exports --vision-coreml-subset /Applications/imp-vision/baseline/Vision /Applications/imp-vision/baseline/CoreML > "$L/evidence/guest/exports-before.log" 2>&1; then
+  echo 'Baseline unexpectedly passed the missing-export regression' >&2
+  exit 1
+fi
+grep -q 'missing VNBarcodeSymbology' "$L/evidence/guest/exports-before.log"
 "$D" shell /Applications/imp-vision/load-exports --vision-coreml-subset /Applications/imp-vision/Vision /Applications/imp-vision/CoreML > "$L/evidence/guest/exports.log" 2>&1
 "$D" shell /Applications/imp-vision/coreml-behavior > "$L/evidence/guest/behavior.log" 2>&1
 printf 'Vision/CoreML subset passed; 19 VisionKit Swift imports remain OPEN.\n' > "$L/evidence/guest/result.txt"

@@ -19,6 +19,7 @@ for scenario in ('init-fails', 'guard-fails'):
     launcher = '''#!/usr/bin/env bash
 printf '%s\n' "$1" >> "$EVENTS"
 if [[ $1 == shell && $2 == /usr/bin/true && $SCENARIO == init-fails ]]; then exit 9; fi
+if [[ ${3-} == --vision-coreml-subset && ${4-} == */baseline/* ]]; then echo 'missing VNBarcodeSymbology'; exit 1; fi
 exit 0
 '''
     for target in ('build/payloads/Launcher', 'build/src/startup/darling'):
@@ -30,6 +31,8 @@ exit 0
     for target in ('Vision','CoreML'):
         (lane/'candidate/payloads'/target).write_text('fixture')
         (lane/'build/src/frameworks'/target/target).write_text('fixture')
+    for name in ('Vision','CoreML'):
+        p=root/'parallel/stage41/build/src/frameworks'/('Vision/Vision' if name=='Vision' else 'load-only/CoreML'); p.parent.mkdir(parents=True,exist_ok=True); p.write_text('fixture')
     p=lane/'build/src/frameworks/CoreML/imp-vision-load-exports'; p.write_text('fixture'); p.chmod(0o755)
     p=root/'bin/git'; p.write_text('#!/bin/sh\nexit 0\n'); p.chmod(0o755)
     p=root/'dashboard/qv-host-guard'
