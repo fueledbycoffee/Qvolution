@@ -20,8 +20,10 @@
 #import <CoreTelephony/CTSubscriberInfo.h>
 #include <dispatch/dispatch.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-/* Darling has no cellular service, so there are no subscribers. */
+/* GUESS: empty/nil are conservative unsupported-device results. */
 @implementation CTSubscriberInfo
 
 + (NSArray<CTSubscriber *> *)subscribers
@@ -31,10 +33,13 @@
 
 + (CTSubscriber *)subscriber
 {
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        fprintf(stderr, "CATALYST STUB: +[CTSubscriberInfo subscriber]\n");
-    });
+    const char *diagnostics = getenv("CATALYST_DIAG");
+    if (diagnostics && *diagnostics && strcmp(diagnostics, "0") != 0) {
+        static dispatch_once_t once;
+        dispatch_once(&once, ^{
+            fprintf(stderr, "CATALYST STUB: +[CTSubscriberInfo subscriber]\n");
+        });
+    }
     return nil;
 }
 

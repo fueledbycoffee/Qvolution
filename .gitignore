@@ -82,3 +82,12 @@ build/
 /.stage/
 /.uikit-prefix/
 /build17/
+
+# Keep authored review regressions while ignoring other test scratch files.
+!/tests/
+/tests/*
+!/tests/coretelephony-subscriber.m
+!/tests/coretelephony-subscriber-native.py
+!/tests/coretelephony-neutral.m
+!/tests/install-default-directory-modes.py
+!/tests/install-default-directory-modes.md
