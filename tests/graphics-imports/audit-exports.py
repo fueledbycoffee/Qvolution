@@ -39,6 +39,12 @@ for lib,symbols in rows.items():
   load_commands=subprocess.check_output(['llvm-objdump-21','--macho','--arch=x86_64','--private-headers',str(binary)],text=True)
   if not re.search(r'cmd LC_REEXPORT_DYLIB\s+cmdsize \d+\s+name /usr/lib/swift/libswiftCoreGraphicsImports\.dylib',load_commands):
    raise SystemExit('CoreGraphics is missing the own-built Swift supplement reexport')
+  reexports=re.findall(r'cmd LC_REEXPORT_DYLIB\s+cmdsize \d+\s+name (\S+)',load_commands)
+  supplement_name='/usr/lib/swift/libswiftCoreGraphicsImports.dylib'
+  legacy_name='/usr/lib/swift/libswiftCoreGraphics.dylib'
+  # dyld searches reexports in load-command order, returning the first match.
+  if legacy_name not in reexports or reexports.index(supplement_name) > reexports.index(legacy_name):
+   raise SystemExit('CoreGraphics legacy overlay shadows the own-built Swift supplement')
   supplement_defined=exported_names(supplement)
   defined.update(supplement_defined)
   # Check every actually exported Swift entry emitted for the added source,
