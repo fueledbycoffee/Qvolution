@@ -1,4 +1,5 @@
 #import <ImageIO/CGImageSource.h>
+#import <CoreFoundation/CFArray.h>
 #import <Onyx2D/O2ImageSource.h>
 
 const CFStringRef kCGImageSourceCreateThumbnailFromImageAlways = CFSTR("kCGImageSourceCreateThumbnailFromImageAlways");
@@ -48,4 +49,29 @@ CGImageSourceRef CGImageSourceCreateWithDataProvider(CGDataProviderRef provider,
 {
     printf("STUB %s\n", __PRETTY_FUNCTION__);
     return nil;
+}
+
+CFArrayRef CGImageSourceCopyTypeIdentifiers(void)
+{
+    // Keep this list tied to the decoder classes linked into Onyx2D.
+    const void *types[] = { CFSTR("public.png"), CFSTR("public.tiff"),
+        CFSTR("public.jpeg"), CFSTR("com.microsoft.bmp"),
+        CFSTR("com.compuserve.gif"), CFSTR("com.apple.icns") };
+    return CFArrayCreate(NULL, types, sizeof(types) / sizeof(types[0]),
+                         &kCFTypeArrayCallBacks);
+}
+
+size_t CGImageSourceGetPrimaryImageIndex(CGImageSourceRef source)
+{
+    // Current decoders have no primary-image metadata (HEIF is unsupported).
+    return 0;
+}
+
+CGImageRef CGImageSourceCreateThumbnailAtIndex(CGImageSourceRef source,
+                                              size_t index,
+                                              CFDictionaryRef options)
+{
+    // No backend thumbnail/orientation pipeline exists. A full-size decoded
+    // image would violate max-pixel-size and transform options; report failure.
+    return NULL;
 }

@@ -32,4 +32,8 @@ IMAGEIO_EXTERN CFDictionaryRef CGImageSourceCopyProperties(CGImageSourceRef self
 
 IMAGEIO_EXTERN CGImageSourceRef CGImageSourceCreateWithDataProvider(CGDataProviderRef provider, CFDictionaryRef options);
 
+IMAGEIO_EXTERN CFArrayRef CGImageSourceCopyTypeIdentifiers(void);
+IMAGEIO_EXTERN size_t CGImageSourceGetPrimaryImageIndex(CGImageSourceRef source);
+IMAGEIO_EXTERN CGImageRef CGImageSourceCreateThumbnailAtIndex(CGImageSourceRef source, size_t index, CFDictionaryRef options);
+
 CF_IMPLICIT_BRIDGING_DISABLED
