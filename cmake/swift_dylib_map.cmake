@@ -24,6 +24,9 @@ FUNCTION(add_swift_dylib_map target)
 	)
 	foreach(gen_name ${SWIFT_GENERATED_DYLIBS})
 		set(gen_path "${CMAKE_BINARY_DIR}/src/external/swift/${gen_name}")
+		if(DARLING_BUILD_IMPORT_OVERLAYS AND gen_name STREQUAL "libswiftUniformTypeIdentifiers.dylib")
+			set(gen_path "${CMAKE_BINARY_DIR}/src/external/swift/overlays/imports/UniformTypeIdentifiers/${gen_name}")
+		endif()
 		set(SWIFT_DYLIB_MAP "${SWIFT_DYLIB_MAP} -Wl,-dylib_file,/usr/lib/swift/${gen_name}:${gen_path} -Wl,-dylib_file,@rpath/${gen_name}:${gen_path}")
 	endforeach()
 
@@ -36,10 +39,25 @@ FUNCTION(add_swift_dylib_map target)
 			# Source-built x86_64 overlays replace these (src/external/swift/CMakeLists.txt).
 			set(swift_dylib "${CMAKE_BINARY_DIR}/src/external/swift/source-runtime-x86_64/overlays/${swift_name}")
 		endif()
+		if(DARLING_BUILD_IMPORT_OVERLAYS AND swift_name MATCHES "^libswift(AVFoundation|CoreFoundation|os|Network)[.]dylib$")
+			set(swift_dylib "${CMAKE_BINARY_DIR}/src/external/swift/overlays/imports/${CMAKE_MATCH_1}/${swift_name}")
+		endif()
 		if (_is_gen EQUAL -1)
 			set(SWIFT_DYLIB_MAP "${SWIFT_DYLIB_MAP} -Wl,-dylib_file,/usr/lib/swift/${swift_name}:${swift_dylib} -Wl,-dylib_file,@rpath/${swift_name}:${swift_dylib}")
 		endif()
 	endforeach()
+
+	# CoreGraphics reexports this x86_64 source supplement. Umbrellas may only
+	# reexport CoreGraphics, without inheriting its target interface link options.
+	if(BUILD_TARGET_64BIT AND APPLE_ARCH_64BIT STREQUAL "x86_64")
+		set(cg_import "${CMAKE_BINARY_DIR}/src/external/cocotron/CoreGraphics/libswiftCoreGraphicsImports.dylib")
+		set(SWIFT_DYLIB_MAP "${SWIFT_DYLIB_MAP} -Wl,-dylib_file,/usr/lib/swift/libswiftCoreGraphicsImports.dylib:${cg_import} -Wl,-dylib_file,@rpath/libswiftCoreGraphicsImports.dylib:${cg_import}")
+	endif()
+	if(DARLING_BUILD_IMPORT_OVERLAYS)
+		foreach(module UniformTypeIdentifiers AVFoundation CoreFoundation os Network)
+			add_dependencies(${target} swift_import_${module})
+		endforeach()
+	endif()
 
 	# Framework bundles (Combine.framework, CryptoKit.framework).
 	# Emitted unconditionally for ld64 so clean builds before framework compile succeed.
