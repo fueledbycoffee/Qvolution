@@ -86,3 +86,10 @@ void* clamp(void);
 void* threadRunLoopSourceCallback(void);
 
 #endif
+
+#import <GameController/GCDualShockGamepad.h>
+
+#import <GameController/GCDualSenseGamepad.h>
+
+#import <GameController/GCXboxGamepad.h>
+#import <GameController/GCHaptics.h>
