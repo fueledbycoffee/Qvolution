@@ -12,3 +12,6 @@ add_framework(CoreML
 
 add_darling_executable(imp-vision-load-exports tests/load-exports.c)
 target_link_libraries(imp-vision-load-exports system)
+add_darling_executable(imp-vision-coreml-behavior tests/behavior.m)
+target_include_directories(imp-vision-coreml-behavior PRIVATE include)
+target_link_libraries(imp-vision-coreml-behavior CoreML Foundation objc system)
