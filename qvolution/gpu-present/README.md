@@ -37,5 +37,21 @@ verification disabled. Every fixture failure, missing required result, stale
 pixel, incomplete soak or host-folder change makes the runner fail.
 
 Native runner classification check: `python3 verify-runner.py`.
+Hosted-image upload check (no GPU, ASan/UBSan):
+
+```sh
+cd /home/sean/Documents/Codex/Projects/Qvolution-work
+ASAN_OPTIONS=detect_leaks=0 dashboard/qv-slot build python3 \
+  parallel/gpu-present/cocotron/tests/quartzcore-texture-upload.py \
+  --output-dir parallel/gpu-present/r6/native-final
+```
+
+The damage fixture keeps local menus with `DARLING_NO_GLOBAL_MENU=1` before
+AppKit starts. It asserts requested content, menu frame and decorated backing
+sizes so an asynchronous desktop menu handoff cannot silently change the shm/EGL
+comparison geometry. The comparison still requires identical capture filenames
+and every backing byte. The layer fixture also replaces app-owned RGBA contents
+after the first upload and checks the resulting framebuffer colour.
+
 Framework/fixture execution requires Darling and a GPU; compilation alone is not
 a passing runtime gate. No result is fabricated when those facilities are absent.
