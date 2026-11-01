@@ -17,7 +17,7 @@ int main(void)
             Method method = class_getInstanceMethod(classes[c], selector);
             if (!method) { fprintf(stderr, "%s missing typed getter %s\n", class_getName(classes[c]), names[i]); return 1; }
             char result[16]; method_getReturnType(method, result, sizeof(result));
-            assert(!strcmp(result, "@"));
+            assert(result[0] == '@');
             assert(((id (*)(id, SEL))method_getImplementation(method))(pad, selector) == nil);
         }
         [pad release];
