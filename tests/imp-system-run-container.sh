@@ -32,10 +32,14 @@ finish() {
   "$W/dashboard/qv-host-guard" verify "$run/home-before.tsv" > "$run/home-verify.log" 2>&1; guarded=$?
   if (( guarded != 0 )); then result=$guarded
   elif (( result == 0 && stopped != 0 )); then result=$stopped; fi
+  if (( result == 0 )); then printf 'PASS container load and behavior; evidence %s\n' "$run"; fi
   exit "$result"
 }
 "$W/dashboard/qv-host-guard" snapshot "$run/home-before.tsv"
 trap finish EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
 for attempt in 1 2; do
   if "$launcher" shell /usr/bin/true > "$run/initialize-$attempt.log" 2>&1; then break; fi
   shutdown || true
@@ -66,4 +70,3 @@ run_guest cfnetwork-control /Applications/ImpSystem/imp-system-cfnetwork-control
 grep -q '^RESULT imp-system-load checked=32 failures=0$' "$run/load-exports.log"
 grep -q '^RESULT imp-system-port-binding failures=0$' "$run/port-binding.log"
 grep -q '^RESULT imp-system-behavior failures=0$' "$run/behavior.log"
-printf 'PASS container load and behavior; evidence %s\n' "$run"
