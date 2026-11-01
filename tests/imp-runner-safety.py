@@ -71,6 +71,7 @@ else:
         exports.write_text('own mock demand')
     executable(build / 'load-exports', 'exit 0\n')
     executable(build / 'Behavior/OverlayBehavior', 'exit 0\n')
+    (build / 'behavior.path').write_text(str(build / 'Behavior/OverlayBehavior'))
     (lane / 'evidence').mkdir(parents=True)
     (lane / 'evidence/latest-build.path').write_text(str(build))
 (lane / 'evidence').mkdir(parents=True, exist_ok=True)
