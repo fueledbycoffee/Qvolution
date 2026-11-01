@@ -7,7 +7,17 @@
 
 int main(int argc, char **argv)
 {
-    if (argc != 2) return 2;
+    if (argc != 2 && argc != 3) return 2;
+    void *supplement = NULL;
+    if (argc == 3) {
+#ifdef RTLD_FIRST
+        supplement = dlopen(argv[2], RTLD_NOW | RTLD_LOCAL | RTLD_FIRST);
+        if (!supplement) { fprintf(stderr, "FAIL dlopen Swift supplement: %s\n", dlerror()); return 1; }
+#else
+        fprintf(stderr, "Swift supplement provider check requires Darwin RTLD_FIRST\n");
+        return 2;
+#endif
+    }
     FILE *manifest = fopen(argv[1], "r");
     if (!manifest) { perror(argv[1]); return 2; }
     char line[8192], current[4096] = "";
@@ -33,7 +43,16 @@ int main(int argc, char **argv)
         if (error || !address) {
             fprintf(stderr, "FAIL dlsym %s: %s\n", symbol, error ? error : "NULL");
             failures++;
-        } else { printf("PASS %s\n", symbol); count++; }
+        } else {
+            if (supplement && !strncmp(symbol, "$s", 2) && strstr(current, "/CoreGraphics.framework/")) {
+                void *expected = dlsym(supplement, symbol);
+                if (!expected || expected != address) {
+                    fprintf(stderr, "FAIL Swift supplement provider %s\n", symbol);
+                    failures++;
+                } else { printf("PASS Swift supplement provider %s\n", symbol); }
+            }
+            printf("PASS %s\n", symbol); count++;
+        }
     }
     fclose(manifest);
     printf("RESULT load-exports libraries=%d symbols=%d failures=%d\n", libraries, count, failures);
