@@ -51,12 +51,11 @@ env.update(DPREFIX=str(prefix), DARLING_INSTALL_PREFIX=str(STAGE / 'usr/local'),
 
 
 def shutdown():
-    for _ in range(3):
-        r = subprocess.run(launch_command(['shutdown']), env=env, capture_output=True, text=True)
-        (run / ('shutdown-attempt-%s.json' % uuid.uuid4().hex[:8])).write_text(json.dumps(dict(exit=r.returncode, stdout=r.stdout, stderr=r.stderr), indent=1)+'\n')
-        if r.returncode == 0:
-            return 0
-        time.sleep(2)
+    command = [str(W / 'dashboard/qv-shutdown'), str(LAUNCHER)]
+    if timing:
+        command = [str(W / 'dashboard/qv-slot'), 'guest', *command]
+    r = subprocess.run(command, env=env, capture_output=True, text=True)
+    (run / ('shutdown-helper-%s.json' % uuid.uuid4().hex[:8])).write_text(json.dumps(dict(exit=r.returncode, stdout=r.stdout, stderr=r.stderr), indent=1)+'\n')
     return r.returncode
 
 
