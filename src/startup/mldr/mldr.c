@@ -374,11 +374,17 @@ int main(int argc, char** argv, char** envp)
 		if (strncmp(entry, "__mldr_DYLD_ROOT_PATH=", sizeof("__mldr_DYLD_ROOT_PATH=") - 1) == 0) {
 			new_envp[dst++] = (char*)(entry + sizeof("__mldr_") - 1);
 			has_dyld_root = true;
+#ifdef __i386__
+			MLDR_I386_STAGE("mldr32-root-internal");
+#endif
 			continue;
 		}
 
 		if (strncmp(entry, "DYLD_ROOT_PATH=", sizeof("DYLD_ROOT_PATH=") - 1) == 0) {
 			has_dyld_root = true;
+#ifdef __i386__
+			MLDR_I386_STAGE("mldr32-root-inherited");
+#endif
 		}
 
 		// Don't pass any other internal mldr variables down to userland
@@ -402,6 +408,9 @@ int main(int argc, char** argv, char** envp)
 		if (buf) {
 			sprintf(buf, "DYLD_ROOT_PATH=%s", mldr_load_results.root_path);
 			new_envp[dst++] = buf;
+#ifdef __i386__
+			MLDR_I386_STAGE("mldr32-root-synthesized");
+#endif
 		}
 	}
 
