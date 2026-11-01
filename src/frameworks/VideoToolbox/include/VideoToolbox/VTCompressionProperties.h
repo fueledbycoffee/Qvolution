@@ -58,4 +58,15 @@ extern CFStringRef const kVTProfileLevel_H264_Main_4_0;
 extern CFStringRef const kVTProfileLevel_H264_Main_4_1;
 extern CFStringRef const kVTProfileLevel_H264_Main_5_0;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern const CFStringRef kVTCompressionPropertyKey_EncoderID;
+extern const CFStringRef kVTCompressionPropertyKey_ReferenceBufferCount;
+extern const CFStringRef kVTEncodeFrameOptionKey_BaseFrameQP;
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

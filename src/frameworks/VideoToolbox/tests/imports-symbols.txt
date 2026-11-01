@@ -1,0 +1,3 @@
+_kVTCompressionPropertyKey_EncoderID
+_kVTCompressionPropertyKey_ReferenceBufferCount
+_kVTEncodeFrameOptionKey_BaseFrameQP
