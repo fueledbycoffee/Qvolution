@@ -9,6 +9,7 @@ include_directories(
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 set(audiotoolbox_sources
+	CAClock.c
 	AUComponent.cpp
 	AudioConverter.cpp
 	AudioConverterImpl.cpp
