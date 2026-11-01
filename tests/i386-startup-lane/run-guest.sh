@@ -13,7 +13,11 @@ launcher=$L/build/darling
 [[ -x $launcher && ! -u $launcher && ! -g $launcher ]]
 export DARLING_NONROOT=1
 if [[ $kind == baseline ]]; then export DARLING_INSTALL_PREFIX=$W/stage41d/usr/local
-else export DARLING_INSTALL_PREFIX=$L/stage/usr/local; fi
+else
+    python3 "$L/stage_farm.py" verify "$E"
+    stage=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["stage"])' "$E/stage-farm.json")
+    export DARLING_INSTALL_PREFIX=$stage/usr/local
+fi
 export DPREFIX=$W/p/i386-${kind:0:1}-$(python3 -c 'import secrets; print(secrets.token_hex(3))')
 [[ ${#DPREFIX} -le 83 && ! -e $DPREFIX ]]
 for variable in ${!DYLD_@}; do unset "$variable"; done
