@@ -13,12 +13,14 @@ python3 tests/graphics-imports/audit-exports.py <build> <evidence-directory>
 ```
 
 The static audit reads only these Darling build products, checks the framework's
-Swift reexport and every demanded non-weak export, and emits `guest-load.tsv`.
+Swift reexport priority and every demanded non-weak export, and emits `guest-load.tsv`.
 It does not establish runtime loadability. Under Darling, with matching runtime
 and supplement installed, run all four clients and require exit zero:
 
 - `tests/graphics-imports/imp_graphics_load_test <guest-load.tsv>`: real dlopen
   and dlsym through the parent frameworks, including the Swift reexport.
+  Add `/usr/lib/swift/libswiftCoreGraphicsImports.dylib` as a second argument
+  to require every supplement Swift entry to resolve to that provider.
 - `tests/graphics-imports/imp_graphics_behavior_test`: typed fallback and object
   behavior across CoreGraphics, CoreText, QuartzCore, ImageIO and thumbnails.
 - `src/external/cocotron/CoreGraphics/imp_graphics_layer_test`: PDF clip state,
@@ -38,3 +40,13 @@ then repeat with the candidate; never claim the native doubles are a PDF run.
 The baseline had no Swift test target or installed compiler module: building
 `imp_graphics_swift_test` there must fail with unknown target. Candidate coverage
 requires a successful build and execution, not merely symbol resolution.
+
+The fleet's prepared lane runner delegates to the source-controlled
+`run-review.sh` with `IMP_GRAPHICS_LANE` set. It owns sequential build/guest
+slots, initializes fresh prefixes before copying fixtures, snapshots/verifies
+host folders, and uses `dashboard/qv-shutdown` at every shutdown. A failed
+shutdown or host-folder verification fails the run. Exact fleet rerun:
+
+```
+bash parallel/imp-graphics/run-fix-review.sh
+```
