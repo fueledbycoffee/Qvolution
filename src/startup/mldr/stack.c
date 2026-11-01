@@ -74,7 +74,12 @@ void FUNCTION_NAME(const char* filepath, struct load_results* lr)
 	char elfcalls_size[sizeof("elf_calls_size=") + 2 * sizeof(size_t)];
 	char __user* tsd_slot_user;
 	char tsd_slot[48] = {0};
-	char __user* applep_contents[6];
+	char __user* applep_contents[7] = {0};
+	size_t applep_count = 6;
+#if defined(GEN_32BIT)
+	if (i386_startup_records)
+		++applep_count;
+#endif
 
 #define user_long_count(_val) (((_val) + (sizeof(user_long_t) - 1)) / sizeof(user_long_t))
 
@@ -138,9 +143,9 @@ void FUNCTION_NAME(const char* filepath, struct load_results* lr)
 	// 1 user_long_t for the argument count
 	// `argc`-count pointers for arguments (+1 for NULL)
 	// `envc`-count pointers for env vars (+1 for NULL)
-	// `sizeof(applep_contents) / sizeof(*applep_contents)`-count pointers for applep arguments (already includes NULL)
+	// `applep_count` pointers for applep arguments (already includes NULL)
 	// space for exepath, kernfd, and elfcalls
-	sp -= 1 + 1 + (lr->argc + 1) + (lr->envc + 1) + (sizeof(applep_contents) / sizeof(*applep_contents)) + user_long_count(exepath_len + sizeof(EXECUTABLE_PATH) + sizeof(kernfd) + sizeof(elfcalls) + sizeof(elfcalls_size) + sizeof(tsd_slot));
+	sp -= 1 + 1 + (lr->argc + 1) + (lr->envc + 1) + applep_count + user_long_count(exepath_len + sizeof(EXECUTABLE_PATH) + sizeof(kernfd) + sizeof(elfcalls) + sizeof(elfcalls_size) + sizeof(tsd_slot));
 
 	exepath_user = (char __user*) lr->stack_top - exepath_len - sizeof(EXECUTABLE_PATH);
 	memcpy(exepath_user, EXECUTABLE_PATH, sizeof(EXECUTABLE_PATH)-1);
@@ -177,6 +182,10 @@ void FUNCTION_NAME(const char* filepath, struct load_results* lr)
 	applep_contents[3] = elfcalls_size_user;
 	applep_contents[4] = tsd_slot_user;
 	applep_contents[5] = NULL;
+#if defined(GEN_32BIT)
+	if (i386_startup_records)
+		applep_contents[5] = "DARLING_I386_STARTUP=1";
+#endif
 
 	lr->stack_top = (unsigned long) sp;
 
@@ -235,7 +244,7 @@ void FUNCTION_NAME(const char* filepath, struct load_results* lr)
 
 	applep = envp; // envp is now at the end of env pointers
 
-	for (int i = 0; i < sizeof(applep_contents)/sizeof(applep_contents[0]); i++)
+	for (size_t i = 0; i < applep_count; i++)
 	{
 		if (__put_user((user_long_t)(unsigned long) applep_contents[i], applep++))
 		{
