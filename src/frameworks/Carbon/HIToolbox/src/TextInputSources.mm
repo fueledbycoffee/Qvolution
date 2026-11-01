@@ -160,3 +160,23 @@ OSStatus TISDeregisterInputSource(TISInputSourceRef inputSource)
 {
 	return noErr;
 }
+
+// The available input sources are the layouts exposed by NSDisplay.
+CFArrayRef TISCreateASCIICapableInputSourceList(void)
+{
+    const void *key = kTISPropertyInputSourceIsASCIICapable;
+    const void *value = kCFBooleanTrue;
+    CFDictionaryRef filter = CFDictionaryCreate(NULL, &key, &value, 1,
+        &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    if (!filter)
+        return NULL;
+    CFArrayRef sources = TISCreateInputSourceList(filter, false);
+    CFRelease(filter);
+    return sources;
+}
+
+TISInputSourceRef TISCopyInputMethodKeyboardLayoutOverride(void)
+{
+    // No input method can install an override in this implementation.
+    return NULL;
+}

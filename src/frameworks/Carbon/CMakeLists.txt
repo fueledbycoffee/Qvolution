@@ -34,6 +34,7 @@ add_framework(Carbon
 
     SOURCES
         src/Carbon.c
+        src/ImportCompatibility.c
 
     DEPENDENCIES
         CommonPanels
@@ -73,3 +74,7 @@ reexport(Carbon SpeechRecognition ${SpeechRecognition_BUILD})
 set(ApplicationServices_BUILD ${CMAKE_CURRENT_BINARY_DIR}/../ApplicationServices/ApplicationServices)
 
 reexport(Carbon ApplicationServices ${ApplicationServices_BUILD})
+
+if (ENABLE_TESTS)
+    add_darling_executable(carbon_import_exports tests/import-exports.c)
+endif()

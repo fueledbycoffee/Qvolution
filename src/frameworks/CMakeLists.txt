@@ -46,6 +46,7 @@ if (COMPONENT_dev_gui_common)
 	add_subdirectory(ApplicationServices)
 	add_subdirectory(ColorSync)
 	add_subdirectory(Carbon)
+	add_subdirectory(Accessibility)
 
 	# stubs, but required for QuartzCore (in Cocotron)
 	add_subdirectory(CoreImage)
