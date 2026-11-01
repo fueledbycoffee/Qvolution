@@ -16,7 +16,7 @@ for relative, expected in heads.items():
 PY
 if [[ ${1-} != --guest ]]; then
   grep -q '^ninja: no work to do\.$' "$L/evidence/r3-build-dry-final.log"
-  test -f "$L/evidence/fix-exports/guest-load.tsv"
+  test -f "$L/evidence/r3-exports/guest-load.tsv"
   restore_candidate() { "$W/dashboard/qv-slot" build python3 "$L/update-fix-stage.py" candidate; }
   trap restore_candidate EXIT
   "$W/dashboard/qv-slot" build python3 "$L/update-fix-stage.py" baseline
@@ -90,7 +90,7 @@ else
   cp -a "$L/build/tests/graphics-imports/imp_graphics_load_test" "$fixture/load-exports"
   cp -a "$L/build/tests/graphics-imports/imp_graphics_behavior_test" "$fixture/framework-behavior"
   cp -a "$L/build/src/external/cocotron/CoreGraphics/imp_graphics_swift_test" "$fixture/swift-client"
-  cp -a "$L/evidence/fix-exports/guest-load.tsv" "$fixture/guest-load.tsv"
+  cp -a "$L/evidence/r3-exports/guest-load.tsv" "$fixture/guest-load.tsv"
   guest_shell load-exports /Applications/ImpGraphics/load-exports /Applications/ImpGraphics/guest-load.tsv /usr/lib/swift/libswiftCoreGraphicsImports.dylib
   guest_shell framework-behavior /Applications/ImpGraphics/framework-behavior
   guest_shell layer-clip /Applications/ImpGraphics/layer-clip
