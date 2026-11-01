@@ -22,6 +22,7 @@
 #define _Carbon_H_
 
 #include <CarbonCore/MacErrors.h>
+#include <AE/AEDataModel.h>
 #include "CoreServices/MacTypes.h"
 #include "CoreServices/FileManager.h"
 
@@ -39,5 +40,22 @@
 #include <HIToolbox/TextEdit.h>
 #include <HIToolbox/TextInputSources.h>
 #include <HIToolbox/TextServices.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Compatibility entry points; unavailable services return an error.
+OSStatus AEProcessEvent(const AppleEvent *appleEvent);
+UInt8 LMGetKbdLast(void);
+OSStatus CopySymbolicHotKeys(CFArrayRef *hotKeys);
+UInt32 GetCurrentEventButtonState(void);
+OSStatus TSMSetDocumentProperty(TSMDocumentID document, OSType tag,
+    UInt32 size, const void *data);
+OSStatus TSMRemoveDocumentProperty(TSMDocumentID document, OSType tag);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

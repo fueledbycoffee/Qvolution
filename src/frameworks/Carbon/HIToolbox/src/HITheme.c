@@ -67,3 +67,14 @@ OSStatus GetThemeMetric(ThemeMetric inMetric, SInt32 *outMetric)
 
     return unimpErr;
 }
+
+OSStatus HIThemeBeginFocus(CGContextRef context, HIThemeFocusOptions options,
+                          void *reserved)
+{
+    return context ? unimpErr : paramErr;
+}
+
+OSStatus HIThemeEndFocus(CGContextRef context)
+{
+    return context ? unimpErr : paramErr;
+}

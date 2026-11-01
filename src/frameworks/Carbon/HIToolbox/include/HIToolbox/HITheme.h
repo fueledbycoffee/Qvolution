@@ -29,6 +29,12 @@
 extern "C" {
 #endif
 
+// GUESS: audit-demanded focus entry points; no focus-ring renderer is available.
+typedef UInt32 HIThemeFocusOptions;
+OSStatus HIThemeBeginFocus(CGContextRef context, HIThemeFocusOptions options,
+                          void *reserved);
+OSStatus HIThemeEndFocus(CGContextRef context);
+
 typedef UInt32 ThemeMetric;
 
 typedef enum HIThemeOrientation : UInt32 {

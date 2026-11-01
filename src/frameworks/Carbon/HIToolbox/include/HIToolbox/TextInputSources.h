@@ -50,6 +50,8 @@ extern CFArrayRef TISCreateInputSourceList(CFDictionaryRef properties, Boolean i
 
 extern TISInputSourceRef TISCopyCurrentKeyboardLayoutInputSource(void);
 extern TISInputSourceRef TISCopyCurrentKeyboardInputSource(void);
+extern CFArrayRef TISCreateASCIICapableInputSourceList(void);
+extern TISInputSourceRef TISCopyInputMethodKeyboardLayoutOverride(void);
 extern TISInputSourceRef TISCopyCurrentASCIICapableKeyboardInputSource(void);
 extern TISInputSourceRef TISCopyCurrentASCIICapableKeyboardLayoutInputSource(void);
 extern TISInputSourceRef TISCopyInputSourceForLanguage(CFStringRef language);
