@@ -72,6 +72,11 @@ int main(int argc, const char **argv) {
         };
         const char *payloadRoot = argv[1];
         int failures = 0;
+        /* Control: an object whose class has no forwarding override at all. */
+        printf("CHECK control NSObject\n"); fflush(stdout);
+        id control = [[NSObject alloc] init];
+        failures += auditUnknownSelectors(control);
+        [control release];
         for (unsigned i = 0; i < sizeof(cases)/sizeof(*cases); i++) {
             char path[1024];
             snprintf(path, sizeof(path), "%s/System/Library/Frameworks/%s.framework/Versions/A/%s", payloadRoot, cases[i].framework, cases[i].framework);
