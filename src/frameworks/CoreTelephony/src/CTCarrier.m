@@ -19,16 +19,33 @@
 
 #import <CoreTelephony/CTCarrier.h>
 
+/* Darling has no cellular service, so a carrier reports no values: the
+ * documentation's value when no carrier information is available. */
 @implementation CTCarrier
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+- (NSString *)carrierName
 {
-    return [NSMethodSignature signatureWithObjCTypes: "v@:"];
+    return nil;
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation
+- (NSString *)mobileCountryCode
 {
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
+    return nil;
+}
+
+- (NSString *)mobileNetworkCode
+{
+    return nil;
+}
+
+- (NSString *)isoCountryCode
+{
+    return nil;
+}
+
+- (BOOL)allowsVOIP
+{
+    return NO;
 }
 
 @end

@@ -19,16 +19,45 @@
 
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 
+/* Darling has no cellular service: there is no data service, no radio access
+ * technology and no subscriber carrier, which the documentation reports as nil.
+ * The update notifiers are kept but never called, since nothing changes. */
 @implementation CTTelephonyNetworkInfo
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+@synthesize delegate = _delegate;
+@synthesize serviceSubscriberCellularProvidersDidUpdateNotifier = _serviceSubscriberCellularProvidersDidUpdateNotifier;
+@synthesize subscriberCellularProviderDidUpdateNotifier = _subscriberCellularProviderDidUpdateNotifier;
+
+- (void)dealloc
 {
-    return [NSMethodSignature signatureWithObjCTypes: "v@:"];
+    [_serviceSubscriberCellularProvidersDidUpdateNotifier release];
+    [_subscriberCellularProviderDidUpdateNotifier release];
+    [super dealloc];
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation
+- (NSString *)dataServiceIdentifier
 {
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
+    return nil;
+}
+
+- (NSDictionary<NSString *, NSString *> *)serviceCurrentRadioAccessTechnology
+{
+    return nil;
+}
+
+- (NSString *)currentRadioAccessTechnology
+{
+    return nil;
+}
+
+- (NSDictionary<NSString *, CTCarrier *> *)serviceSubscriberCellularProviders
+{
+    return nil;
+}
+
+- (CTCarrier *)subscriberCellularProvider
+{
+    return nil;
 }
 
 @end
