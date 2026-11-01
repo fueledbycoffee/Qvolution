@@ -66,6 +66,8 @@ NSString *const CHHapticEventTypeHapticContinuous = @"CHHapticEventTypeHapticCon
         if (![event isKindOfClass:[CHHapticEvent class]]) { valid = NO; break; }
         double end = [event relativeTime] + [event duration];
         if (!isfinite(end) || [event relativeTime] < 0 || [event duration] < 0) { valid = NO; break; }
+        if ([[event eventType] isEqualToString:CHHapticEventTypeHapticContinuous] &&
+            ([event duration] <= 0 || [event duration] > 30)) { valid = NO; break; }
         if (end > _duration) _duration = end;
     }
     if (valid) for (id parameter in parameters) {
