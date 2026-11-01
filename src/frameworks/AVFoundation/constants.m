@@ -142,3 +142,8 @@ NSString *const AVCaptureDeviceTypeDeskViewCamera = @"AVCaptureDeviceTypeDeskVie
     return [[self alloc] init];
 }
 @end
+
+/* GUESS (rungs 5-6): no local source documents the flush key literal. */
+NSString *const AVSampleBufferAudioRendererFlushTimeKey = @"AVSampleBufferAudioRendererFlushTimeKey";
+/* Public AVVideoCodecType JPEG identifier; GUESS pending local value probe. */
+NSString *const AVVideoCodecTypeJPEG = @"jpeg";
