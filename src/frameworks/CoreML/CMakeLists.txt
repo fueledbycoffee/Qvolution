@@ -9,6 +9,7 @@ add_framework(CoreML
     SOURCES src/CoreML.m
     DEPENDENCIES system objc Foundation
 )
+target_include_directories(CoreML PRIVATE include)
 
 add_darling_executable(imp-vision-load-exports tests/load-exports.c)
 target_link_libraries(imp-vision-load-exports system)
