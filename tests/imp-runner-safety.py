@@ -45,7 +45,14 @@ if kind == 'imp-system':
     (lane / 'fixtures').mkdir(parents=True)
     for name in ['load-exports', 'behavior', 'libsystem-control', 'cfnetwork-control', 'port-binding']:
         (lane / 'fixtures' / ('imp-system-' + name)).touch()
-    (lane / 'guest-exports.tsv').touch()
+    manifest = lane / 'superproject/tests/imp-system-guest-exports.tsv'
+    manifest.parent.mkdir(parents=True)
+    manifest.touch()
+    for component, name, version in [('corefoundation', 'CoreFoundation', 'A'), ('foundation', 'Foundation', 'C')]:
+        for target in [lane / 'build/src/external' / component / name,
+                       lane / 'stage/usr/local/libexec/darling/System/Library/Frameworks' / (name + '.framework') / 'Versions' / version / name]:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text('own mock image')
 else:
     env = dict(os.environ, QV_WORKSPACE=str(w), EVENTS=str(base / 'missing-events'))
     result = subprocess.run(['bash', str(runner)], env=env, capture_output=True, text=True)

@@ -16,6 +16,11 @@ export DPREFIX="$W/p/ims-$(date +%s)-$$"
 launcher="$L/build/src/startup/darling"
 [[ -x "$launcher" && ! -u "$launcher" ]]
 for fixture in load-exports behavior libsystem-control cfnetwork-control port-binding; do [[ -f "$L/fixtures/imp-system-$fixture" ]]; done
+for component in corefoundation foundation; do
+  if [[ $component == corefoundation ]]; then name=CoreFoundation; version=A; else name=Foundation; version=C; fi
+  cmp "$L/build/src/external/$component/$name" "$L/stage/usr/local/libexec/darling/System/Library/Frameworks/$name.framework/Versions/$version/$name"
+done
+manifest=$L/superproject/tests/imp-system-guest-exports.tsv
 run="$L/evidence/container-$(date +%Y%m%d-%H%M%S)-$$"
 mkdir -p "$run"
 shutdown() { "$launcher" shutdown >> "$run/shutdown.log" 2>&1; }
@@ -39,7 +44,8 @@ done
 shutdown
 # Only populate the prefix after the launcher has initialized it.
 mkdir -p "$DPREFIX/Applications/ImpSystem"
-cp -a "$L/fixtures/imp-system-load-exports" "$L/fixtures/imp-system-behavior" "$L/fixtures/imp-system-libsystem-control" "$L/fixtures/imp-system-cfnetwork-control" "$L/fixtures/imp-system-port-binding" "$L/guest-exports.tsv" "$DPREFIX/Applications/ImpSystem/"
+cp -a "$L/fixtures/imp-system-load-exports" "$L/fixtures/imp-system-behavior" "$L/fixtures/imp-system-libsystem-control" "$L/fixtures/imp-system-cfnetwork-control" "$L/fixtures/imp-system-port-binding" "$DPREFIX/Applications/ImpSystem/"
+cp -a "$manifest" "$DPREFIX/Applications/ImpSystem/guest-exports.tsv"
 run_guest() {
   local label=$1
   shift
