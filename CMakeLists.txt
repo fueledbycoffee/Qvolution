@@ -80,6 +80,12 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET 11.0 CACHE STRING "The version of macOS we're si
 
 project(darling)
 
+# Directories that install(FILES) creates implicitly otherwise take their mode
+# from the installer's umask; under umask 002 System/Library/LaunchDaemons became
+# group-writable and launchctl skips such a directory, so no daemon was loaded.
+set(CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS
+	OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
 enable_language(ASM)
 
 set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "core")

@@ -19,16 +19,55 @@
 
 #import <CoreTelephony/CTCellularPlanProvisioningRequest.h>
 
+/* A plain value object: the eSIM download it describes is never started, since
+ * Darling has no cellular plan support. */
 @implementation CTCellularPlanProvisioningRequest
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+@synthesize address = _address;
+@synthesize matchingID = _matchingID;
+@synthesize OID = _OID;
+@synthesize confirmationCode = _confirmationCode;
+@synthesize ICCID = _ICCID;
+@synthesize EID = _EID;
+
++ (BOOL)supportsSecureCoding
 {
-    return [NSMethodSignature signatureWithObjCTypes: "v@:"];
+    return YES;
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation
+- (instancetype)initWithCoder:(NSCoder *)coder
 {
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
+    self = [super init];
+    if (self) {
+        _address = [[coder decodeObjectOfClass:[NSString class] forKey:@"address"] retain];
+        _matchingID = [[coder decodeObjectOfClass:[NSString class] forKey:@"matchingID"] retain];
+        _OID = [[coder decodeObjectOfClass:[NSString class] forKey:@"OID"] retain];
+        _confirmationCode = [[coder decodeObjectOfClass:[NSString class] forKey:@"confirmationCode"] retain];
+        _ICCID = [[coder decodeObjectOfClass:[NSString class] forKey:@"ICCID"] retain];
+        _EID = [[coder decodeObjectOfClass:[NSString class] forKey:@"EID"] retain];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:_address forKey:@"address"];
+    [coder encodeObject:_matchingID forKey:@"matchingID"];
+    [coder encodeObject:_OID forKey:@"OID"];
+    [coder encodeObject:_confirmationCode forKey:@"confirmationCode"];
+    [coder encodeObject:_ICCID forKey:@"ICCID"];
+    [coder encodeObject:_EID forKey:@"EID"];
+}
+
+- (void)dealloc
+{
+    [_address release];
+    [_matchingID release];
+    [_OID release];
+    [_confirmationCode release];
+    [_ICCID release];
+    [_EID release];
+    [super dealloc];
 }
 
 @end

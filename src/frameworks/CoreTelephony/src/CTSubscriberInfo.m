@@ -18,17 +18,29 @@
 */
 
 #import <CoreTelephony/CTSubscriberInfo.h>
+#include <dispatch/dispatch.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+/* GUESS: empty/nil are conservative unsupported-device results. */
 @implementation CTSubscriberInfo
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
++ (NSArray<CTSubscriber *> *)subscribers
 {
-    return [NSMethodSignature signatureWithObjCTypes: "v@:"];
+    return [NSArray array];
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation
++ (CTSubscriber *)subscriber
 {
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
+    const char *diagnostics = getenv("CATALYST_DIAG");
+    if (diagnostics && *diagnostics && strcmp(diagnostics, "0") != 0) {
+        static dispatch_once_t once;
+        dispatch_once(&once, ^{
+            fprintf(stderr, "CATALYST STUB: +[CTSubscriberInfo subscriber]\n");
+        });
+    }
+    return nil;
 }
 
 @end

@@ -19,16 +19,18 @@
 
 #import <CoreTelephony/CTCall.h>
 
+/* GUESS: nil is conservative for an unsupported device; the documented
+ * callID/callState getters do not specify manually constructed calls. */
 @implementation CTCall
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+- (NSString *)callID
 {
-    return [NSMethodSignature signatureWithObjCTypes: "v@:"];
+    return nil;
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation
+- (NSString *)callState
 {
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
+    return nil;
 }
 
 @end

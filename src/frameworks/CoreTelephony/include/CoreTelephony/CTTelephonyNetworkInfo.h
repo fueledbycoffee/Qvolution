@@ -19,6 +19,27 @@
 
 #include <Foundation/Foundation.h>
 
-@interface CTTelephonyNetworkInfo : NSObject
+@class CTCarrier;
+@protocol CTTelephonyNetworkInfoDelegate;
 
+@interface CTTelephonyNetworkInfo : NSObject {
+    id<CTTelephonyNetworkInfoDelegate> _delegate;
+    void (^_serviceSubscriberCellularProvidersDidUpdateNotifier)(NSString *);
+    void (^_subscriberCellularProviderDidUpdateNotifier)(CTCarrier *);
+}
+
+@property (nonatomic, readonly, retain) NSString *dataServiceIdentifier;
+@property (nonatomic, assign) id<CTTelephonyNetworkInfoDelegate> delegate;
+@property (nonatomic, readonly, retain) NSDictionary<NSString *, NSString *> *serviceCurrentRadioAccessTechnology;
+@property (nonatomic, readonly, retain) NSString *currentRadioAccessTechnology;
+@property (nonatomic, readonly, retain) NSDictionary<NSString *, CTCarrier *> *serviceSubscriberCellularProviders;
+@property (nonatomic, readonly, retain) CTCarrier *subscriberCellularProvider;
+@property (nonatomic, copy) void (^serviceSubscriberCellularProvidersDidUpdateNotifier)(NSString *);
+@property (nonatomic, copy) void (^subscriberCellularProviderDidUpdateNotifier)(CTCarrier *);
+
+@end
+
+@protocol CTTelephonyNetworkInfoDelegate <NSObject>
+@optional
+- (void)dataServiceIdentifierDidChange:(NSString *)identifier;
 @end

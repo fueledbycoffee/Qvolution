@@ -21,4 +21,7 @@
 
 @interface CTCall : NSObject
 
+@property (nonatomic, copy, readonly) NSString *callID;
+@property (nonatomic, copy, readonly) NSString *callState;
+
 @end

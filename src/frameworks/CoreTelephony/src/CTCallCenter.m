@@ -19,16 +19,22 @@
 
 #import <CoreTelephony/CTCallCenter.h>
 
+/* Darling has no cellular service: no call is ever in progress, which the
+ * documentation reports as nil currentCalls, and the event handler is kept but
+ * never called. */
 @implementation CTCallCenter
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+@synthesize callEventHandler = _callEventHandler;
+
+- (void)dealloc
 {
-    return [NSMethodSignature signatureWithObjCTypes: "v@:"];
+    [_callEventHandler release];
+    [super dealloc];
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation
+- (NSSet<CTCall *> *)currentCalls
 {
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
+    return nil;
 }
 
 @end
