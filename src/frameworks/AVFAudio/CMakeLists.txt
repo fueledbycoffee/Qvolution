@@ -23,6 +23,7 @@ add_framework(AVFAudio
 	SOURCES
 		src/AVFAudio.m
         src/AVSpeechSynthesisVoice.m
+        src/AVSpeech.m
         ../../native/voice-catalog/language.c
         ../../native/voice-catalog/identity.c
         ../../native/voice-catalog/catalog-decode.c
