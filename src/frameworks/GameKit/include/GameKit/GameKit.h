@@ -80,6 +80,8 @@ typedef NS_ENUM(NSInteger, GKGameCenterViewControllerState) {
 @property (readonly, getter=isAuthenticated) BOOL authenticated;
 @property (copy) void (^authenticateHandler)(NSViewController *viewController, NSError *error);
 + (GKLocalPlayer *)localPlayer;
+// Legacy authentication API, superseded by authenticateHandler.
+- (void)authenticateWithCompletionHandler:(void (^)(NSError *error))completionHandler;
 // Listeners are accepted and dropped: nothing in this stub ever delivers an event.
 - (void)registerListener:(id)listener;
 @end

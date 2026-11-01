@@ -43,4 +43,9 @@ id GEODefaultManagedObjectContext = NULL;
 @end
 
 @implementation GEOCity
+/* GUESS: no system city is available without a geocoding service. */
++ (instancetype)systemCity
+{
+	return nil;
+}
 @end

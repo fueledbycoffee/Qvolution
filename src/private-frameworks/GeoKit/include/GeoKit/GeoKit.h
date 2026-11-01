@@ -25,4 +25,5 @@ extern id GEODefaultManagedObjectContext;
 @end
 
 @interface GEOCity : GeoKitPlace
++ (instancetype)systemCity;
 @end

@@ -29,6 +29,18 @@ static NSError *gameCenterUnavailableError(void)
 	                       userInfo:@{ NSLocalizedDescriptionKey: @"Game Center is not available in Darling" }];
 }
 
+static void authenticateLater(void (^handler)(NSError *))
+{
+	if (handler == nil)
+		return;
+
+	handler = [handler copy];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		handler(gameCenterUnavailableError());
+		[handler release];
+	});
+}
+
 // Completion handlers run asynchronously, as they do on macOS.
 static void completeLater(void (^handler)(id, NSError *))
 {
@@ -85,6 +97,11 @@ static void completeErrorLater(void (^handler)(NSError *))
 
 - (BOOL)isAuthenticated { return NO; }
 
+- (void)authenticateWithCompletionHandler:(void (^)(NSError *))completionHandler
+{
+	authenticateLater(completionHandler);
+}
+
 - (void (^)(NSViewController *, NSError *))authenticateHandler
 {
 	return _authenticateHandler;
@@ -104,12 +121,9 @@ static void completeErrorLater(void (^handler)(NSError *))
 	if (_authenticateHandler == nil)
 		return;
 
-	// The dispatch capture already retains this; the explicit pair keeps the
-	// lifetime requirement visible if the dispatch is ever changed.
-	void (^storedHandler)(NSViewController *, NSError *) = [_authenticateHandler retain];
-	dispatch_async(dispatch_get_main_queue(), ^{
-		storedHandler(nil, gameCenterUnavailableError());
-		[storedHandler release];
+	void (^storedHandler)(NSViewController *, NSError *) = _authenticateHandler;
+	authenticateLater(^(NSError *error) {
+		storedHandler(nil, error);
 	});
 }
 
