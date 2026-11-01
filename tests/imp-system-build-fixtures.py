@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import os, shlex, subprocess
+import os, shlex, subprocess, tempfile, uuid
 L=Path(__file__).resolve().parents[2]
 assert os.environ.get('QV_SLOT','').startswith('build-')
-B=L/'build'; S=L/'stage/usr/local/libexec/darling'; O=L/'fixtures'; O.mkdir(exist_ok=True)
+B=L/'build'; S=L/'stage/usr/local/libexec/darling'; O=Path(tempfile.mkdtemp(prefix='fixtures-attempt-', dir=L))
 commands=subprocess.check_output(['ninja','-C',str(B),'-t','commands','src/external/libsystem/libSystem.B.dylib'],text=True).splitlines()
 base=next(shlex.split(c) for c in commands if ' -c ' in c and c.endswith('/ImportCompatibility.c'))
 # The production compile command contains both architecture flags; fixtures are x86_64.
@@ -29,3 +29,10 @@ for name,src in sources.items():
 (O/'build.ninja').write_text('\n'.join(graph)+'\n')
 subprocess.run(['ninja','-C',str(O),'-j6'],check=True)
 subprocess.run(['ninja','-C',str(O),'-n'],check=True)
+
+previous = L / 'fixtures'
+if previous.exists() or previous.is_symlink():
+ previous.rename(L / ('fixtures-previous-' + uuid.uuid4().hex))
+# The generated Ninja file has absolute attempt paths, so keep the attempt in
+# place and publish a new symlink to it after compilation succeeds.
+previous.symlink_to(O.name, target_is_directory=True)
