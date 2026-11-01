@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 /* A real two-level link against CoreFoundation, rather than dlsym alone. */
-extern char NSMachPortClass __asm__("OBJC_CLASS_$_NSMachPort");
+extern char NSMachPortClass __asm__("_OBJC_CLASS_$_NSMachPort");
 
 int main(void)
 {
