@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Execute runner lifecycle with fake launchers/guards; never boot a container."""
 from pathlib import Path
-import os, subprocess, sys
+import os, subprocess, sys, uuid
 script = Path(sys.argv[1]).resolve()
 kind = sys.argv[2]
 out = Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True)
@@ -40,7 +40,9 @@ if [[ $1 == verify && $SCENARIO == guard-fails ]]; then exit 3; fi
 exit 0
 '''); p.chmod(0o755)
     source = script.read_text().replace('W=/home/sean/Documents/Codex/Projects/Qvolution-work', 'W='+str(root))
-    source = source.replace('export DPREFIX=$W/p/im-media-$(date +%s)-$$', 'export DPREFIX=/tmp/qv-runner-fixture-$$')
+    source = source.replace('export DPREFIX=$W/p/im-media-$(date +%s)-$$', 'export DPREFIX=/tmp/qv-runner-fixture-$$').replace('export DPREFIX=$W/p/im-vision-$(date +%s)-$$', 'export DPREFIX=/tmp/qv-runner-fixture-$$')
+    source = source.replace('/tmp/qv-runner-fixture-$$', '/tmp/qv-runner-fixture-'+uuid.uuid4().hex[:12])
+    source = source.replace('D=$W/parallel/imp-media/build/payloads/Launcher', 'D=$L/build/payloads/Launcher')
     probe = root/'runner.sh'; probe.write_text(source)
     env=dict(os.environ,PATH=str(root/'bin')+':'+os.environ['PATH'],EVENTS=str(events),SCENARIO=scenario)
     r=subprocess.run(['bash', str(probe), '--slot' if kind=='media' else '--guest'], env=env, text=True, capture_output=True)
