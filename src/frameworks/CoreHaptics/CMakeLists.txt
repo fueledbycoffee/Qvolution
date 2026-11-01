@@ -9,3 +9,4 @@ add_framework(CoreHaptics
     SOURCES src/CoreHaptics.m
     DEPENDENCIES system objc Foundation
 )
+target_include_directories(CoreHaptics PRIVATE include)
