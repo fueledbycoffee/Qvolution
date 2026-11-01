@@ -1635,4 +1635,26 @@ void* fig_note_initialize_timestamps(void);
 void* fig_note_initialize_work(void);
 void* fig_post_a_symptom_guts(void);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern const CFStringRef kCMFormatDescriptionColorPrimaries_DCI_P3;
+extern const CFStringRef kCMFormatDescriptionColorPrimaries_ITU_R_2020;
+extern const CFStringRef kCMFormatDescriptionColorPrimaries_P3_D65;
+extern const CFStringRef kCMFormatDescriptionExtension_Depth;
+extern const CFStringRef kCMFormatDescriptionExtension_FormatName;
+extern const CFStringRef kCMFormatDescriptionExtension_FullRangeVideo;
+extern const CFStringRef kCMFormatDescriptionTransferFunction_ITU_R_2020;
+extern const CFStringRef kCMFormatDescriptionTransferFunction_ITU_R_2100_HLG;
+extern const CFStringRef kCMFormatDescriptionTransferFunction_Linear;
+extern const CFStringRef kCMFormatDescriptionTransferFunction_SMPTE_ST_2084_PQ;
+extern const CFStringRef kCMFormatDescriptionTransferFunction_SMPTE_ST_428_1;
+extern const CFStringRef kCMFormatDescriptionTransferFunction_sRGB;
+extern const CFStringRef kCMFormatDescriptionYCbCrMatrix_ITU_R_2020;
+extern const CFStringRef kCMSampleBufferAttachmentKey_ResetDecoderBeforeDecoding;
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
