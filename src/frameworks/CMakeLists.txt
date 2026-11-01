@@ -199,3 +199,9 @@ endif()
 if (TARGET AVFoundation AND TARGET AVFAudio)
 	reexport(AVFoundation AVFAudio "${CMAKE_CURRENT_BINARY_DIR}/AVFAudio/AVFAudio")
 endif()
+
+if(ENABLE_TESTS AND TARGET CoreGraphics AND TARGET CoreText AND TARGET QuartzCore
+   AND TARGET ImageIO AND TARGET QuickLookThumbnailing)
+    add_subdirectory("${CMAKE_SOURCE_DIR}/tests/graphics-imports"
+                     "${CMAKE_BINARY_DIR}/tests/graphics-imports")
+endif()

@@ -1,0 +1,4 @@
+add_darling_executable(imp_graphics_load_test load-exports.c)
+target_link_libraries(imp_graphics_load_test system)
+add_darling_executable(imp_graphics_behavior_test framework-behavior.m)
+target_link_libraries(imp_graphics_behavior_test CoreGraphics CoreText ImageIO QuartzCore QuickLookThumbnailing Foundation)
