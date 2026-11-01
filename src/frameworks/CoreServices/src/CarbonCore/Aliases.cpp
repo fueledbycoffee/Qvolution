@@ -28,3 +28,11 @@ OSErr FSResolveAliasFile(FSRef *theRef, Boolean resolveAliasChains, Boolean *tar
 
 	return unimpErr;
 }
+
+extern "C" OSErr FSResolveAliasFileWithMountFlags(FSRef *ref,
+    Boolean resolveChains, Boolean *isFolder, Boolean *wasAliased, unsigned long mountFlags)
+{
+    if (isFolder) *isFolder = false;
+    if (wasAliased) *wasAliased = false;
+    return ref ? unimpErr : paramErr;
+}
