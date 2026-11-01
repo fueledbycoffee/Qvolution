@@ -19,6 +19,37 @@ struct LargeResult { unsigned long long words[8]; };
 - (struct LargeResult)qvAuditStructureCommand;
 - (long long)setqvAuditInteger:(long long)value;
 @end
+/* A class that really forwards a struct return larger than 16 bytes, which the x86-64 ABI returns
+ * through a caller-provided buffer (objc_msgSend_stret), with two arguments after self and _cmd. */
+@interface StretForwarder : NSObject
+- (struct LargeResult)qvRealWith:(id)value integer:(long long)number;
+- (struct LargeResult)qvForwardedWith:(id)value integer:(long long)number;
+@end
+@implementation StretForwarder
+- (struct LargeResult)qvRealWith:(id)value integer:(long long)number { struct LargeResult r = {{0}}; return r; }
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+    if (selector == @selector(qvForwardedWith:integer:)) return [super methodSignatureForSelector:@selector(qvRealWith:integer:)];
+    return [super methodSignatureForSelector:selector];
+}
+- (void)forwardInvocation:(NSInvocation *)invocation {
+    id value = nil; long long number = 0;
+    [invocation getArgument:&value atIndex:2];
+    [invocation getArgument:&number atIndex:3];
+    struct LargeResult r;
+    for (unsigned i = 0; i < 8; i++) r.words[i] = number * 100 + i + (value == (id)self ? 1000 : 0);
+    [invocation setReturnValue:&r];
+}
+@end
+static int auditStructForwarding(void) {
+    printf("CHECK forwarded struct return\n"); fflush(stdout);
+    StretForwarder *forwarder = [[StretForwarder alloc] init];
+    struct LargeResult r = [forwarder qvForwardedWith:forwarder integer:7];
+    int failures = 0;
+    for (unsigned i = 0; i < 8; i++) if (r.words[i] != 1700 + i) failures++;
+    if (failures) fprintf(stderr, "FAIL forwarded struct return carried %d wrong words\n", failures);
+    [forwarder release];
+    return failures ? 1 : 0;
+}
 static int requirePayloadImage(Class cls, const char *className, const char *expected) {
     const char *mapped = class_getImageName(cls);
     printf("PAYLOAD class=%s expected=%s mapped=%s\n", className, expected, mapped ? mapped : "(none)");
@@ -72,6 +103,7 @@ int main(int argc, const char **argv) {
         };
         const char *payloadRoot = argv[1];
         int failures = 0;
+        failures += auditStructForwarding();
         /* Control: an object whose class has no forwarding override at all. */
         printf("CHECK control NSObject\n"); fflush(stdout);
         id control = [[NSObject alloc] init];
