@@ -58,18 +58,18 @@ try:
         'full-window|egl-verify|90|@appkit-gpu-present-bench present 100|QV_RUN_REQUIRE=^RESULT ',
         'small-damage|egl-verify|90|@appkit-gpu-present-bench damage 100|QV_RUN_REQUIRE=^RESULT ',
         'scroll|egl-verify|90|@appkit-gpu-present-bench scroll 100|QV_RUN_REQUIRE=^RESULT ',
-        'layer-tree|egl-verify|90|@quartzcore-layer-gpu-composite 120|QV_RUN_REQUIRE=^RESULT quartzcore-layer-gpu-composite failures=0',
-        'layer-views|egl-verify|90|@appkit-layer-backed-composite 120|QV_RUN_REQUIRE=^RESULT appkit-layer-backed-composite failures=0'])
+        'layer-tree|egl-verify|90|@quartzcore-layer-gpu-composite 120|QV_RUN_REQUIRE=^RESULT quartzcore-layer-gpu-composite failures=0'])
     # Keep corruption and missing-EGL controls in their own prefix: guest
     # environment variables can persist across shell calls in one container.
     run('codex-negative',['negative|egl-verify|90|@appkit-egl-presentation --negative-control|QV_RUN_EXPECT_EXIT=1,QV_RUN_REQUIRE=reference mismatch [1-9][0-9]*/'])
     run('codex-fallback',['fallback|egl|90|@appkit-gpu-present-bench present 30|__EGL_VENDOR_LIBRARY_FILENAMES=/nonexistent,QV_BENCH_EXPECT_RENDERER=shm,QV_RUN_REQUIRE=^RESULT '])
-    for fixture,variable in [('appkit-damage-redraw','DAMAGE_EVIDENCE_DIR'),('appkit-theme-gpu-frame','QV_THEME_EVIDENCE')]:
+    for fixture,variable,args in [('appkit-damage-redraw','DAMAGE_EVIDENCE_DIR',' verify'),
+                                  ('appkit-theme-gpu-frame','QV_THEME_EVIDENCE',''),
+                                  ('appkit-layer-backed-composite','QV_LAYER_EVIDENCE',' 120')]:
         captures={}
         for renderer in ('shm','egl-verify'):
             capture=R/(fixture+'-'+renderer);capture.mkdir();captures[renderer]=capture
             guest_dir='/Volumes/SystemRoot'+str(capture)
-            args=' verify' if fixture=='appkit-damage-redraw' else ''
             run('codex-'+fixture+'-'+renderer,[f'{fixture}|{renderer}|90|@{fixture}{args}|{variable}={guest_dir},QV_RUN_REQUIRE=^RESULT {fixture}.*failures=0'])
         compare(fixture+'-pixels-vs-shm',captures['shm'],captures['egl-verify'])
     run('codex-soak',[f'soak-{r}|{r}|150|@appkit-gpu-present-bench soak 1000|QV_RUN_REQUIRE=^RESULT ' for r in ('shm','egl')])

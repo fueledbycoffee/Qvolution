@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """gpu-present: rebuild the changed Stage41c3 images from the lane clones and install them
-into a hardlink-farm overlay of W/stage41c3.
+into the lane's existing overlay of W/stage41c3.
 
 Phases (each under qv-slot build; never starts Darling):
   build     replay Stage41c's own compile/link command lines (read from its ninja graph)
@@ -9,12 +9,12 @@ Phases (each under qv-slot build; never starts Darling):
             every other object is recompiled from the lane clone. Each library is also
             relinked from Stage41c's own objects and must reproduce the installed
             Stage41c3 image byte for byte, which proves the replayed link is faithful.
-  stage     L/stage = hardlink farm of W/stage41c3 (cp -al); every changed image is
-            renamed aside and written as a new file, never written through a link.
+  stage     reuse the existing lane stage; preserve replaced images and receipts
+            under out/stage-backups, never write through inherited hardlinks.
   fixtures  compile and link the lane's guest fixtures against L/stage.
 """
 from pathlib import Path
-import hashlib, json, os, shlex, shutil, subprocess, sys
+import hashlib, json, os, shlex, shutil, subprocess, sys, uuid
 
 W = Path('/home/sean/Documents/Codex/Projects/Qvolution-work')
 L = W / 'parallel/gpu-present'
@@ -219,31 +219,35 @@ elif phase == 'stage':
     report = json.loads((O / 'report.json').read_text())
     assert report['heads'] == heads(), 'stage only what was built from the current heads'
     assert 'no work to do' in out(['ninja', '-C', O, '-n'])
-    # One overlay per built head; L/stage points at the newest. Nothing is deleted.
-    target = L / ('stage-' + report['heads']['cocotron'][:10] + '-' + report['heads']['superproject'][:10])
-    assert not target.exists(), 'already staged: ' + str(target)
-    assert not STAGE.exists() or STAGE.is_symlink(), 'L/stage must be a symlink'
-    subprocess.run(['cp', '-al', str(BASE_STAGE), str(target)], check=True)
-    link = L / 'stage.new'
-    link.symlink_to(target.name)
-    link.replace(STAGE)
+    # Worker disk-floor policy forbids new full overlays. Reuse only our lane's
+    # existing stage, preserving every overwritten inode/receipt for review.
+    assert STAGE.is_symlink(), 'reuse an existing lane stage; do not create a full copy'
+    stage_root = STAGE.resolve(strict=True)
+    assert stage_root.parent == L and stage_root.name.startswith('stage-'), stage_root
+    backup = O / 'stage-backups' / uuid.uuid4().hex
+    backup.mkdir(parents=True)
     replaced = {}
     for target, row in report['libraries'].items():
-        if row['candidate_sha256'] == row['installed_sha256']:
-            continue
         dest = (STAGE / row['installed']).resolve()
         assert dest.is_relative_to(STAGE.resolve()), dest
-        dest.rename(dest.with_name(dest.name + '.stage41c3'))
+        if sha(dest) == row['candidate_sha256']:
+            if row['candidate_sha256'] != row['installed_sha256']:
+                replaced[row['installed']] = row['candidate_sha256']
+            continue
+        dest.rename(backup / row['installed'].replace('/', '_'))
         shutil.copyfile(row['candidate'], dest)
+        # sha() caches within this phase; the inode has just changed.
+        _sha.pop(str(dest), None)
         dest.chmod(0o755)
         assert sha(dest) == row['candidate_sha256']
-        replaced[row['installed']] = row['candidate_sha256']
+        if row['candidate_sha256'] != row['installed_sha256']:
+            replaced[row['installed']] = row['candidate_sha256']
     manifest_path = STAGE / 'qvolution-runtime-source.json'
     manifest = json.loads(manifest_path.read_text())
-    manifest_path.rename(manifest_path.with_name('qvolution-runtime-source.stage41c3.json'))
+    manifest_path.rename(backup / 'qvolution-runtime-source.json')
     for rel in manifest['fingerprints']:
         manifest['fingerprints'][rel] = sha(STAGE / rel)
-    manifest.update(stage_label='gpu-present', base_stage=str(BASE_STAGE), overlay='hardlink farm (cp -al)',
+    manifest.update(stage_label='gpu-present', base_stage=str(BASE_STAGE), overlay='reused lane overlay; replacements are fresh inodes',
                     replaced_images=replaced, built_heads=report['heads'],
                     build_receipt=dict(path=str(O / 'report.json'), sha256=sha(O / 'report.json')))
     manifest['components']['cocotron'] = report['heads']['cocotron']
