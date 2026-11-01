@@ -19,6 +19,13 @@
 
 #include <Foundation/Foundation.h>
 
-@interface CTCallCenter : NSObject
+@class CTCall;
+
+@interface CTCallCenter : NSObject {
+    void (^_callEventHandler)(CTCall *);
+}
+
+@property (nonatomic, copy) void (^callEventHandler)(CTCall *);
+@property (retain, readonly) NSSet<CTCall *> *currentCalls;
 
 @end

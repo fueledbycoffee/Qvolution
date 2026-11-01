@@ -19,6 +19,20 @@
 
 #include <Foundation/Foundation.h>
 
-@interface CTCellularPlanProvisioningRequest : NSObject
+@interface CTCellularPlanProvisioningRequest : NSObject <NSSecureCoding> {
+    NSString *_address;
+    NSString *_matchingID;
+    NSString *_OID;
+    NSString *_confirmationCode;
+    NSString *_ICCID;
+    NSString *_EID;
+}
+
+@property (nonatomic, retain) NSString *address;
+@property (nonatomic, retain) NSString *matchingID;
+@property (nonatomic, retain) NSString *OID;
+@property (nonatomic, retain) NSString *confirmationCode;
+@property (nonatomic, retain) NSString *ICCID;
+@property (nonatomic, retain) NSString *EID;
 
 @end

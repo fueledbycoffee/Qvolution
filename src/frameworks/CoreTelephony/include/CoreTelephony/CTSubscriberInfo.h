@@ -19,6 +19,11 @@
 
 #include <Foundation/Foundation.h>
 
+@class CTSubscriber;
+
 @interface CTSubscriberInfo : NSObject
+
++ (NSArray<CTSubscriber *> *)subscribers;
++ (CTSubscriber *)subscriber;
 
 @end

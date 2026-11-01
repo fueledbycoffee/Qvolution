@@ -19,16 +19,18 @@
 
 #import <CoreTelephony/CTCall.h>
 
+/* Darling has no cellular service, so a CTCall never stands for a call in
+ * progress: it has no identifier and no state. */
 @implementation CTCall
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+- (NSString *)callID
 {
-    return [NSMethodSignature signatureWithObjCTypes: "v@:"];
+    return nil;
 }
 
-- (void)forwardInvocation:(NSInvocation *)anInvocation
+- (NSString *)callState
 {
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
+    return nil;
 }
 
 @end
