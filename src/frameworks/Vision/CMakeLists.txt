@@ -19,6 +19,7 @@ add_framework(Vision
 
     SOURCES
         src/Vision.m
+        src/VNBarcodeSymbology.m
         src/VNANFDDetectorCompoundRequestConfiguration.m
         src/VNANFDDetectorCompoundRequestConfigurationGroups.m
         src/VNANFDDetectorCompoundRequest.m
