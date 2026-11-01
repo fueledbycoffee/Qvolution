@@ -5,6 +5,7 @@ import argparse, json, subprocess, re
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('build', type=Path, help='Darling build containing our own outputs only')
 parser.add_argument('evidence', type=Path, help='output directory for the manifest and static results')
+parser.add_argument('--coregraphics', type=Path, help='another own-built CoreGraphics output for a negative control')
 args=parser.parse_args()
 build=args.build.resolve(); evidence=args.evidence.resolve()
 evidence.mkdir(parents=True, exist_ok=True)
@@ -23,7 +24,7 @@ for lib,symbols in rows.items():
   if name.startswith('_OBJC_CLASS_$_'):
    meta=name.replace('_OBJC_CLASS_$_','_OBJC_METACLASS_$_')
    if meta not in symbols:symbols.append(meta)
- binary=build/paths[lib]
+ binary=args.coregraphics.resolve() if lib == 'CoreGraphics' and args.coregraphics else build/paths[lib]
  if not binary.is_file():raise SystemExit(f'missing own build output: {binary}')
  def exported_names(path):
   output=subprocess.check_output(['llvm-objdump-21','--macho','--arch=x86_64','--exports-trie',str(path)],text=True)
@@ -39,9 +40,9 @@ for lib,symbols in rows.items():
   load_commands=subprocess.check_output(['llvm-objdump-21','--macho','--arch=x86_64','--private-headers',str(binary)],text=True)
   if not re.search(r'cmd LC_REEXPORT_DYLIB\s+cmdsize \d+\s+name /usr/lib/swift/libswiftCoreGraphicsImports\.dylib',load_commands):
    raise SystemExit('CoreGraphics is missing the own-built Swift supplement reexport')
-  reexports=re.findall(r'cmd LC_REEXPORT_DYLIB\s+cmdsize \d+\s+name (\S+)',load_commands)
-  supplement_name='/usr/lib/swift/libswiftCoreGraphicsImports.dylib'
-  legacy_name='/usr/lib/swift/libswiftCoreGraphics.dylib'
+  reexports=[Path(name).name for name in re.findall(r'cmd LC_REEXPORT_DYLIB\s+cmdsize \d+\s+name (\S+)',load_commands)]
+  supplement_name='libswiftCoreGraphicsImports.dylib'
+  legacy_name='libswiftCoreGraphics.dylib'
   # dyld searches reexports in load-command order, returning the first match.
   if legacy_name not in reexports or reexports.index(supplement_name) > reexports.index(legacy_name):
    raise SystemExit('CoreGraphics legacy overlay shadows the own-built Swift supplement')
