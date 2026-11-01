@@ -26,16 +26,29 @@ universal dyld/libsystem_kernel, syscall controls and libSystem-only hellos.
 natively; it is a layout check, not a guest acceptance test. The companion xnu
 `darling/tests/i386-startup-records.c` checks exact opt-in parsing.
 
+Round 3 splits task-self, reply-port and bootstrap-port initialization, MIG
+TSD access, socket acquisition, signal masking, and RPC send/receive. The
+cached i386 record flag is cleared when mach_init returns; the default is quiet.
+There is no host-port lookup in this mach_init; host_self has its own trap.
+
+The i386 loader now installs a temporary FS TSD page before dyld (Linux TLS
+stays in GS), matching x86_64's initial GS page. The i386 kernel setter reuses
+that descriptor when dyld/libpthread or dynamic libsystem_kernel take over.
+`mldr-initial-tsd.c` reads/writes the MIG TSD slot, replaces its base through
+two compiled copies of the real kernel setter, and checks native Linux TLS.
+Its `--no-install` control must fault on the initial TSD read. ELF32 execution
+requires a host without the sandbox's ia32 seccomp restriction.
+
 External rerun (container-capable host only):
 
 ```
-bash parallel/i386-guest/run-review.sh --mount-overlay
+bash parallel/i386-guest-r3/run-review.sh
 ```
 
-This option uses `sudo -n mount` to create a lane-owned overlay of Stage41d;
-without it the runner requires an already mounted `parallel/i386-guest/stage`.
-It never creates a full stage copy. Mounting requires the external executor's
-mount privileges; no kernel settings are changed.
-The script enforces the disk floor, commits-before-install, fresh prefixes,
+The runner first builds and executes the native ELF32/ELF64 TSD controls, then
+invokes the rootless Stage41d baseline/candidate hello suite. It creates a fresh
+hardlink farm and replaces candidate images with private inodes, verifying the
+unchanged source manifest and hashes. No root, mounts or system setting changes.
+It enforces the disk floor, commits-before-install, fresh short prefixes,
 separate build/guest slots, host-folder guards and prefix-scoped shutdown.
 Do not use it on an app bundle or replace the hello with an Apple executable.

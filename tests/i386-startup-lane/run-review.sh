@@ -25,16 +25,16 @@ python3 "$L/build-provenance.py" --verify
 "$L/build/record-gate" > "$E/record-gate.log" 2>&1
 ASAN_OPTIONS=detect_leaks=0 "$L/build/stack-layout" > "$E/stack-layout.log" 2>&1
 "$W/dashboard/qv-slot" build python3 "$L/stage_farm.py" create "$E" > "$E/stage.txt"
-"$W/dashboard/qv-status" i386-guest-r2 --phase 'external baseline hello controls'
+"$W/dashboard/qv-status" i386-guest-r3 --phase 'external baseline hello controls'
 "$L/run-guest.sh" baseline "$E"
 "$W/dashboard/qv-slot" build python3 "$L/install-candidate.py" "$E" > "$E/install.log" 2>&1
-"$W/dashboard/qv-status" i386-guest-r2 --phase 'external candidate startup records'
+"$W/dashboard/qv-status" i386-guest-r3 --phase 'external candidate startup records'
 "$L/run-guest.sh" candidate "$E"
 review_status=0
 python3 "$L/review-results.py" "$E" || review_status=$?
 python3 "$L/stage_farm.py" verify "$E" > "$E/stage-post-guest-verify.log"
 cat /proc/loadavg > "$E/load-after.txt"
 printf 'Evidence: %s\n' "$E"
-"$W/dashboard/qv-status" i386-guest-r2 --state review --evidence "$E" --msg "External hello review exited $review_status"
+"$W/dashboard/qv-status" i386-guest-r3 --state review --evidence "$E" --msg "External hello review exited $review_status"
 # Keep prefixes, hardlink farm and failed evidence for review; never delete.
 exit "$review_status"

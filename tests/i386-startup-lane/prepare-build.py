@@ -38,32 +38,32 @@ def clean(args):
 rules = ['C_COMPILER__mldr_unscanned_', 'C_COMPILER__mldr32_unscanned_',
          'C_COMPILER__darling_unscanned_', 'C_COMPILER__mldr_dserver_rpc_unscanned_', 'C_COMPILER__mldr32_dserver_rpc_unscanned_',
          'C_COMPILER__libsyscall_unscanned_', 'C_COMPILER__libsyscall_dynamic_unscanned_',
-         'CXX_COMPILER__system_loader_unscanned_']
+         'CXX_COMPILER__system_loader_unscanned_',
+         'C_COMPILER__emulation_unscanned_', 'C_COMPILER__emulation_dyld_unscanned_']
 for row in compdb(*rules):
     original = Path(row['file'])
     is_mldr = row['output'].startswith('src/startup/mldr/')
     is_launcher = row['output'] == 'src/startup/CMakeFiles/darling.dir/darling.c.o'
-    wanted = original.name in ('mach_init.c', '_libkernel_init.c', 'dyldInitialization.cpp')
+    wanted = original.name in ('mach_init.c', 'mig_reply_port.c', '_libkernel_init.c', 'dyldInitialization.cpp', 'mach_traps.c', 'tls.c') or (original.name == 'rpc.c' and not is_mldr)
     if not is_mldr and not is_launcher and not wanted:
         continue
     a = clean(shlex.split(row['command']))
     source = original
     if wanted:
-        component = 'dyld' if original.name == 'dyldInitialization.cpp' else 'xnu'
         resolved = original.resolve()
-        source = S / resolved.relative_to(old)
+        source = S / resolved.relative_to(old) if resolved.is_relative_to(old) else original
     elif str(original).startswith(str(old)):
         source = S / original.relative_to(old)
     output = B / row['output']
     mapped[row['output']] = str(output)
     a[a.index('-o') + 1] = str(output)
     a[a.index('-c') + 1] = str(source)
-    # The new diagnostic header is the only added include tree. Other include
-    # paths retain Stage41d's configured SDK symlinks and generated headers.
+    # Prefer our emulation headers; retain Stage41d SDK/generated include paths.
     a[1:1] = ['-I' + str(overlay)]
+    a = [arg.replace(str(old / 'src/external/xnu/darling/src/libsystem_kernel/emulation/include/linux_premigration/resources/dserver-rpc-defs.h'), str(S / 'src/external/xnu/darling/src/libsystem_kernel/emulation/include/linux_premigration/resources/dserver-rpc-defs.h')) for arg in a]
     if is_mldr and original.name == 'rpc.c':
         a[1:1] = ['-pthread']
-    edge('compile-' + str(len(steps)), output, a, [source, header, *([S / 'src/startup/mldr/stack.c', S / 'src/startup/mldr/loader.c'] if is_mldr else [])])
+    edge('compile-' + str(len(steps)), output, a, [source, header, S / 'src/external/xnu/darling/src/libsystem_kernel/emulation/include/linux_premigration/resources/dserver-rpc-defs.h', *([S / 'src/startup/mldr/stack.c', S / 'src/startup/mldr/loader.c', S / 'src/startup/mldr/tsd.h'] if is_mldr else [])])
 
 launcher_object = mapped['src/startup/CMakeFiles/darling.dir/darling.c.o']
 edge('darling', B / 'darling', ['/usr/bin/clang', launcher_object, '-lutil', '-o', str(B / 'darling')], [launcher_object])
@@ -82,8 +82,9 @@ for row in compdb('C_STATIC_LIBRARY_LINKER__system_kernel_static32_', 'C_STATIC_
     output = B / row['output']
     mapped[row['output']] = str(output)
     a[2] = str(output)
+    deps = [mapped[arg] for arg in a if arg in mapped]
     a = [mapped.get(arg, arg) for arg in a]
-    edge('archive-' + output.stem, output, ['archive', *a], [B / 'src/external/xnu/darling/src/libsystem_kernel/libsyscall/CMakeFiles/libsyscall.dir/mach/mach_init.c.o'])
+    edge('archive-' + output.stem, output, ['archive', *a], deps)
 
 for row in compdb('CXX_EXECUTABLE_LINKER__system_loader_', 'C_SHARED_LIBRARY_LINKER__system_kernel_'):
     a = shlex.split(row['command'])
@@ -108,6 +109,12 @@ fixture = L / 'hello.c'
 fixture.write_text('#include <unistd.h>\nint main(void) { static const char message[] = "i386-guest hello\\n"; return write(1, message, sizeof(message)-1) == sizeof(message)-1 ? 0 : 1; }\n')
 for arch in ('i386', 'x86_64'):
     cmd = ['/usr/bin/clang', '-target', arch + '-apple-darwin20', '-arch', arch, '-mmacosx-version-min=10.10', '-nostdinc', '-isystem', '/usr/lib/llvm-21/lib/clang/21/include', '-I' + str(old / 'basic-headers'), '-I' + str(old / 'Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include'), '-c', str(fixture), '-o', str(B / ('hello-' + arch + '.o'))]
+    layout = S / 'tests/i386-startup-r3/rpc-layout.c'
+    layout_cmd = cmd[:]
+    layout_cmd[1:1] = ['-I' + str(overlay), '-I' + str(shared / 'src/external/darlingserver/include')]
+    layout_cmd[layout_cmd.index('-c') + 1] = str(layout)
+    layout_cmd[layout_cmd.index('-o') + 1] = str(B / ('rpc-layout-' + arch + '.o'))
+    edge('rpc-layout-' + arch, B / ('rpc-layout-' + arch + '.o'), layout_cmd, [layout])
     edge('hello-compile-' + arch, B / ('hello-' + arch + '.o'), cmd, [fixture])
     cmd = ['/usr/bin/clang', '-target', arch + '-apple-darwin20', '-arch', arch, '-mmacosx-version-min=10.10', '-nostdlib', '-fuse-ld=' + str(shared / 'src/external/cctools-port/cctools/ld64/src/x86_64-apple-darwin20-ld'), '-Wl,-Z', *maps, str(B / ('hello-' + arch + '.o')), str(shared / 'src/external/libsystem/libSystem.B.dylib'), '-o', str(B / ('hello-' + arch))]
     edge('hello-link-' + arch, B / ('hello-' + arch), cmd, [B / ('hello-' + arch + '.o')])

@@ -20,6 +20,10 @@ for kind in ('baseline', 'candidate'):
             problems.append(name + ': unexpected startup records')
         if expected_records and '[darling-i386] mldr32-handoff-enter' not in records:
             problems.append(name + ': mldr32 handoff not reached')
+        if expected_records:
+            for stage in ('task-self-trap-return', 'reply-port-return', 'bootstrap-port-return', 'mig-reply-tsd-return'):
+                if '[darling-i386] ' + stage not in records:
+                    problems.append(name + ': missing ' + stage)
         if expected_records and '[darling-i386] libkernel-init-return' not in records:
             problems.append(name + ': libSystem kernel initialization not completed')
 report = {'results': results, 'problems': problems, 'guest_startup_gate': not problems}
