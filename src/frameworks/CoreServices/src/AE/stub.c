@@ -15,3 +15,9 @@ OSErr AEInstallEventHandler(
     if (verbose) puts("STUB: AEInstallEventHandler called");
     return noErr;
 }
+
+OSErr AERemoveEventHandler(AEEventClass eventClass, AEEventID eventID,
+    AEEventHandlerUPP handler, Boolean systemHandler)
+{
+    return errAEHandlerNotFound;
+}

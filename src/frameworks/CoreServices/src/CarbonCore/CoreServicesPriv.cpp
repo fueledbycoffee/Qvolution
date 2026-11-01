@@ -22,3 +22,20 @@ extern "C" int _CSGetProcessorArchitecture(void)
 #endif
 }
 
+
+#include <unistd.h>
+
+extern "C" CFStringRef CSCopyMachineName(void)
+{
+    char name[256];
+    if (gethostname(name, sizeof(name)) != 0) return NULL;
+    name[sizeof(name) - 1] = 0;
+    return CFStringCreateWithCString(NULL, name, kCFStringEncodingUTF8);
+}
+
+/* GUESS: private disable operation, name only from Spotify's imports.
+ * _CSCheckFix already reports false for every fix in this backend. */
+extern "C" int _CSCheckFixDisable(void)
+{
+    return 0;
+}

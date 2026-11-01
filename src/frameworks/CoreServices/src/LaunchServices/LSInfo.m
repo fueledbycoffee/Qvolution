@@ -500,3 +500,53 @@ OSStatus LSCopyItemAttributes(const FSRef *inItem, LSRolesMask inRoles, CFArrayR
 	*outValues = dict;
 	return noErr;
 }
+
+OSStatus LSCopyDisplayNameForRef(const FSRef *ref, CFStringRef *name)
+{
+    if (!name) return paramErr;
+    *name = NULL;
+    if (!ref) return paramErr;
+    CFURLRef url = CFURLCreateFromFSRef(NULL, ref);
+    if (!url) return fnfErr;
+    OSStatus result = LSCopyDisplayNameForURL(url, name);
+    CFRelease(url);
+    return result;
+}
+
+OSStatus LSCopyItemInfoForRef(const FSRef *ref, LSRequestedInfo which, LSItemInfoRecord *info)
+{
+    if (!info) return paramErr;
+    memset(info, 0, sizeof(*info));
+    if (!ref) return paramErr;
+    CFURLRef url = CFURLCreateFromFSRef(NULL, ref);
+    if (!url) return fnfErr;
+    OSStatus result = LSCopyItemInfoForURL(url, which, info);
+    CFRelease(url);
+    return result;
+}
+
+OSStatus LSCopyKindStringForTypeInfo(OSType type, OSType creator,
+    CFStringRef extension, CFStringRef *kind)
+{
+    if (!kind) return paramErr;
+    *kind = NULL;
+    return kLSDataUnavailableErr;
+}
+
+OSStatus LSSetItemAttribute(const FSRef *item, LSRolesMask roles,
+    CFStringRef attribute, CFTypeRef value)
+{
+    if (!item || !attribute || !value) return paramErr;
+    return kLSAttributeNotSettableErr;
+}
+
+OSStatus LSSetDefaultRoleHandlerForContentType(CFStringRef type,
+    LSRolesMask roles, CFStringRef bundleID)
+{
+    if (!type || !bundleID || !roles) return paramErr;
+    return unimpErr;
+}
+
+/* GUESS: private key spelling, audit supplies only the name. No reader in
+ * Darling acts on this option; never report a background launch was performed. */
+const CFStringRef _kLSOpenOptionBackgroundLaunchKey = CFSTR("_kLSOpenOptionBackgroundLaunchKey");
