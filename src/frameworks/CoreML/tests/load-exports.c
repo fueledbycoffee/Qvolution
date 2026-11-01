@@ -1,5 +1,6 @@
 #include <dlfcn.h>
 #include <stdio.h>
+#include <string.h>
 
 static int check(const char *path, const char *const *names) {
     void *h = dlopen(path, RTLD_NOW | RTLD_LOCAL);
@@ -8,11 +9,13 @@ static int check(const char *path, const char *const *names) {
     for (; *names; ++names) {
         if (!dlsym(h, *names)) { fprintf(stderr, "%s: missing %s\n", path, *names); failed = 1; }
     }
-    dlclose(h);
+    /* Keep Objective-C images loaded until process exit. */
     return failed;
 }
 int main(int argc, char **argv) {
-    if (argc != 3) { fprintf(stderr, "usage: load-exports VISION COREML\n"); return 2; }
+    if (argc != 4 || strcmp(argv[1], "--vision-coreml-subset")) {
+        fprintf(stderr, "usage: load-exports --vision-coreml-subset VISION COREML\nVisionKit Swift imports remain OPEN; this is not the full lane gate.\n"); return 2;
+    }
     static const char *const vision[] = {
         "VNBarcodeSymbologyAztec",
         "VNBarcodeSymbologyCode128",
@@ -41,7 +44,8 @@ int main(int argc, char **argv) {
         "OBJC_CLASS_$_MLPredictionOptions",
         0
     };
-    int a = check(argv[1], vision);
-    int b = check(argv[2], coreml);
+    int a = check(argv[2], vision);
+    int b = check(argv[3], coreml);
+    if (!a && !b) puts("PASS: Vision/CoreML export subset only; 19 VisionKit Swift imports OPEN");
     return a || b;
 }
