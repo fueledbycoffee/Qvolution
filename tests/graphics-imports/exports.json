@@ -1,0 +1,75 @@
+{
+  "CoreGraphics": [
+    "_CGColorGetTypeID",
+    "_CGColorSpaceCopyICCData",
+    "_CGColorSpaceCreateICCBased",
+    "_CGDirectDisplayCopyCurrentMetalDevice",
+    "_CGDisplayCreateImage",
+    "_CGDisplayStreamCreate",
+    "_CGDisplayStreamGetRunLoopSource",
+    "_CGDisplayStreamStart",
+    "_CGDisplayStreamStop",
+    "_CGDisplayStreamUpdateGetRects",
+    "_CGDisplayUsesForceToGray",
+    "_CGFontRenderingGetFontSmoothingDisabled",
+    "_CGPreflightScreenCaptureAccess",
+    "_CGRectStandardize",
+    "_CGRegionCreateWithRect",
+    "_CGRequestScreenCaptureAccess",
+    "_CGSSetWindowCaptureExcludeShape",
+    "_CGSSetWindowTransform",
+    "_CGSSetWindowWarp",
+    "_CGWindowListCopyWindowInfo",
+    "_CGWindowListCreateDescriptionFromArray",
+    "_CGWindowListCreateImageFromArray",
+    "_kCGColorSpaceDisplayP3_HLG",
+    "_kCGColorSpaceDisplayP3_PQ",
+    "_kCGColorSpaceExtendedLinearITUR_2020",
+    "_kCGDisplayStreamColorSpace",
+    "_kCGDisplayStreamDestinationRect",
+    "_kCGDisplayStreamMinimumFrameTime",
+    "_kCGDisplayStreamPreserveAspectRatio",
+    "_CGColorSpaceCopyPropertyList",
+    "_CGColorSpaceCreateWithICCData",
+    "_CGContextBeginTransparencyLayerWithRect",
+    "_CGDataProviderCreateSequential",
+    "_CGDisplayCreateImageForRect",
+    "_$s12CoreGraphics14CGPathFillRuleO7windingyA2CmFWC",
+    "_$s12CoreGraphics14CGPathFillRuleOMa",
+    "_$sSo12CGContextRefa12CoreGraphicsE10showGlyphs_2atySays6UInt16VG_SaySo7CGPointVGtF",
+    "_$sSo12CGContextRefa12CoreGraphicsE8fillPath5usingyAC14CGPathFillRuleO_tF",
+    "_$sSo16CGMutablePathRefa12CoreGraphicsE03addB0_9transformySo06CGPathC0a_So17CGAffineTransformVtF",
+    "_$sSo16CGMutablePathRefa12CoreGraphicsE4move2to9transformySo7CGPointV_So17CGAffineTransformVtF",
+    "_$sSo16CGMutablePathRefa12CoreGraphicsE6addArc6center6radius10startAngle03endK09clockwise9transformySo7CGPointV_AC7CGFloatVA2NSbSo17CGAffineTransformVtF",
+    "_$sSo16CGMutablePathRefa12CoreGraphicsE7addLine2to9transformySo7CGPointV_So17CGAffineTransformVtF",
+    "_$sSo16CGMutablePathRefa12CoreGraphicsE8addCurve2to8control18control29transformySo7CGPointV_A2JSo17CGAffineTransformVtF",
+    "_$sSo16CGMutablePathRefa12CoreGraphicsE8addLines7between9transformySaySo7CGPointVG_So17CGAffineTransformVtF",
+    "_$sSo6CGRectVSH12CoreGraphicsMc",
+    "_$sSo6CGRectVSQ12CoreGraphicsMc",
+    "_$sSo9CGPathRefa12CoreGraphicsE4copy17strokingWithWidth7lineCap0I4Join10miterLimit9transformAbC7CGFloatV_So06CGLineJ0VSo0pK0VAKSo17CGAffineTransformVtF"
+  ],
+  "CoreText": [
+    "_CTFontCopyVariationAxesInternal",
+    "_CTFontDescriptorCopyLocalizedAttribute",
+    "_CTFontDescriptorIsSystemUIFont",
+    "_CTFontManagerCreateFontDescriptorFromData"
+  ],
+  "QuartzCore": [
+    "_OBJC_CLASS_$_CAEDRMetadata"
+  ],
+  "ImageIO": [
+    "_CGImageSourceCreateThumbnailAtIndex",
+    "_CGImageSourceCopyTypeIdentifiers",
+    "_CGImageSourceGetPrimaryImageIndex"
+  ],
+  "CoreDisplay": [
+    "_CoreDisplay_DisplayCreateInfoDictionary"
+  ],
+  "QuickLookThumbnailing": [
+    "_OBJC_CLASS_$_QLThumbnailGenerationRequest",
+    "_OBJC_CLASS_$_QLThumbnailGenerator",
+    "_OBJC_CLASS_$_QLThumbnailProvider",
+    "_OBJC_CLASS_$_QLThumbnailReply",
+    "_OBJC_METACLASS_$_QLThumbnailProvider"
+  ]
+}
