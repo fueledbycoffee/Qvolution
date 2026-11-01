@@ -38,13 +38,14 @@ def clean(args):
 rules = ['C_COMPILER__mldr_unscanned_', 'C_COMPILER__mldr32_unscanned_',
          'C_COMPILER__darling_unscanned_', 'C_COMPILER__mldr_dserver_rpc_unscanned_', 'C_COMPILER__mldr32_dserver_rpc_unscanned_',
          'C_COMPILER__libsyscall_unscanned_', 'C_COMPILER__libsyscall_dynamic_unscanned_',
+         'ASM_COMPILER__libsyscall_unscanned_',
          'CXX_COMPILER__system_loader_unscanned_',
          'C_COMPILER__emulation_unscanned_', 'C_COMPILER__emulation_dyld_unscanned_']
 for row in compdb(*rules):
     original = Path(row['file'])
     is_mldr = row['output'].startswith('src/startup/mldr/')
     is_launcher = row['output'] == 'src/startup/CMakeFiles/darling.dir/darling.c.o'
-    wanted = original.name in ('mach_init.c', 'mig_reply_port.c', '_libkernel_init.c', 'dyldInitialization.cpp', 'mach_traps.c', 'tls.c') or (original.name == 'rpc.c' and not is_mldr)
+    wanted = original.name in ('mach_init.c', 'mig_reply_port.c', '_libkernel_init.c', 'dyldInitialization.cpp', 'dyld2.cpp', 'mach_traps.c', 'tls.c') or (original.name == 'rpc.c' and not is_mldr) or (original.suffix == '.S' and '/libsyscall/' in str(original))
     if not is_mldr and not is_launcher and not wanted:
         continue
     a = clean(shlex.split(row['command']))
@@ -63,7 +64,7 @@ for row in compdb(*rules):
     a = [arg.replace(str(old / 'src/external/xnu/darling/src/libsystem_kernel/emulation/include/linux_premigration/resources/dserver-rpc-defs.h'), str(S / 'src/external/xnu/darling/src/libsystem_kernel/emulation/include/linux_premigration/resources/dserver-rpc-defs.h')) for arg in a]
     if is_mldr and original.name == 'rpc.c':
         a[1:1] = ['-pthread']
-    edge('compile-' + str(len(steps)), output, a, [source, header, S / 'src/external/xnu/darling/src/libsystem_kernel/emulation/include/linux_premigration/resources/dserver-rpc-defs.h', *([S / 'src/startup/mldr/stack.c', S / 'src/startup/mldr/loader.c', S / 'src/startup/mldr/tsd.h'] if is_mldr else [])])
+    edge('compile-' + str(len(steps)), output, a, [source, header, S / 'src/external/xnu/libsyscall/custom/SYS.h', S / 'src/external/xnu/gen/bsdsyscalls/SYS.h', S / 'src/external/xnu/darling/src/libsystem_kernel/emulation/include/linux_premigration/resources/dserver-rpc-defs.h', *([S / 'src/startup/mldr/stack.c', S / 'src/startup/mldr/loader.c', S / 'src/startup/mldr/tsd.h'] if is_mldr else [])])
 
 launcher_object = mapped['src/startup/CMakeFiles/darling.dir/darling.c.o']
 edge('darling', B / 'darling', ['/usr/bin/clang', launcher_object, '-lutil', '-o', str(B / 'darling')], [launcher_object])

@@ -11,7 +11,7 @@ for name, component in (('superproject', ''), ('xnu', '/src/external/xnu'), ('dy
     }
 for name in ('steps.json', 'dyld.link.rsp', 'libsystem_kernel.dylib.link.rsp'):
     record[name] = hashlib.sha256((L / 'build' / name).read_bytes()).hexdigest()
-for directory, lane in (('i386-startup-lane', L), ('i386-startup-r3', L.parent / 'i386-guest-r3')):
+for directory, lane in (('i386-startup-lane', L), ('i386-startup-r3', L.parent / 'i386-guest-r3'), ('i386-startup-r4', L.parent / 'i386-guest-r4')):
     for source in (L / 'superproject/tests' / directory).iterdir():
         if source.is_file():
             assert source.read_bytes() == (lane / source.name).read_bytes(), 'lane script differs from committed snapshot: ' + source.name
