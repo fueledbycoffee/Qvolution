@@ -21,3 +21,20 @@ MLModelConfiguration, MLPredictionOptions and MLModel pages (including their
 Objective-C variants). Unsupported constructors deliberately return nil;
 inference is unavailable. Zero/nil option defaults and the Cocoa error choice
 remain GUESS. No model execution or GPU support is claimed.
+
+Verification on 2026-11-01: the normal CMake targets Vision, CoreML,
+imp-vision-load-exports and imp-vision-coreml-behavior build successfully and
+have an idle targeted ninja -n. The first normal build failed to locate the
+new public header; the target include fix was verified by that same command.
+The 27 constant/class/metaclass exports are absent in Stage41b and present in
+both normal and overlay candidates. Actual CoreML methods pass the native
+ASan/UBSan controlled-Foundation probe after a baseline missing-constructor
+failure. Leak detection is disabled; no Foundation/ObjC runtime or guest claim.
+Configuration enum storage and property ownership/default choices are GUESS
+where the cached class overviews do not specify them.
+
+Exact combined command: parallel/fix-imp-media-vision/build-and-verify.sh
+(exit 0; both overlay/test graphs idle; native before/after and export checks
+pass). External next command: parallel/fix-imp-media-vision/run-guest-gates.sh.
+That runner requires a real missing-export baseline failure and candidate load
+and behavior success; it has not run in this sandbox. VisionKit stays OPEN.
