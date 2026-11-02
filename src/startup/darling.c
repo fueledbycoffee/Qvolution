@@ -50,6 +50,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include "trustd-account.h"
 #include "startup-ready.h"
 #include "daemon-stdio.h"
+#include "prefix-lock.h"
 
 // Between Linux 4.9 and 4.11, a strange bug has been introduced
 // which prevents connecting to Unix sockets if the socket was
@@ -63,6 +64,7 @@ uid_t g_originalUid, g_originalGid;
 bool g_fixPermissions = false;
 bool g_rootless = false;
 bool g_nonroot = false;
+static int g_prefixLock = -1;
 char g_workingDirectory[4096];
 
 // The launcher is installed setuid root, so its caller controls the environment. Variables
@@ -356,6 +358,7 @@ static void spawnShellspawn(void)
 	}
 	if (spid == 0)
 	{
+		close(g_prefixLock);
 		setsid();
 		detachDaemonStdio();
 
@@ -1961,6 +1964,13 @@ int main(int argc, char ** argv)
 		g_fixPermissions = true;
 	}
 	checkPrefixOwner();
+	useOriginalIds();
+	g_prefixLock = darlingLockPrefix(prefix);
+	restoreRootIds();
+	if (g_prefixLock < 0) {
+		fprintf(stderr, "Cannot lock prefix lifecycle: %s\n", strerror(errno));
+		return 1;
+	}
 
 	// These only act on the invoking user's prefix, through paths the user
 	// controls, so run them with the user's ids (as setupPrefix() does).
@@ -2153,6 +2163,10 @@ int main(int argc, char ** argv)
 		pid_t liveServer;
 		if (stopPrefixProcesses(0, -1, 0, -1, &liveServer) < 0)
 			return 1;
+		if (liveServer) {
+			fprintf(stderr, "Unrecorded server still serves this prefix; refusing a second boot.\n");
+			return 1;
+		}
 
 		char socketPath[4096];
 
@@ -2210,6 +2224,14 @@ int main(int argc, char ** argv)
 			}
 		}
 	}
+
+	/* Shell clients may run concurrently once boot and PID publication finish. */
+	if (flock(g_prefixLock, LOCK_UN) < 0) {
+		fprintf(stderr, "Cannot unlock prefix lifecycle: %s\n", strerror(errno));
+		return 1;
+	}
+	close(g_prefixLock);
+	g_prefixLock = -1;
 
 #if USE_LINUX_4_11_HACK
 	// In non-root mode there is no mount namespace (prefix is a plain dir,
@@ -3133,6 +3155,7 @@ pid_t spawnInitProcess(void)
 	if (pid == 0)
 	{
 		// The child
+		close(g_prefixLock);
 
 		char uid_str[21];
 		char gid_str[21];
