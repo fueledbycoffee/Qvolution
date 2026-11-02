@@ -91,3 +91,4 @@ build/
 !/tests/coretelephony-neutral.m
 !/tests/install-default-directory-modes.py
 !/tests/install-default-directory-modes.md
+!/tests/stage41e-gates/
