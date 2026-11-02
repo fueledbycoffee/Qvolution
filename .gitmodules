@@ -51,7 +51,7 @@
 	url = ../darling-bash.git
 [submodule "src/external/darling-dmg"]
 	path = src/external/darling-dmg
-	url = ../darling-dmg.git
+	url = https://github.com/fueledbycoffee/Qvolution-darling-dmg.git
 [submodule "src/external/bomutils"]
 	path = src/external/bomutils
 	url = ../bomutils.git
