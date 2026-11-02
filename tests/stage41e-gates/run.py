@@ -15,6 +15,7 @@ import uuid
 from contracts import (FOUNDATION_COMPLETIONS, check_terminal, fail, payload_root,
                        prepare_foundation_directory, shell_present)
 from processes import server_records, snapshot
+from pipes import capture as capture_pipe, chunks
 
 
 def sha(path):
@@ -50,10 +51,24 @@ class Runner:
     def preflight(self):
         a = self.args
         manifest = json.loads((a.stage / 'qvolution-runtime-source.json').read_text())
-        head = subprocess.check_output(['git', '-C', str(a.source), 'rev-parse', 'HEAD'], text=True).strip()
+        head = subprocess.check_output(['git', '-C', str(a.source), 'rev-parse', 'HEAD'], text=True, timeout=10).strip()
         require(head == manifest['built_superproject'], 'source HEAD differs from installed runtime')
         require(not a.launcher.stat().st_mode & 0o6000, 'launcher must be non-setuid')
-        require(sha(a.launcher) == manifest['build_tools']['launcher']['sha256'], 'launcher hash')
+        patch_inputs = []
+        if a.patch_receipt:
+            patch = json.loads(a.patch_receipt.read_text())
+            patch_head = subprocess.check_output(['git', '-C', patch['source'], 'rev-parse', 'HEAD'],
+                                                 text=True, timeout=10).strip()
+            require(patch_head == patch['commit'], 'patch source HEAD differs from receipt')
+            for path, digest in patch['inputs'].items():
+                require(sha(path) == digest, 'patch input hash: ' + path)
+                patch_inputs.append(Path(path))
+            require(str(a.launcher) == patch['launcher'], 'patched launcher path')
+            require(str(a.stub_forwarding) == patch['stub_forwarding'], 'patched fixture path')
+            patch_inputs.extend([a.patch_receipt, Path(__file__).with_name('rerun-r2.sh')])
+        else:
+            require(not a.stub_forwarding, 'fixture override requires a reviewed patch receipt')
+            require(sha(a.launcher) == manifest['build_tools']['launcher']['sha256'], 'launcher hash')
         for rel, digest in manifest['fingerprints'].items():
             require(sha(a.stage / rel) == digest, 'runtime fingerprint: ' + rel)
         for rel, mode in manifest['directory_modes'].items():
@@ -66,11 +81,12 @@ class Runner:
                   a.stage / 'qvolution-runtime-source.json', a.fixtures / 'receipts.json',
                   Path(__file__), Path(__file__).with_name('contracts.py'),
                   Path(__file__).with_name('processes.py'), Path(__file__).with_name('shutdown-logged.py'),
-                  Path(__file__).with_name('rerun.sh')]
+                  Path(__file__).with_name('rerun.sh'), Path(__file__).with_name('pipes.py')]
         for helper in (a.launcher, inputs[0], inputs[1], Path(__file__).with_name('shutdown-logged.py')):
             require(os.access(helper, os.X_OK), 'helper is not executable: ' + str(helper))
         for label, command, files, options in self.cases():
             inputs.extend(Path(item[0] if isinstance(item, tuple) else item) for item in files)
+        inputs.extend(patch_inputs)
         hashes = {}
         for path in inputs:
             # Hashing guest app executables is allowed; never parse them or their output.
@@ -101,7 +117,7 @@ class Runner:
                       'required': r'^exports checked=1415 failures=0$'}
             for name, pattern in FOUNDATION_COMPLETIONS.items():
                 yield name, [guest + name], [a.fixtures / name], {'required': pattern}
-            yield 'stub-forwarding', [guest + 'stub-forwarding', payload_root(a.stage)], [a.fixtures / 'stub-forwarding'], {
+            yield 'stub-forwarding', [guest + 'stub-forwarding', payload_root(a.stage)], [a.stub_forwarding or a.fixtures / 'stub-forwarding'], {
                 'required': r'^PASS guest typed unknown-selector exception paths$'}
             for name, expected in [('foundation_import_strong31_values', 0), ('foundation_import_extension_unavailable', 1),
                                    ('foundation_import_string_encodings', 0), ('foundation_import_lines_directories', 0)]:
@@ -134,11 +150,14 @@ class Runner:
             save(f'processes-before-shutdown-{number}.json', snapshot(prefix))
             # The helper still owns all three retries. Its launcher wrapper retains
             # only OUR shutdown output, which qv-shutdown otherwise discards.
-            rc = subprocess.run([str(a.work / 'dashboard/qv-shutdown'),
+            helper = subprocess.Popen([str(a.work / 'dashboard/qv-shutdown'),
                                  str(Path(__file__).with_name('shutdown-logged.py'))],
                                 env={**env, 'QV_REAL_LAUNCHER': str(a.launcher),
                                      'QV_SHUTDOWN_LOG': str(evidence / f'shutdown-{number}.log')},
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            rc = wait(helper, 45)
+            if rc is None:
+                rc = 124
             record['shutdowns'].append(rc)
             save(f'processes-after-shutdown-{number}.json', snapshot(prefix))
             shutdown_failed |= rc != 0
@@ -222,17 +241,29 @@ class Runner:
             startup_timeout = []
             app = subprocess.Popen([str(self.args.launcher), 'shell', *command], env={**env, 'WAYLAND_DEBUG': 'client'},
                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            cancelled = threading.Event()
+            drain = {'eof': False, 'timed_out': False}
             def capture():
-                with (evidence / f'window-protocol-{attempt}.txt').open('wb') as protocol:
-                    # Keep protocol tokens only; never retain or display app text.
-                    for raw in app.stderr:
-                        if b'Timed out waiting for shellspawn in container' in raw:
-                            startup_timeout.append(True)
-                        for match in pattern.finditer(raw):
-                            token = match[1] + b'.' + match[2]
-                            tokens.add(token)
-                            protocol.write(token + b'\n')
-                            protocol.flush()
+                pending = b''
+                try:
+                    with (evidence / f'window-protocol-{attempt}.txt').open('wb') as protocol:
+                        for data in chunks(app.stderr, time.monotonic() + seconds + 75, cancelled):
+                            pending += data
+                            lines = pending.split(b'\n')
+                            pending = lines.pop()[-65536:]
+                            for raw in lines:
+                                if b'Timed out waiting for shellspawn in container' in raw:
+                                    startup_timeout.append(True)
+                                for match in pattern.finditer(raw):
+                                    token = match[1] + b'.' + match[2]
+                                    tokens.add(token)
+                                    protocol.write(token + b'\n')
+                                    protocol.flush()
+                    drain['eof'] = True
+                except TimeoutError:
+                    drain['timed_out'] = not cancelled.is_set()
+                finally:
+                    app.stderr.close()
             thread = threading.Thread(target=capture, daemon=True)
             thread.start()
             start = time.monotonic()
@@ -242,12 +273,14 @@ class Runner:
                     if kind == 'terminal' and (not probes or time.monotonic() - probes[-1]['when'] >= 10):
                         probe = subprocess.Popen([str(self.args.launcher), 'shell', '/bin/ps', '-axo', 'comm='],
                                                  env=env, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-                        rc = wait(probe, 10)
-                        probes.append({'when': time.monotonic(), 'exit': rc, 'shell': False})
-                        if rc is None:
-                            fail(record, 'shell_probe_timeout', 'prefix ps did not complete in 10 seconds')
+                        deadline = time.monotonic() + 10
+                        output, eof = capture_pipe(probe.stdout, deadline)
+                        rc = wait(probe, max(0, deadline - time.monotonic()))
+                        probes.append({'when': time.monotonic(), 'exit': rc, 'eof': eof, 'shell': False})
+                        if rc is None or not eof:
+                            fail(record, 'shell_probe_timeout', 'prefix ps did not exit and reach EOF in 10 seconds')
                             break
-                        names = probe.stdout.read().decode('utf8', 'replace').splitlines()
+                        names = output.decode('utf8', 'replace').splitlines()
                         probes[-1]['shell'] = any(re.fullmatch(r'-?bash', Path(n.strip()).name) for n in names)
                         (evidence / f'shell-probes-{attempt}.json').write_text(json.dumps(probes, indent=2) + '\n')
                     time.sleep(.2)
@@ -265,13 +298,22 @@ class Runner:
                 (evidence / f'shell-probes-{attempt}.json').write_text(json.dumps(probes, indent=2) + '\n')
                 (evidence / f'observation-{attempt}.json').write_text(json.dumps(observation, indent=2) + '\n')
                 # Observations are durable even when shutdown fails or a wait raises.
-                stopped = stop() == 0
-                if stopped:
-                    app.wait(30)
-                    if kind == 'terminal' and probes and probes[-1]['exit'] is None:
-                        probe.wait(30)
-                    thread.join(30)
-                    require(not thread.is_alive(), 'protocol drain did not exit after shutdown')
+                stopped = False
+                try:
+                    stopped = stop() == 0
+                    if stopped:
+                        require(wait(app, 30) is not None, 'app launcher did not exit after shutdown')
+                        if kind == 'terminal' and probes and probes[-1]['exit'] is None:
+                            require(wait(probe, 30) is not None, 'probe launcher did not exit after shutdown')
+                finally:
+                    if stopped:
+                        thread.join(1)
+                    cancelled.set()
+                    thread.join(1)
+                    (evidence / f'protocol-drain-{attempt}.json').write_text(json.dumps(drain) + '\n')
+                    if stopped and not drain['eof']:
+                        fail(record, 'protocol_eof', 'app stderr did not reach EOF after shutdown')
+                    require(not thread.is_alive(), 'protocol drain did not exit by its deadline')
             record['startup_timeout'] = bool(startup_timeout)
             if startup_timeout and attempt == 0 and stopped:
                 continue
@@ -287,6 +329,8 @@ def main():
     for name in ('work', 'source', 'stage', 'fixtures', 'launcher', 'terminal', 'chess', 'evidence'):
         p.add_argument('--' + name, required=True, type=Path)
     p.add_argument('--mode', choices=('all', 'foundation', 'terminal', 'chess'), default='all')
+    p.add_argument('--patch-receipt', type=Path, help='hash-locked launcher and authored fixture patch')
+    p.add_argument('--stub-forwarding', type=Path, help='authored fixture from the patch receipt')
     p.add_argument('--input-lock', type=Path, help='require the exact input hashes approved by the native dry run')
     p.add_argument('--dry-run-test-only', action='store_true', help='validate all inputs and stop at the first boot boundary')
     args = p.parse_args()

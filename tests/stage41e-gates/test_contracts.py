@@ -79,7 +79,7 @@ class Contracts(unittest.TestCase):
             self.assertFalse(failed['passed'])
             self.assertTrue(all(f['detail'] for f in failed['failures']))
 
-    def test_terminal_probe_timeout_and_shutdown_failure_are_durable(self):
+    def test_terminal_exited_probe_without_eof_and_shutdown_failure_are_durable(self):
         work = self.root
         (work / 'p').mkdir()
         evidence = work / 'evidence'
@@ -87,8 +87,8 @@ class Contracts(unittest.TestCase):
         args = SimpleNamespace(work=work, stage=work / 'stage', launcher=work / 'launcher', evidence=evidence)
         gate = runner.Runner(args)
         init = SimpleNamespace(wait=lambda seconds: 0)
-        app = SimpleNamespace(poll=lambda: None, stderr=[])
-        probe = SimpleNamespace()
+        app = SimpleNamespace(poll=lambda: None, stderr=SimpleNamespace(close=lambda: None))
+        probe = SimpleNamespace(stdout=None)
         opened = []
 
         def popen(command, **kw):
@@ -97,16 +97,18 @@ class Contracts(unittest.TestCase):
                 home = Path(kw['env']['DPREFIX']) / 'Users' / pwd.getpwuid(os.getuid()).pw_name
                 home.mkdir(parents=True)
                 return init
+            if 'qv-shutdown' in command[0]:
+                return SimpleNamespace()
             return probe if '/bin/ps' in command else app
 
-        shutdowns = iter([0, 1])
-
         def run(command, **kw):
-            return SimpleNamespace(returncode=next(shutdowns) if 'qv-shutdown' in command[0] else 0)
+            return SimpleNamespace(returncode=0)
 
         with patch.object(runner.subprocess, 'Popen', side_effect=popen), \
              patch.object(runner.subprocess, 'run', side_effect=run), \
-             patch.object(runner, 'wait', side_effect=[0, None]), \
+             patch.object(runner, 'wait', side_effect=[0, 0, 0, 1]), \
+             patch.object(runner, 'capture_pipe', return_value=(b'', False)), \
+             patch.object(runner, 'chunks', return_value=iter(())), \
              patch.object(runner, 'snapshot', return_value={'processes': []}), \
              patch.object(runner, 'server_records', return_value={}):
             with self.assertRaisesRegex(RuntimeError, 'cleanup failed'):
@@ -120,7 +122,7 @@ class Contracts(unittest.TestCase):
         self.assertIn('shell_probe_timeout', checks)
         self.assertIn('shutdown', checks)
         self.assertTrue((evidence / 'terminal90/observation-0.json').is_file())
-        self.assertEqual(len(opened), 3)  # no new prefix or launch after cleanup failure
+        self.assertEqual(len(opened), 5)  # no new prefix or launch after cleanup failure
 
     def test_shutdown_adapter_keeps_our_launcher_error_and_exit(self):
         launcher = self.root / 'fake-launcher'
@@ -137,11 +139,11 @@ class Contracts(unittest.TestCase):
         evidence.mkdir()
         gate = runner.Runner(SimpleNamespace(stage=self.root, launcher=self.root / 'launcher'))
         first = SimpleNamespace(poll=lambda: 1, wait=lambda seconds: 1,
-                                stderr=[b'Timed out waiting for shellspawn in container\n'])
-        second = SimpleNamespace(poll=lambda: 0, wait=lambda seconds: 0, stderr=[])
+                                stderr=SimpleNamespace(close=lambda: None))
+        second = SimpleNamespace(poll=lambda: 0, wait=lambda seconds: 0, stderr=SimpleNamespace(close=lambda: None))
         record = {'passed': True, 'failures': []}
         with patch.object(runner.subprocess, 'Popen', side_effect=[first, second]) as launch, \
-             patch.object(runner, 'snapshot', return_value={}):
+             patch.object(runner, 'chunks', side_effect=[iter([b'Timed out waiting for shellspawn in container\n']), iter([])]):
             gate.desktop(record, 'chess', ['/Applications/Chess.app/Contents/MacOS/Chess'],
                          {'DPREFIX': str(self.root)}, evidence, self.root, 0, lambda: 0)
         self.assertEqual(launch.call_count, 2)
