@@ -35,6 +35,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <endian.h>
 #include "commpage.h"
 #include "loader.h"
+#include "tsd.h"
 #include <sys/resource.h>
 #include <sys/prctl.h>
 #include <sys/auxv.h>
@@ -190,12 +191,27 @@ static void mdbg(const char *m)
 #define mdbg(m) ((void)0)
 #endif
 
+static bool i386_startup_records;
+#define MLDR_I386_STAGE(stage) do { \
+	if (i386_startup_records) { \
+		static const char record[] = "[darling-i386] " stage "\n"; \
+		int saved_errno = errno; \
+		(void)write(STDERR_FILENO, record, sizeof(record) - 1); \
+		errno = saved_errno; \
+	} \
+} while (0)
+
 int main(int argc, char** argv, char** envp)
 {
 	// Must be first: turn off pointer authentication before any function that would
 	// authenticate a return address runs, if the container opted in. See the helper.
 	maybe_disable_ptrauth(envp);
 
+	const char* startup_option = getenv("DARLING_I386_STARTUP");
+	i386_startup_records = startup_option && strcmp(startup_option, "1") == 0;
+#ifdef __i386__
+	MLDR_I386_STAGE("mldr32-main-enter");
+#endif
 	mdbg("mldr main() start");
 
 	// The launcher can leave RLIMIT_CORE at 0, which makes every guest crash undumpable.
@@ -288,7 +304,9 @@ int main(int argc, char** argv, char** envp)
 	process_special_env(&mldr_load_results);
 
 #ifdef __i386__
+	MLDR_I386_STAGE("mldr32-load-enter");
 	load(filename, CPU_TYPE_X86, false, argv, &mldr_load_results); // accept i386 only
+	MLDR_I386_STAGE("mldr32-load-return");
 #else
 	load(filename, 0, false, argv, &mldr_load_results);
 #endif
@@ -356,11 +374,17 @@ int main(int argc, char** argv, char** envp)
 		if (strncmp(entry, "__mldr_DYLD_ROOT_PATH=", sizeof("__mldr_DYLD_ROOT_PATH=") - 1) == 0) {
 			new_envp[dst++] = (char*)(entry + sizeof("__mldr_") - 1);
 			has_dyld_root = true;
+#ifdef __i386__
+			MLDR_I386_STAGE("mldr32-root-internal");
+#endif
 			continue;
 		}
 
 		if (strncmp(entry, "DYLD_ROOT_PATH=", sizeof("DYLD_ROOT_PATH=") - 1) == 0) {
 			has_dyld_root = true;
+#ifdef __i386__
+			MLDR_I386_STAGE("mldr32-root-inherited");
+#endif
 		}
 
 		// Don't pass any other internal mldr variables down to userland
@@ -384,6 +408,9 @@ int main(int argc, char** argv, char** envp)
 		if (buf) {
 			sprintf(buf, "DYLD_ROOT_PATH=%s", mldr_load_results.root_path);
 			new_envp[dst++] = buf;
+#ifdef __i386__
+			MLDR_I386_STAGE("mldr32-root-synthesized");
+#endif
 		}
 	}
 
@@ -630,7 +657,9 @@ static void reexec32(char** argv)
 	selfpath[len] = '\0';
 	strcat(selfpath, "32");
 
+	MLDR_I386_STAGE("mldr-reexec32-enter");
 	execv(selfpath, argv);
+	MLDR_I386_STAGE("mldr-reexec32-failed");
 
 	perror("Cannot re-execute as 32-bit process");
 	abort();
@@ -1015,7 +1044,13 @@ void __mldr_close_process_lifetime_pipe(int fd) {
 }
 
 static void setup_space(struct load_results* lr, bool is_64_bit) {
+	if (!is_64_bit) {
+		MLDR_I386_STAGE("mldr32-commpage-enter");
+	}
 	commpage_setup(is_64_bit);
+	if (!is_64_bit) {
+		MLDR_I386_STAGE("mldr32-commpage-return");
+	}
 
 	// Using the default stack top would cause the stack to be placed just above the commpage
 	// and would collide with it eventually.
@@ -1039,6 +1074,9 @@ static void setup_space(struct load_results* lr, bool is_64_bit) {
 	if (compatible_mmap((void*)(lr->stack_top - size), size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_GROWSDOWN, -1, 0) == MAP_FAILED) {
 		fprintf(stderr, "Failed to allocate stack of %lu bytes: %d (%s)\n", size, errno, strerror(errno));
 		exit(1);
+	}
+	if (!is_64_bit) {
+		MLDR_I386_STAGE("mldr32-stack-mapped");
 	}
 
 	unset_special_env();
@@ -1084,9 +1122,15 @@ static void setup_space(struct load_results* lr, bool is_64_bit) {
 	__dserver_process_lifetime_pipe_fd = lifetime_pipe[1];
 
 	int dummy_stack_variable;
+	if (!is_64_bit) {
+		MLDR_I386_STAGE("mldr32-checkin-enter");
+	}
 	if (dserver_rpc_checkin(false, &dummy_stack_variable, lifetime_pipe[0]) < 0) {
 		fprintf(stderr, "Failed to checkin with darlingserver\n");
 		exit(1);
+	}
+	if (!is_64_bit) {
+		MLDR_I386_STAGE("mldr32-checkin-return");
 	}
 
 	// keep our write end while closing the unused read end.
@@ -1112,24 +1156,14 @@ static void setup_space(struct load_results* lr, bool is_64_bit) {
 	}
 };
 
-#ifdef __x86_64__
-/* Darling's x86_64 guests keep their TSD in %gs (libsyscall/os/tsd.h); on macOS
- * the kernel installs the initial thread's TSD before dyld runs, and nothing in
- * Darling does that for the main thread.  ARCH_SET_GS is 0x1001 (ARCH_SET_FS,
- * 0x1002, would clobber the host's own TLS). */
-__attribute__((noinline))
-static void install_guest_tsd_page(void)
-{
-	void* tsd = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
-	                 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (tsd != MAP_FAILED)
-		syscall(SYS_arch_prctl, 0x1001 /* ARCH_SET_GS */, tsd);
-}
-#endif
-
 static void start_thread(struct load_results* lr) {
+#if defined(__x86_64__) || defined(__i386__)
+	if (mldr_install_guest_tsd_page() != 0) {
+		perror("Cannot initialize guest TSD");
+		exit(1);
+	}
+#endif
 #ifdef __x86_64__
-	install_guest_tsd_page();
 	__asm__ volatile(
 		"mov %1, %%rsp\n"
 		"jmpq *%0"
@@ -1139,6 +1173,7 @@ static void start_thread(struct load_results* lr) {
 		:
 	);
 #elif defined(__i386__)
+	MLDR_I386_STAGE("mldr32-handoff-enter");
 	__asm__ volatile(
 		"mov %1, %%esp\n"
 		"jmp *%0"

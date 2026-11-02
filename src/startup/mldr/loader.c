@@ -118,6 +118,11 @@ static inline size_t mldr_page_roundup(size_t val, size_t ps) {
 
 void FUNCTION_NAME(int fd, bool expect_dylinker, struct load_results* lr)
 {
+#if defined(GEN_32BIT)
+	if (expect_dylinker) {
+		MLDR_I386_STAGE("mldr32-dyld-map-enter");
+	}
+#endif
 	struct MACH_HEADER_STRUCT header;
 	uint8_t* cmds;
 	uintptr_t entryPoint = 0, entryPointDylinker = 0;
@@ -562,6 +567,11 @@ no_slide:
 
 	if (tmp_map_base)
 		munmap(tmp_map_base, PAGE_ROUNDUP(sizeof(header) + header.sizeofcmds));
+#if defined(GEN_32BIT)
+	if (expect_dylinker) {
+		MLDR_I386_STAGE("mldr32-dyld-map-return");
+	}
+#endif
 }
 
 
