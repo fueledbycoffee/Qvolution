@@ -65,7 +65,10 @@ class Runner:
         inputs = [a.work / 'dashboard/qv-host-guard', a.work / 'dashboard/qv-shutdown',
                   a.stage / 'qvolution-runtime-source.json', a.fixtures / 'receipts.json',
                   Path(__file__), Path(__file__).with_name('contracts.py'),
-                  Path(__file__).with_name('processes.py'), Path(__file__).with_name('shutdown-logged.py')]
+                  Path(__file__).with_name('processes.py'), Path(__file__).with_name('shutdown-logged.py'),
+                  Path(__file__).with_name('rerun.sh')]
+        for helper in (a.launcher, inputs[0], inputs[1], Path(__file__).with_name('shutdown-logged.py')):
+            require(os.access(helper, os.X_OK), 'helper is not executable: ' + str(helper))
         for label, command, files, options in self.cases():
             inputs.extend(Path(item[0] if isinstance(item, tuple) else item) for item in files)
         hashes = {}
@@ -105,10 +108,11 @@ class Runner:
                 source = a.source.parent / 'build/src/external/foundation/test/imports' / name
                 yield name, [guest + name], [source], {'expected': expected, 'required':
                     'NSExtensionMain: extension host lifecycle is unavailable' if expected else None}
-        if a.mode in ('all', 'terminal'):
-            yield 'terminal90', [guest + 'Terminal.app/Contents/MacOS/Terminal'], [a.terminal], {'desktop': 'terminal', 'seconds': 90}
         if a.mode in ('all', 'chess'):
             yield 'chess-dyld', [guest + 'Chess.app/Contents/MacOS/Chess'], [a.chess], {'desktop': 'chess', 'seconds': 20}
+        # Terminal's unresolved shutdown failure must not prevent the Chess rerun.
+        if a.mode in ('all', 'terminal'):
+            yield 'terminal90', [guest + 'Terminal.app/Contents/MacOS/Terminal'], [a.terminal], {'desktop': 'terminal', 'seconds': 90}
 
     def case(self, label, command, files, *, expected=0, required=None, seconds=90, desktop=None):
         a = self.args
@@ -204,6 +208,10 @@ class Runner:
             self.rows.append(record)
             (a.evidence / 'results.json').write_text(json.dumps(self.rows, indent=2) + '\n')
             print(label, 'PASS' if record['passed'] else 'FAIL', json.dumps(record['failures']), flush=True)
+            if desktop:
+                app_id, milestone = ('terminal', 'stability') if desktop == 'terminal' else ('chess', 'load')
+                status = ('pass_' if record['passed'] else 'failed_') + 'stage41e_' + label.replace('-', '_')
+                print('ORCHESTRATOR ONLY:', a.work / 'dashboard/qv-milestone', app_id, milestone, status, evidence, flush=True)
         require(not shutdown_failed and not guard, 'cleanup failed; no further prefixes will be started')
 
     def desktop(self, record, kind, command, env, evidence, dest, seconds, stop):
