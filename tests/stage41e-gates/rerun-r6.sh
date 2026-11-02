@@ -15,7 +15,8 @@ for arg in "$@"; do
   esac
 done
 [[ -f $lock && -d $L/stage ]] || { echo 'Missing reviewed r6 input lock/overlay' >&2; exit 2; }
-evidence=$L/evidence/rerun-r6-$(date -u +%Y%m%dT%H%M%SZ)-$$
+run_id=$(python3 -c 'import uuid; print(uuid.uuid4().hex[:12])')
+evidence=$L/evidence/rerun-r6-$(date -u +%Y%m%dT%H%M%SZ)-$run_id
 command=(python3 "$L/superproject/tests/stage41e-gates/run.py"
   --work "$W" --source "$S/superproject" --stage "$L/stage" --mode "$mode"
   --fixtures "$S/fixtures/stage41e/specific" --launcher "$L/build-r4/darling-detached"
