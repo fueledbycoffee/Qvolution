@@ -1054,7 +1054,8 @@ static void setup_space(struct load_results* lr, bool is_64_bit) {
 
 	// Using the default stack top would cause the stack to be placed just above the commpage
 	// and would collide with it eventually.
-	// Instead, we manually allocate a new stack below the commpage.
+	// Prefer a new stack below the commpage, without requiring that address:
+	// another Linux mapping can already occupy it.
 #if __x86_64__ || __aarch64__
 	lr->stack_top = commpage_address(true);
 #elif __i386__
@@ -1065,16 +1066,19 @@ static void setup_space(struct load_results* lr, bool is_64_bit) {
 
 	struct rlimit limit;
 	getrlimit(RLIMIT_STACK, &limit);
-	// allocate a few pages 16 pages if it's less than the limit; otherwise, allocate the limit
+	// Reserve the finite stack span so relocation cannot leave growth blocked
+	// by an adjacent VMA. Anonymous pages remain demand-paged.
 	unsigned long size = PAGE_SIZE * 16;
-	if (limit.rlim_cur != RLIM_INFINITY && limit.rlim_cur < size) {
+	if (limit.rlim_cur != RLIM_INFINITY) {
 		size = limit.rlim_cur;
 	}
 
-	if (compatible_mmap((void*)(lr->stack_top - size), size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_GROWSDOWN, -1, 0) == MAP_FAILED) {
+	void* stack = compatible_mmap((void*)(lr->stack_top - size), size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_GROWSDOWN, -1, 0);
+	if (stack == MAP_FAILED) {
 		fprintf(stderr, "Failed to allocate stack of %lu bytes: %d (%s)\n", size, errno, strerror(errno));
 		exit(1);
 	}
+	lr->stack_top = (unsigned long)stack + size;
 	if (!is_64_bit) {
 		MLDR_I386_STAGE("mldr32-stack-mapped");
 	}
