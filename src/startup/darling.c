@@ -49,6 +49,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include "proc-dir.h"
 #include "trustd-account.h"
 #include "startup-ready.h"
+#include "daemon-stdio.h"
 
 // Between Linux 4.9 and 4.11, a strange bug has been introduced
 // which prevents connecting to Unix sockets if the socket was
@@ -385,6 +386,16 @@ static int stopPrefixOrphans(pid_t *liveServer)
 	return stopped;
 }
 
+static void detachDaemonStdio(void)
+{
+	char logPath[4096];
+	snprintf(logPath, sizeof(logPath), "%s/private/var/log/launcher-daemons.log", prefix);
+	useOriginalIds();
+	bool ok = darlingDetachStdio(logPath);
+	restoreRootIds();
+	if (!ok) _exit(1);
+}
+
 static void spawnShellspawn(void)
 {
 	pid_t spid = fork();
@@ -396,24 +407,7 @@ static void spawnShellspawn(void)
 	if (spid == 0)
 	{
 		setsid();
-		if (!getenv("DARLING_DEBUG"))
-		{
-			int devnull = open("/dev/null", O_RDWR);
-			if (devnull >= 0)
-			{
-				dup2(devnull, STDIN_FILENO);
-				dup2(devnull, STDOUT_FILENO);
-				dup2(devnull, STDERR_FILENO);
-				if (devnull > 2)
-					close(devnull);
-			}
-			else
-			{
-				close(STDIN_FILENO);
-				close(STDOUT_FILENO);
-				close(STDERR_FILENO);
-			}
-		}
+		detachDaemonStdio();
 
 		char dserverSock[4096];
 		snprintf(dserverSock, sizeof(dserverSock), "%s/.darlingserver.sock", prefix);
@@ -3266,18 +3260,7 @@ pid_t spawnInitProcess(void)
 		}
 
 		setsid();
-		if (!getenv("DSERVER_LOG_STDERR") && !getenv("DARLING_DEBUG"))
-		{
-			int devnull = open("/dev/null", O_RDWR);
-			if (devnull >= 0)
-			{
-				dup2(devnull, STDIN_FILENO);
-				dup2(devnull, STDOUT_FILENO);
-				dup2(devnull, STDERR_FILENO);
-				if (devnull > 2)
-					close(devnull);
-			}
-		}
+		detachDaemonStdio();
 
 		const char* instPrefix = getInstallPrefix();
 		char dserverBin[4096];
