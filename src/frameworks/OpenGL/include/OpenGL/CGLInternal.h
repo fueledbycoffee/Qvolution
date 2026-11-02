@@ -26,6 +26,10 @@ CGL_EXPORT void CGLDestroyWindow(CGLWindowRef window);
 // contexts of other platforms.
 CGL_EXPORT CGLError CGLSetDrawableRefreshRate(CGLContextObj context, uint32_t millihertz);
 
+// CGLFlushDrawable without its glFinish: the swap still flushes the context,
+// but returns without waiting for the GPU to finish the frame.
+CGL_EXPORT CGLError CGLFlushDrawableWithoutFinish(CGLContextObj context);
+
 CGL_EXPORT CGLError CGLContextMakeCurrentAndAttachToWindow(CGLContextObj context, CGLWindowRef window);
 CGLError CGLSetSurface(CGLContextObj gl, CGSConnectionID cid, CGSWindowID wid, CGSSurfaceID sid);
 CGLContextObj CGWindowContextCreate(CGSConnectionID cid, CGSWindowID wid, CFDictionaryRef options);

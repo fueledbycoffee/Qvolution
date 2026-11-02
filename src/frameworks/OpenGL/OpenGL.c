@@ -832,15 +832,26 @@ CGLError CGLUnlockContext(CGLContextObj context) {
     return kCGLNoError;
 }
 
-CGLError CGLFlushDrawable(CGLContextObj context) {
+static CGLError cgl_flush_drawable(CGLContextObj context, int finish) {
     if (context == NULL)
         return kCGLBadContext;
     if (context->egl_surface == EGL_NO_SURFACE)
         return kCGLBadDrawable;
-    glFinish();
+    if (finish)
+        glFinish();
     if (context->paced)
         cgl_swap_pace(&context->pacer, context->swap_interval);
     return eglSwapBuffers(context->egl_display, context->egl_surface) ? kCGLNoError : kCGLBadDrawable;
+}
+
+CGLError CGLFlushDrawable(CGLContextObj context) {
+    return cgl_flush_drawable(context, 1);
+}
+
+// eglSwapBuffers already flushes the context; only callers that need the GPU
+// to have finished before the swap returns should pay for glFinish.
+CGLError CGLFlushDrawableWithoutFinish(CGLContextObj context) {
+    return cgl_flush_drawable(context, 0);
 }
 
 CGLError CGLSetDrawableRefreshRate(CGLContextObj context, uint32_t millihertz) {
