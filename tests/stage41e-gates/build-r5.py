@@ -2,6 +2,7 @@
 """Relink committed fatal diagnostics against Stage41e; never write its build."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import shlex
 import subprocess
@@ -35,6 +36,9 @@ def main():
                 if archive.exists():
                     archive.rename(archive.with_name(archive.name+'.prior-'+uuid.uuid4().hex[:8]))
             subprocess.run(command, cwd=B, check=True)
+            if command[0].endswith('-ranlib'):
+                # cctools ranlib truncates the archive mtime to whole seconds.
+                os.utime(command[1], None)
         return
     assert len(sys.argv) == 1
     OUT.mkdir(exist_ok=True)
@@ -50,7 +54,7 @@ def main():
     def node(output, commands, dependencies):
         path = OUT/(Path(output).name + '.commands.json')
         path.write_text(json.dumps(commands, indent=2)+'\n')
-        nodes.append((str(output), path, list(map(str, dependencies))))
+        nodes.append((str(output), path, [str(Path(__file__)), *map(str, dependencies)]))
 
     for rule, component, endings in (
             ('C_COMPILER__libc-stdlib_unscanned_', 'libc', ('/abort.c',)),
