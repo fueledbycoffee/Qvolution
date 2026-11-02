@@ -182,6 +182,7 @@ static void checkPrefixCreatable(void)
 static const char* const g_darlingserverEnvAllowlist[] = {
 	"HOME",
 	"XDG_CONFIG_HOME",
+	"DARLING_ISOLATED_HOME",
 	"DARLING_DEBUG",
 	"DSERVER_LOG_STDERR",
 	"DSERVER_LOG_LEVEL",

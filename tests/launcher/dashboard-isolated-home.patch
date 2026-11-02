@@ -1,0 +1,29 @@
+--- a/dashboard/qv-slot
++++ b/dashboard/qv-slot
+@@ -27,7 +27,10 @@
+ fi
+ case $kind in
+   build) n=3 ;;
+-  guest) n=6 ;;
++  guest)
++    n=6
++    export DARLING_ISOLATED_HOME="${DARLING_ISOLATED_HOME:-1}"
++    ;;
+   *) echo "usage: qv-slot build|guest|perf <command...>" >&2; exit 2 ;;
+ esac
+ [ $# -gt 0 ] || { echo "qv-slot: no command" >&2; exit 2; }
+--- a/dashboard/RUNNER.md
++++ b/dashboard/RUNNER.md
+@@ -24,6 +24,12 @@
+ Wrap every container boot in Qvolution-work/dashboard/qv-slot guest. Use `qv-slot perf` ONLY for a short timing-measurement step (it holds two build slots and blocks the fleet's builds); never for whole suites or app runs. Use run_in_background for long
+ runs and wait for the notification.
+ 
++Guest slots default `DARLING_ISOLATED_HOME=1`. Use a fresh prefix with a runtime containing
++host-folder-isolation; it creates real home folders and refuses existing host symlinks.
++For an explicit normal-behavior control set `DARLING_ISOLATED_HOME=0` on that command.
++The option takes effect when darlingserver starts; stop a prefix before changing modes.
++Keep the qv-host-guard snapshot/verify around every run, including shutdown and failures.
++`DARLING_APP_CONTAINER=1` remains Catalyst's separate per-app CoreFoundation option.
+ 
+ Report status with Qvolution-work/dashboard/qv-status <lane> --agent claude-runner --engine claude
+ --model "claude-sonnet runner" (running at start, phase lines, then review/blocked/failed, or done only
