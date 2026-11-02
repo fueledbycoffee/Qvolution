@@ -11,6 +11,7 @@ p.add_argument('--out', type=Path, required=True)
 p.add_argument('--ref')
 p.add_argument('--bits', type=int, choices=(32, 64), default=64)
 p.add_argument('--i386-address', action='store_true', help='use the actual i386 commpage boundary in a 64-bit probe')
+p.add_argument('--compile-only', action='store_true')
 a = p.parse_args()
 resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 a.out.mkdir(parents=True, exist_ok=True)
@@ -101,6 +102,9 @@ for bits in (a.bits,):
     binary = a.out / ('probe-' + str(bits))
     subprocess.run(['/usr/bin/clang', '-m' + str(bits), '-Wall', '-Wextra', '-Werror',
                     '-I' + str(a.source / 'src/startup/mldr'), str(probe), '-o', str(binary)], check=True)
+    if a.compile_only:
+        print(f'Compiled {bits}-bit native probe; execution not requested')
+        continue
     for occupied in (0, 1, 2):
         for limit in (0, 1, 2):
             for repeat in range(20):
@@ -113,5 +117,6 @@ for bits in (a.bits,):
                     failures += 1
                 if repeat == 0:
                     print(f'{bits}-bit overlap={occupied} limit={limit}: exit {result.returncode}', flush=True)
-print(f'{180 - failures}/180 native allocation cases passed; failures={failures}')
+if not a.compile_only:
+    print(f'{180 - failures}/180 native allocation cases passed; failures={failures}')
 raise SystemExit(bool(failures))
