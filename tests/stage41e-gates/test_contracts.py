@@ -79,12 +79,39 @@ class Contracts(unittest.TestCase):
             self.assertFalse(failed['passed'])
             self.assertTrue(all(f['detail'] for f in failed['failures']))
 
+    def test_terminal_ab_cases_differ_only_in_launcher_variant(self):
+        args = SimpleNamespace(mode='terminal', stage=self.root, terminal=self.root / 'Terminal.app',
+                               stdio_control_launcher=self.root / 'inherited')
+        cases = list(runner.Runner(args).cases())
+        self.assertEqual([c[0] for c in cases], ['terminal90-detached', 'terminal90-inherited'])
+        self.assertEqual(cases[0][1:3], cases[1][1:3])
+        self.assertEqual(cases[0][3], dict(desktop='terminal', seconds=90, launch_variant='detached'))
+        self.assertEqual(cases[1][3], dict(desktop='terminal', seconds=90, launch_variant='inherited'))
+
+    def test_terminal_control_launches_and_probes_with_control_launcher(self):
+        evidence = self.root / 'control-evidence'
+        evidence.mkdir()
+        control = self.root / 'inherited'
+        gate = runner.Runner(SimpleNamespace(stage=self.root, launcher=self.root / 'detached'))
+        app = SimpleNamespace(poll=lambda: None, stderr=SimpleNamespace(close=lambda: None))
+        probe = SimpleNamespace(stdout=None)
+        record = {'passed': True, 'failures': []}
+        with patch.object(runner.subprocess, 'Popen', side_effect=[app, probe]) as launch, \
+             patch.object(runner, 'capture_pipe', return_value=(b'', False)), \
+             patch.object(runner, 'wait', return_value=0), \
+             patch.object(runner, 'chunks', return_value=iter(())):
+            gate.desktop(record, 'terminal', ['/Applications/Terminal.app/Contents/MacOS/Terminal'],
+                         {'DPREFIX': str(self.root)}, evidence, self.root, 90, lambda: 0, launcher=control)
+        self.assertEqual([c.args[0][0] for c in launch.call_args_list], [str(control), str(control)])
+        self.assertIn('shell_probe_timeout', [f['check'] for f in record['failures']])
+
     def test_terminal_exited_probe_without_eof_and_shutdown_failure_are_durable(self):
         work = self.root
         (work / 'p').mkdir()
         evidence = work / 'evidence'
         evidence.mkdir()
-        args = SimpleNamespace(work=work, stage=work / 'stage', launcher=work / 'launcher', evidence=evidence)
+        args = SimpleNamespace(work=work, stage=work / 'stage', launcher=work / 'launcher',
+                               stdio_control_launcher=work / 'control', evidence=evidence)
         gate = runner.Runner(args)
         init = SimpleNamespace(wait=lambda seconds: 0)
         app = SimpleNamespace(poll=lambda: None, stderr=SimpleNamespace(close=lambda: None))
@@ -98,6 +125,7 @@ class Contracts(unittest.TestCase):
                 home.mkdir(parents=True)
                 return init
             if 'qv-shutdown' in command[0]:
+                self.assertEqual(kw['env']['QV_REAL_LAUNCHER'], str(args.launcher))
                 return SimpleNamespace()
             return probe if '/bin/ps' in command else app
 
@@ -112,7 +140,7 @@ class Contracts(unittest.TestCase):
              patch.object(runner, 'snapshot', return_value={'processes': []}), \
              patch.object(runner, 'server_records', return_value={}):
             with self.assertRaisesRegex(RuntimeError, 'cleanup failed'):
-                gate.case('terminal90', ['/Applications/Stage41e/Terminal.app/Contents/MacOS/Terminal'], [], desktop='terminal')
+                gate.case('terminal90', ['/Applications/Stage41e/Terminal.app/Contents/MacOS/Terminal'], [], desktop='terminal', launch_variant='inherited')
         row = json.loads((evidence / 'results.json').read_text())[0]
         self.assertFalse(row['passed'])
         self.assertTrue(row['alive_at_end'])
@@ -122,6 +150,7 @@ class Contracts(unittest.TestCase):
         self.assertIn('shell_probe_timeout', checks)
         self.assertIn('shutdown', checks)
         self.assertTrue((evidence / 'terminal90/observation-0.json').is_file())
+        self.assertEqual(opened[0][0], str(args.stdio_control_launcher))
         self.assertEqual(len(opened), 5)  # no new prefix or launch after cleanup failure
 
     def test_shutdown_adapter_keeps_our_launcher_error_and_exit(self):

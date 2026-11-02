@@ -1,5 +1,20 @@
 # Stage41e gate rerun
 
+Round 3 uses `rerun-r3.sh`: twelve Foundation gates, Chess20 and two Terminal90
+cases. The Terminal launchers differ only by reversing d0872f92427's stdio change;
+both retain the verified shutdown fix. Init, app and ps launches use the selected
+variant, and cleanup always uses the detached launcher. The inherited-stdio case
+can fail the unchanged pipe-EOF gate; that is evidence, not a relaxed timeout.
+Run the same wrapper with `--dry-run-test-only` to validate everything before boot.
+
+The three changed framework payloads replace only this lane's files, preserving
+the original hardlinks as evidence. Their full universal links include i386 and
+x86_64; no libobjc/libsystem/dyld or static variant changes. The patch receipt pins
+each replacement and its original backup. The synthetic qvAudit selectors remain
+unknown and must throw, while real BOOL state and command getters are also tested.
+Installed sources still contained catch-all forwarding; changing that expectation
+would conceal the defect. Other framework placeholder APIs are outside this fix.
+
 Run `bash tests/stage41e-gates/rerun.sh` from the lane clone, or the lane's
 `rerun.sh` link. Round 2 uses `rerun-r2.sh`. The wrapper requires the lane's existing cp -al overlay and
 reviewed input lock, acquires one guest slot and runs 12 Foundation cases,

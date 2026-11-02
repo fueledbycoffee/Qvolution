@@ -55,22 +55,35 @@ class Runner:
         require(head == manifest['built_superproject'], 'source HEAD differs from installed runtime')
         require(not a.launcher.stat().st_mode & 0o6000, 'launcher must be non-setuid')
         patch_inputs = []
+        overrides = {}
         if a.patch_receipt:
             patch = json.loads(a.patch_receipt.read_text())
             patch_head = subprocess.check_output(['git', '-C', patch['source'], 'rev-parse', 'HEAD'],
                                                  text=True, timeout=10).strip()
             require(patch_head == patch['commit'], 'patch source HEAD differs from receipt')
+            overrides = patch.get('runtime_overrides', {})
+            for rel, override in overrides.items():
+                require(sha(a.stage / rel) == override['sha256'], 'patched runtime hash: ' + rel)
+                require(sha(override['baseline_backup']) == override['baseline_sha256'], 'baseline backup: ' + rel)
+                patch_inputs.append(Path(override['baseline_backup']))
+            if getattr(a, 'stdio_control_launcher', None):
+                require(str(getattr(a, 'stdio_control_launcher', None)) == patch['stdio_control_launcher'], 'control launcher path')
+                require(not getattr(a, 'stdio_control_launcher', None).stat().st_mode & 0o6000 and
+                        os.access(getattr(a, 'stdio_control_launcher', None), os.X_OK), 'control launcher must be non-setuid executable')
             for path, digest in patch['inputs'].items():
                 require(sha(path) == digest, 'patch input hash: ' + path)
                 patch_inputs.append(Path(path))
             require(str(a.launcher) == patch['launcher'], 'patched launcher path')
             require(str(a.stub_forwarding) == patch['stub_forwarding'], 'patched fixture path')
-            patch_inputs.extend([a.patch_receipt, Path(__file__).with_name('rerun-r2.sh')])
+            patch_inputs.extend([a.patch_receipt, Path(__file__).with_name(patch.get('wrapper', 'rerun-r2.sh'))])
         else:
             require(not a.stub_forwarding, 'fixture override requires a reviewed patch receipt')
             require(sha(a.launcher) == manifest['build_tools']['launcher']['sha256'], 'launcher hash')
         for rel, digest in manifest['fingerprints'].items():
-            require(sha(a.stage / rel) == digest, 'runtime fingerprint: ' + rel)
+            if rel in overrides:
+                require(overrides[rel]['baseline_sha256'] == digest, 'override baseline fingerprint: ' + rel)
+            else:
+                require(sha(a.stage / rel) == digest, 'runtime fingerprint: ' + rel)
         for rel, mode in manifest['directory_modes'].items():
             require((a.stage / rel).stat().st_mode & 0o7777 == int(mode, 8), 'directory mode: ' + rel)
         receipts = json.loads((a.fixtures / 'receipts.json').read_text())
@@ -128,16 +141,19 @@ class Runner:
             yield 'chess-dyld', [guest + 'Chess.app/Contents/MacOS/Chess'], [a.chess], {'desktop': 'chess', 'seconds': 20}
         # Terminal's unresolved shutdown failure must not prevent the Chess rerun.
         if a.mode in ('all', 'terminal'):
-            yield 'terminal90', [guest + 'Terminal.app/Contents/MacOS/Terminal'], [a.terminal], {'desktop': 'terminal', 'seconds': 90}
+            variants = [('terminal90-detached', 'detached'), ('terminal90-inherited', 'inherited')] if getattr(a, 'stdio_control_launcher', None) else [('terminal90', 'detached')]
+            for label, variant in variants:
+                yield label, [guest + 'Terminal.app/Contents/MacOS/Terminal'], [a.terminal], {'desktop': 'terminal', 'seconds': 90, 'launch_variant': variant}
 
-    def case(self, label, command, files, *, expected=0, required=None, seconds=90, desktop=None):
+    def case(self, label, command, files, *, expected=0, required=None, seconds=90, desktop=None, launch_variant='detached'):
         a = self.args
         prefix = a.work / 'p' / ('s41eg-' + uuid.uuid4().hex[:8])
         require(not prefix.exists() and len(os.fsencode(prefix)) <= 83, 'invalid fresh prefix')
         evidence = a.evidence / label
         evidence.mkdir()
         env = {**self.base, 'DPREFIX': str(prefix)}
-        record = dict(label=label, command=command, prefix=str(prefix), passed=True, failures=[], shutdowns=[])
+        launcher = getattr(a, 'stdio_control_launcher', None) if launch_variant == 'inherited' else a.launcher
+        record = dict(label=label, command=command, prefix=str(prefix), launcher=str(launcher), launch_variant=launch_variant, passed=True, failures=[], shutdowns=[])
         used = False
         shutdown_failed = False
 
@@ -170,7 +186,7 @@ class Runner:
             used = True
             for attempt in range(2):
                 with (evidence / f'init-{attempt}.log').open('w') as log:
-                    init = subprocess.Popen([str(a.launcher), 'shell', '/usr/bin/true'], env=env,
+                    init = subprocess.Popen([str(launcher), 'shell', '/usr/bin/true'], env=env,
                                             stdout=log, stderr=subprocess.STDOUT)
                     rc = wait(init, 75)
                 require(stop() == 0, 'initialization shutdown failed')
@@ -192,7 +208,7 @@ class Runner:
                     profile = home / '.bash_profile'
                     require(not profile.exists() and not profile.is_symlink(), 'profile already exists')
                     profile.write_text("printf '%s\\n' qv-stage41e-shell-executed > /Applications/Stage41e/shell-marker\n")
-                self.desktop(record, desktop, command, env, evidence, dest, seconds, stop)
+                self.desktop(record, desktop, command, env, evidence, dest, seconds, stop, launcher=launcher)
             else:
                 for attempt in range(2):
                     logpath = evidence / f'guest-{attempt}.log'
@@ -233,13 +249,14 @@ class Runner:
                 print('ORCHESTRATOR ONLY:', a.work / 'dashboard/qv-milestone', app_id, milestone, status, evidence, flush=True)
         require(not shutdown_failed and not guard, 'cleanup failed; no further prefixes will be started')
 
-    def desktop(self, record, kind, command, env, evidence, dest, seconds, stop):
+    def desktop(self, record, kind, command, env, evidence, dest, seconds, stop, launcher=None):
+        launcher = launcher or self.args.launcher
         pattern = re.compile(rb'(xdg_surface|xdg_toplevel|wl_surface)[@#][0-9]+\.(get_toplevel|configure|attach|commit)\(')
         record['attempts'] = []
         for attempt in range(2):
             tokens = set()
             startup_timeout = []
-            app = subprocess.Popen([str(self.args.launcher), 'shell', *command], env={**env, 'WAYLAND_DEBUG': 'client'},
+            app = subprocess.Popen([str(launcher), 'shell', *command], env={**env, 'WAYLAND_DEBUG': 'client'},
                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             cancelled = threading.Event()
             drain = {'eof': False, 'timed_out': False}
@@ -271,7 +288,7 @@ class Runner:
             try:
                 while time.monotonic() - start < seconds and app.poll() is None:
                     if kind == 'terminal' and (not probes or time.monotonic() - probes[-1]['when'] >= 10):
-                        probe = subprocess.Popen([str(self.args.launcher), 'shell', '/bin/ps', '-axo', 'comm='],
+                        probe = subprocess.Popen([str(launcher), 'shell', '/bin/ps', '-axo', 'comm='],
                                                  env=env, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                         deadline = time.monotonic() + 10
                         output, eof = capture_pipe(probe.stdout, deadline)
@@ -331,6 +348,7 @@ def main():
     p.add_argument('--mode', choices=('all', 'foundation', 'terminal', 'chess'), default='all')
     p.add_argument('--patch-receipt', type=Path, help='hash-locked launcher and authored fixture patch')
     p.add_argument('--stub-forwarding', type=Path, help='authored fixture from the patch receipt')
+    p.add_argument('--stdio-control-launcher', type=Path, help='exact d0872f92427 reversal; shutdown always uses patched launcher')
     p.add_argument('--input-lock', type=Path, help='require the exact input hashes approved by the native dry run')
     p.add_argument('--dry-run-test-only', action='store_true', help='validate all inputs and stop at the first boot boundary')
     args = p.parse_args()
