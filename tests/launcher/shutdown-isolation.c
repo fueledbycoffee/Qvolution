@@ -39,7 +39,7 @@ int main(int argc,char **argv) {
  assert(shutdownServerMatches(server,"/owned-test"));
  assert(!shutdownServerMatches(server,"/other-prefix"));
  int childhandles[3]; for(int i=0;i<3;i++) {childhandles[i]=shutdownHandle(members[i]); assert(childhandles[i]>=0);}
- assert(shutdownContainer(server,handle,external,externalHandle)); close(handle);
+ assert(shutdownContainer(server,handle,external,externalHandle,"/owned-test",getuid(),(const char *const[]){"/not-mldr", "/also-not-mldr"})); close(handle);
  struct pollfd externalPoll={.fd=externalHandle,.events=POLLIN};
  assert(poll(&externalPoll,1,2000)>0);close(externalHandle);
  assert(kill(unrelated,0)==0); assert(kill(getpid(),0)==0);

@@ -109,3 +109,17 @@ This regression fails on the parent selector and passes after reserving socket
 suffix capacity. Real short unique cold-prefix PTY and `/bin/echo` controls passed;
 intentionally overlong diagnostic prefixes timed out and left socket files at
 truncated paths. These are path-length results, not a generic cold-start failure.
+
+## Daemon descriptors and reparented PTY sessions
+
+Round-2 native tests are `daemon-stdio.c` and `shutdown-pty.c`. Compile with
+`cc -Wall -Wextra -Werror -O2 tests/launcher/<name>.c -lutil -o <output>`.
+The former calls the exact launcher redirect helper and verifies pipe EOF while
+its daemon stays alive, including debug/zero-valued logging flags, closed stdio,
+and rejection of missing, symlinked or non-regular log destinations. The latter
+uses only authored processes: a session leader owns a PTY, ignores TERM and is
+reparented before shutdown. It must be selected by exact socket/uid/executable,
+then stopped by KILL after the grace period; an other-prefix PTY survives and
+exits through a test-owned control pipe. Neither test boots a container. Files
+are retained. Daemon stderr now belongs to the prefix's launcher-daemons.log;
+do not inspect it for guest applications under the clean-room boundary.

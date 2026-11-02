@@ -92,6 +92,12 @@ static bool shutdownExeIs(pid_t pid, const char *const mldr[2])
  return !strcmp(exe, mldr[0]) || !strcmp(exe, mldr[1]);
 }
 
+static bool shutdownGuestMatches(pid_t pid, const char *socketEntry, uid_t uid,
+                                 const char *const mldr[2])
+{
+ return shutdownOwnedBy(pid, uid) && shutdownExeIs(pid, mldr) && shutdownEnvHas(pid, socketEntry);
+}
+
 /* Stops what a dead darlingserver left behind: processes of `uid` running one of the `mldr`
  * binaries with this prefix's exact socket environment. Candidates are pinned before looking for a
  * live server, so a container that starts concurrently is left alone. Returns the number stopped;
@@ -111,7 +117,7 @@ static inline int shutdownOrphans(const char *prefix, uid_t uid, const char *con
   if (pid <= 1 || pid == getpid()) continue;
   int fd = shutdownHandle(pid);
   if (fd < 0) continue;
-  if (!shutdownOwnedBy(pid, uid) || !shutdownExeIs(pid, mldr) || !shutdownEnvHas(pid, entry)) { close(fd); continue; }
+  if (!shutdownGuestMatches(pid, entry, uid, mldr)) { close(fd); continue; }
   struct pollfd *h = realloc(handles, (count + 1) * sizeof(*handles));
   if (h) handles = h;
   pid_t *p = h ? realloc(pids, (count + 1) * sizeof(*pids)) : NULL;
@@ -148,9 +154,14 @@ static inline int shutdownOrphans(const char *prefix, uid_t uid, const char *con
 /* Called with a pinned, prefix-validated server. Snapshot handles before TERM so
  * descendants that become orphaned are still covered by the subsequent KILL.
  * Root containers also include reparented tasks in their private PID namespace.
- * Nonroot containers use ancestry only, never the shared host namespace. */
-static inline bool shutdownContainer(pid_t server, int serverHandle, pid_t shellspawn, int shellHandle)
+ * Nonroot containers also include reparented mldr guests verified by exact prefix
+ * socket environment, owner and executable; never select the shared host namespace. */
+static inline bool shutdownContainer(pid_t server, int serverHandle, pid_t shellspawn, int shellHandle,
+                                     const char *prefix, uid_t uid, const char *const mldr[2])
 {
+ char socketEntry[4096];
+ int length = snprintf(socketEntry, sizeof(socketEntry), "__mldr_sockpath=%s/.darlingserver.sock", prefix);
+ if (length < 0 || (size_t)length >= sizeof(socketEntry)) return false;
  char serverNs[128], containerNs[128] = "";
  if (!shutdownNamespace(server, serverNs, sizeof(serverNs))) return false;
  DIR *dir = opendir("/proc");
@@ -177,13 +188,13 @@ static inline bool shutdownContainer(pid_t server, int serverHandle, pid_t shell
   pid_t pid = atoi(entry->d_name); char ns[128];
   if (pid <= 1 || pid == server || pid == shellspawn || pid == getpid()) continue;
   bool member = containerNs[0] && shutdownNamespace(pid, ns, sizeof(ns)) && !strcmp(ns, containerNs);
-  if (!member && !shutdownDescendant(pid, server) &&
+  if (!member && !shutdownGuestMatches(pid, socketEntry, uid, mldr) && !shutdownDescendant(pid, server) &&
       !(shellspawn > 1 && syscall(SYS_pidfd_send_signal, shellHandle, 0, NULL, 0) == 0 && shutdownDescendant(pid, shellspawn))) continue;
   int fd = shutdownHandle(pid);
   if (fd < 0) { if (errno != ESRCH) ok = false; continue; }
   /* Recheck membership after pinning, before retaining a signal target. */
   member = containerNs[0] && shutdownNamespace(pid, ns, sizeof(ns)) && !strcmp(ns, containerNs);
-  if (!member && !shutdownDescendant(pid, server) &&
+  if (!member && !shutdownGuestMatches(pid, socketEntry, uid, mldr) && !shutdownDescendant(pid, server) &&
       !(shellspawn > 1 && syscall(SYS_pidfd_send_signal, shellHandle, 0, NULL, 0) == 0 && shutdownDescendant(pid, shellspawn))) { close(fd); continue; }
   struct pollfd *next = realloc(handles, (count + 1) * sizeof(*handles));
   if (!next) { close(fd); ok = false; break; }

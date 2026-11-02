@@ -310,64 +310,8 @@ static pid_t shellspawnPeer(int *handle)
 	return pid;
 }
 
-// Whether the server still has a descendant that is alive to signal. Returns 1 if so, 0 if
-// not, and -1 when the answer could not be established so the caller can fail closed.
-//
-// Zombies deliberately do not count. A container whose guests have all exited leaves the
-// server holding only defunct children, and a zombie can be neither signalled nor woken, so
-// treating one as "still running" would strand the server forever.
-static int serverHasLiveDescendant(pid_t server)
-{
-	DIR* dir;
-	struct dirent* entry;
-
-	useOriginalIds();
-	dir = opendir("/proc");
-	if (!dir)
-	{
-		restoreRootIds();
-		return -1;
-	}
-
-	int live = 0;
-	while (!live && (entry = readdir(dir)))
-	{
-		pid_t pid = (pid_t)atoi(entry->d_name);
-		if (pid <= 1 || pid == server || pid == getpid())
-			continue;
-		if (!shutdownDescendant(pid, server))
-			continue;
-
-		char path[64];
-		snprintf(path, sizeof(path), "/proc/%d/stat", pid);
-		int fd = open(path, O_RDONLY | O_CLOEXEC);
-		if (fd < 0)
-			continue;
-		char buf[512];
-		ssize_t n = read(fd, buf, sizeof(buf) - 1);
-		close(fd);
-		if (n <= 0)
-			continue;
-		buf[n] = '\0';
-
-		// The state field is the one after the ')' that closes comm, which may itself
-		// contain spaces and parentheses.
-		char* p = strrchr(buf, ')');
-		if (!p)
-			continue;
-		for (p++; *p == ' '; p++)
-			;
-		if (*p != 'Z' && *p != 'X')
-			live = 1;
-	}
-	closedir(dir);
-	restoreRootIds();
-	return live;
-}
-
-// Nonroot containers have no PID namespace, so a dead server's tree outlives it. Stops those
-// leftovers in this prefix; returns as shutdownOrphans().
-static int stopPrefixOrphans(pid_t *liveServer)
+// Resolve the verified runtime executables for live and dead-server shutdown.
+static int stopPrefixProcesses(pid_t server, int handle, pid_t shellspawn, int shellHandle, pid_t *liveServer)
 {
 	const char* instPrefix = getInstallPrefix();
 	char launchdMldr[4096], guestMldr[4096], resolved[2][PATH_MAX];
@@ -379,8 +323,14 @@ static int stopPrefixOrphans(pid_t *liveServer)
 		realpath(launchdMldr, resolved[0]) ? resolved[0] : launchdMldr,
 		realpath(guestMldr, resolved[1]) ? resolved[1] : guestMldr,
 	};
-	int stopped = shutdownOrphans(prefix, g_originalUid, mldr, liveServer);
-	restoreRootIds();
+	int stopped;
+	if (server > 0) {
+		restoreRootIds();
+		stopped = shutdownContainer(server, handle, shellspawn, shellHandle, prefix, g_originalUid, mldr) ? 0 : -1;
+	} else {
+		stopped = shutdownOrphans(prefix, g_originalUid, mldr, liveServer);
+		restoreRootIds();
+	}
 	if (stopped > 0)
 		fprintf(stderr, "Stopped %d processes left by a dead darlingserver.\n", stopped);
 	return stopped;
@@ -2153,27 +2103,7 @@ int main(int argc, char ** argv)
 			}
 			int shellHandle = -1;
 			pid_t shellspawn = g_nonroot ? shellspawnPeer(&shellHandle) : 0;
-			if (g_nonroot && shellspawn > 0 && shellHandle < 0)
-			{
-				// The shellspawn peer is how shutdown finds guest processes it cannot
-				// otherwise attribute, so without it shutdown stays conservative and
-				// refuses. But once every guest has exited there is nothing left to find,
-				// and the server outliving its container would then be unshuttable: the
-				// peer is gone precisely because it exited. shutdownContainer() already
-				// treats the handle as optional, so only refuse while something is still
-				// alive to signal, and fail closed if we cannot even tell.
-				int live = serverHasLiveDescendant(pidInit);
-				if (live != 0)
-				{
-					close(handle);
-					fprintf(stderr, live > 0
-						? "Cannot obtain nonroot shellspawn process handle while darlingserver %d still has running processes; shutdown refused.\n"
-						: "Cannot inspect darlingserver %d's processes, and cannot obtain nonroot shellspawn process handle; shutdown refused.\n",
-						(int)pidInit);
-					return 1;
-				}
-			}
-			bool stopped = shutdownContainer(pidInit, handle, shellspawn, shellHandle);
+			bool stopped = stopPrefixProcesses(pidInit, handle, shellspawn, shellHandle, NULL) == 0;
 			if (shellHandle >= 0) close(shellHandle);
 			close(handle);
 			if (!stopped)
@@ -2184,7 +2114,7 @@ int main(int argc, char ** argv)
 		}
 
 		pid_t liveServer;
-		if (stopPrefixOrphans(&liveServer) < 0)
+		if (stopPrefixProcesses(0, -1, 0, -1, &liveServer) < 0)
 			return 1;
 		if (liveServer)
 		{
@@ -2221,7 +2151,7 @@ int main(int argc, char ** argv)
 	if (pidInit == 0)
 	{
 		pid_t liveServer;
-		if (stopPrefixOrphans(&liveServer) < 0)
+		if (stopPrefixProcesses(0, -1, 0, -1, &liveServer) < 0)
 			return 1;
 
 		char socketPath[4096];
