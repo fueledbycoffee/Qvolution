@@ -7,21 +7,49 @@ L=$W/parallel/i386-wrappers-r3
 export PATH=$W/dashboard/bin:$PATH LC_ALL=C
 if [[ ${1-} != --slot ]]; then exec "$W/dashboard/qv-slot" guest bash "$0" --slot "$@"; fi
 shift
-E=${1:?native evidence directory}
+test_only=0
+if [[ ${1-} == --test-only-before-container ]]; then test_only=1; shift; fi
+E=${1:?prepared input directory}
 R=${2:?fresh external evidence directory}
-[[ $# == 2 && ! -e $R/guest-results.tsv ]]
+[[ $# == 2 && -d $E && -d $R && $E != "$R" && ! -e $R/guest-results.tsv ]]
 launcher=$W/parallel/i386-guest/build/darling
 [[ -x $launcher && ! -u $launcher && ! -g $launcher ]]
-python3 "$L/verify-inputs.py" --verify "$E"
+python3 "$L/verify-inputs.py" --verify "$E" --output "$R"
 python3 "$W/parallel/i386-wrappers-r2/check-fixture-maps.py" --out "$R/map-check" "$E/guest-build/"*-i386
+# Resolve every fixture and argument before any container launch.
+{
+    for round in {1..20}; do
+        printf 'before-custom-thread_selfusage-%s\tbefore-custom-i386\t6\n' "$round"
+        printf 'after-custom-thread_selfusage-%s\tafter-custom-i386\t6\n' "$round"
+        printf 'before-generated-set_ldt-%s\tbefore-generated-i386\t12\n' "$round"
+        printf 'after-generated-thread_selfusage-%s\tafter-generated-i386\t6\n' "$round"
+    done
+    for round in 1 2; do
+        for arch in i386 x86_64; do printf 'installed-%s-%s\tinstalled-%s\t\n' "$arch" "$round" "$arch"; done
+    done
+} > "$R/guest-plan.tsv"
+while IFS=$'\t' read -r name binary argument; do
+    [[ -x $E/guest-build/$binary ]]
+    [[ $argument == 6 || $argument == 12 || ( $binary == installed-* && -z $argument ) ]]
+done < "$R/guest-plan.tsv"
 stage=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["stage"])' "$E/stage-farm.json")
 export DARLING_NONROOT=1 DARLING_INSTALL_PREFIX=$stage/usr/local
 export DPREFIX=$W/p/iw3-$(python3 -c 'import secrets; print(secrets.token_hex(3))')
 [[ ${#DPREFIX} -le 83 && ! -e $DPREFIX ]]
 for variable in ${!DYLD_@}; do unset "$variable"; done
 unset DARLING_I386_STARTUP
-printf '%s\n' "$DPREFIX" > "$R/guest-prefix.txt"
-"$W/dashboard/qv-host-guard" snapshot "$R/host-folders.before"
+if [[ $test_only == 0 ]]; then printf '%s\n' "$DPREFIX" > "$R/guest-prefix.txt"; fi
+guard=$R/host-folders.before
+if [[ $test_only == 1 ]]; then guard=$R/preflight-host-folders.before; fi
+"$W/dashboard/qv-host-guard" snapshot "$guard"
+# TEST ONLY, OFF by default: no prefix creation, launcher or shutdown call.
+if [[ $test_only == 1 ]]; then
+    "$W/dashboard/qv-host-guard" verify "$guard" > "$R/preflight-host-folders.verify" 2>&1
+    python3 "$L/farm.py" verify "$E" > "$R/preflight-stage-verify.log" 2>&1
+    printf 'TEST ONLY: launch boundary: DARLING_NONROOT=%q DARLING_INSTALL_PREFIX=%q DPREFIX=%q %q shell /usr/bin/true\n' \
+        "$DARLING_NONROOT" "$DARLING_INSTALL_PREFIX" "$DPREFIX" "$launcher" | tee "$R/preflight-launch.txt"
+    exit 0
+fi
 cleanup() {
     local rc=$? shutdown_rc=0 guard_rc=0 farm_rc=0
     trap - EXIT
@@ -41,7 +69,8 @@ if ! "$launcher" shell /usr/bin/true > "$R/init-1.log" 2>&1; then
 fi
 DPREFIX=$DPREFIX "$W/dashboard/qv-shutdown" "$launcher"
 # Initialize and shut down before copying anything into the fresh prefix.
-cp -a "$E/guest-build/before-generated-i386" "$E/guest-build/after-generated-i386" \
+cp -a "$E/guest-build/before-custom-i386" "$E/guest-build/after-custom-i386" \
+    "$E/guest-build/before-generated-i386" "$E/guest-build/after-generated-i386" \
     "$E/guest-build/installed-i386" "$E/guest-build/installed-x86_64" "$DPREFIX/Applications/"
 printf 'case\tstatus\n' > "$R/guest-results.tsv"
 run_case() {
@@ -58,24 +87,23 @@ run_case() {
     fi
     printf '%s\t%s\n' "$name" "$status" >> "$R/guest-results.tsv"
 }
-for round in {1..20}; do
-    run_case "before-generated-set_ldt-$round" before-generated-i386 12
-    run_case "after-generated-thread_selfusage-$round" after-generated-i386 6
-done
-for arch in i386 x86_64; do run_case "installed-$arch" "installed-$arch"; done
+while IFS=$'\t' read -r name binary argument; do
+    if [[ -n $argument ]]; then run_case "$name" "$binary" "$argument" < /dev/null;
+    else run_case "$name" "$binary" < /dev/null; fi
+done < "$R/guest-plan.tsv"
 python3 - "$R" <<'PY'
 import csv, sys
 from pathlib import Path
 r = Path(sys.argv[1])
 rows = list(csv.DictReader((r / 'guest-results.tsv').open(), delimiter='\t'))
-assert len(rows) == 42
-counts = {'before': 0, 'after': 0, 'installed': 0}
+assert len(rows) == 84
+counts = {group: 0 for group in ('before-custom', 'after-custom', 'before-generated', 'after-generated', 'installed')}
 for row in rows:
     name, code = row['case'], int(row['status'])
     stdout, stderr = [(r / (name + suffix)).read_text() for suffix in ('.stdout', '.stderr')]
     assert 'Failed to allocate stack' not in stderr, (name, stderr)
-    category = name.split('-')[0]
-    if category == 'before':
+    category = '-'.join(name.split('-')[:2]) if not name.startswith('installed-') else 'installed'
+    if category.startswith('before-'):
         assert code == 1 and 'expected-low=' in stderr, (name, code, stderr)
     else:
         assert code == 0 and 'PASS' in stdout, (name, code, stdout, stderr)
@@ -83,7 +111,7 @@ for row in rows:
         assert 'installed pipe descriptor/data success PASS' in stdout
         assert 'exhausted=1 direct=-1 errno=24 wrapper=-1' in stdout
     counts[category] += 1
-assert counts == {'before': 20, 'after': 20, 'installed': 2}, counts
-(r / 'pass-counts.txt').write_text('before-generated-set_ldt: 20/20 expected wrapper failures\nafter-generated-thread_selfusage: 20/20 success\ninstalled APIs: 2/2 success\n')
+assert counts == {'before-custom': 20, 'after-custom': 20, 'before-generated': 20, 'after-generated': 20, 'installed': 4}, counts
+(r / 'pass-counts.txt').write_text('before-custom-thread_selfusage: 20/20 expected wrapper failures\nafter-custom-thread_selfusage: 20/20 success\nbefore-generated-set_ldt: 20/20 expected wrapper failures\nafter-generated-thread_selfusage: 20/20 success\ninstalled APIs: 4/4 success\n')
 print((r / 'pass-counts.txt').read_text(), end='')
 PY

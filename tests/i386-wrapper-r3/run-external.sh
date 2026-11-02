@@ -2,26 +2,20 @@
 # Run this command outside the sandbox. It performs no builds or installs.
 set -euo pipefail
 ulimit -c 0
+[[ $# == 0 || ( $# == 1 && $1 == --test-only-before-container ) ]]
 W=/home/sean/Documents/Codex/Projects/Qvolution-work
 L=$W/parallel/i386-wrappers-r3
 export PATH=$W/dashboard/bin:$PATH
 E=$(mktemp -d "$L/evidence/external-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")
 printf '%s\n' "$E" > "$L/external-evidence.txt"
 P=$(cat "$L/prepared-evidence.txt")
-python3 "$L/build.py" verify
-python3 "$L/farm.py" verify "$P"
-python3 - "$L" <<'PY'
-from pathlib import Path
-import hashlib, json, sys
-lane = Path(sys.argv[1])
-for source in (lane / 'source/tests/i386-wrapper-r3').iterdir():
-    assert source.read_bytes() == (lane / source.name).read_bytes(), source
-assert (lane / 'source/tests/mldr-stack-allocation.py').read_bytes() == (lane / 'check-stack.py').read_bytes()
-prepared = Path((lane / 'prepared-evidence.txt').read_text().strip())
-for path, expected in json.loads((prepared / 'fixture-sha256.json').read_text()).items():
-    with Path(path).open('rb') as stream:
-        assert hashlib.file_digest(stream, 'sha256').hexdigest() == expected, path
-PY
+python3 "$L/verify-inputs.py" --record "$P" --output "$E"
+# OFF by default: validate the guest handoff before the external-only native run.
+if [[ ${1-} == --test-only-before-container ]]; then
+    bash "$L/run-guest.sh" --test-only-before-container "$P" "$E"
+    printf 'TEST ONLY: external preflight reached container launch; native/guest cases not run.\n'
+    exit 0
+fi
 "$W/dashboard/qv-status" i386-wrappers-r3 --phase 'external native i386 allocation and 84 focused guest cases'
 # Compilation already happened in the sandbox. Native i386 execution is blocked there.
 python3 - "$P" "$E" <<'PY'
@@ -66,8 +60,5 @@ with (out / 'native-startup-overlap.log').open('w') as log:
             log.write(f'run {i}: {result.stdout}')
     log.write(f'1024 native ELF startups: clear={counts[0]} native-stack={counts[10]} other-vma={counts[11]}\n')
 PY
-for name in stage-farm.json installed-candidate.json; do cp -a "$P/$name" "$E/$name"; done
-cp -a "$P/guest-build" "$E/guest-build"
-cp -a "$L/build/provenance.json" "$E/provenance.json"
-bash "$L/run-guest.sh" "$E"
+bash "$L/run-guest.sh" "$P" "$E"
 "$W/dashboard/qv-status" i386-wrappers-r3 --state review --evidence "$E" --msg 'External native i386 180/180 and focused guest 84/84 expected results; review logs'
