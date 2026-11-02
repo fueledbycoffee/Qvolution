@@ -19,6 +19,15 @@ class Pipes(unittest.TestCase):
         self.assertFalse(eof)
         self.assertLess(time.monotonic() - start, .5)
 
+    def test_timeout_can_keep_reader_open_for_fd_attribution(self):
+        child = self.launch('import time; time.sleep(.2)')
+        output, eof = capture(child.stdout, time.monotonic() + .03, close=False)
+        self.assertFalse(eof)
+        self.assertFalse(child.stdout.closed)
+        self.assertTrue(os.readlink('/proc/self/fd/' + str(child.stdout.fileno())).startswith('pipe:['))
+        self.assertEqual(child.wait(1), 0)
+        child.stdout.close()
+
     def test_real_eof(self):
         child = self.launch('print("bash")')
         output, eof = capture(child.stdout, time.monotonic() + 1)

@@ -2,7 +2,7 @@
 from pathlib import Path
 import re
 
-KINDS = {'abort', '__abort', 'abort_report_np', 'kernel.abort_with_payload',
+KINDS = {'signal.SIGSEGV', 'abort', '__abort', 'abort_report_np', 'kernel.abort_with_payload',
          'kernel.terminate_with_payload', 'kernel.simple_abort'}
 SITES = {'abort', '__abort', 'abort_report_np', 'sys_abort_with_payload',
          'sys_terminate_with_payload', '__simple_abort'}

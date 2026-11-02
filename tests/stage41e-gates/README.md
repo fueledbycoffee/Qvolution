@@ -122,3 +122,21 @@ regression proves a selection bug, not the cause of the saved host failure.
 The runner prints the milestone command it would add; it never executes it. The
 orchestrator may record that milestone only after inspecting the actual guest
 result and using that result's evidence path.
+
+
+Round 6 preserves the ten-second probe deadline and the failing status of any
+slow/missing-EOF probe, but continues Terminal observation to 90 seconds. There
+is at most one live probe launcher. Timeout-time evidence includes every fd
+alias of its stdout pipe on prefix-owned processes and the owned probe launcher,
+plus fd flags; no process is signalled. R5 showed the stdout pipe on the still
+running probe, with daemon 0-2 detached; it did not prove a leaked alias.
+
+The private SIGSEGV observer is inserted at sigexc handler entry before TSD/RPC
+in both dynamic kernel and static dyld. It uses raw Linux syscalls and only
+kernel maps/environment metadata, never instruction bytes or symbol lookup.
+Exact source-built paths from the hash-locked installed manifest identify OUR
+image basenames; all other or unmapped PCs become `app`. Timestamp zero means
+unavailable. The default-off flag is QV_PREVIEW_FATAL=1. Each signal makes bounded
+scans (64 KiB environment, 1 MiB maps), with no work for ordinary non-SIGSEGV
+signal delivery. A hardware SIGSEGV control must exit 139 and emit `app` before
+Chess can run. Existing abort control remains required.

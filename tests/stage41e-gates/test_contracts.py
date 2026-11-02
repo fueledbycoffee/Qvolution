@@ -1,3 +1,4 @@
+import itertools
 import errno
 import importlib.util
 import json
@@ -116,17 +117,23 @@ class Contracts(unittest.TestCase):
         control = self.root / 'inherited'
         gate = runner.Runner(SimpleNamespace(stage=self.root, launcher=self.root / 'detached'))
         app = SimpleNamespace(poll=lambda: None, stderr=SimpleNamespace(close=lambda: None))
-        probe = SimpleNamespace(stdout=None)
+        probe = SimpleNamespace(stdout=SimpleNamespace(fileno=lambda: 1, close=lambda: None), pid=123, poll=lambda: None)
         record = {'passed': True, 'failures': []}
         with patch.object(runner.subprocess, 'Popen', side_effect=[app, probe]) as launch, \
+             patch.object(runner.os, 'readlink', return_value='pipe:[123]'), \
+             patch.object(runner.time, 'monotonic', side_effect=itertools.count(100)), \
+             patch.object(runner.time, 'sleep'), \
              patch.object(runner, 'capture_pipe', return_value=(b'', False)), \
              patch.object(runner, 'wait', return_value=0), \
+             patch.object(runner, 'snapshot', return_value={'processes': []}), \
              patch.object(runner, 'chunks', return_value=iter(())):
             gate.desktop(record, 'terminal', ['/Applications/Terminal.app/Contents/MacOS/Terminal'],
                          {'DPREFIX': str(self.root)}, evidence, self.root, 90, lambda: 0, launcher=control)
         self.assertEqual([c.args[0][0] for c in launch.call_args_list], [str(control), str(control)])
         self.assertEqual(launch.call_args_list[-1].kwargs['stdin'], subprocess.DEVNULL)
         self.assertIn('shell_probe_timeout', [f['check'] for f in record['failures']])
+        self.assertGreaterEqual(record['observed_seconds'], 90)
+        self.assertEqual(len(json.loads((evidence / 'shell-probes-0.json').read_text())), 1)
 
     def test_terminal_exited_probe_without_eof_and_shutdown_failure_are_durable(self):
         work = self.root
@@ -138,7 +145,7 @@ class Contracts(unittest.TestCase):
         gate = runner.Runner(args)
         init = SimpleNamespace(wait=lambda seconds: 0)
         app = SimpleNamespace(poll=lambda: None, stderr=SimpleNamespace(close=lambda: None))
-        probe = SimpleNamespace(stdout=None)
+        probe = SimpleNamespace(stdout=SimpleNamespace(fileno=lambda: 1, close=lambda: None), pid=123, poll=lambda: None)
         opened = []
 
         def popen(command, **kw):
@@ -158,6 +165,9 @@ class Contracts(unittest.TestCase):
         with patch.object(runner.subprocess, 'Popen', side_effect=popen), \
              patch.object(runner.subprocess, 'run', side_effect=run), \
              patch.object(runner, 'wait', side_effect=[0, 0, 0, 1]), \
+             patch.object(runner.os, 'readlink', return_value='pipe:[123]'), \
+             patch.object(runner.time, 'monotonic', side_effect=itertools.count(100)), \
+             patch.object(runner.time, 'sleep'), \
              patch.object(runner, 'capture_pipe', return_value=(b'', False)), \
              patch.object(runner, 'chunks', return_value=iter(())), \
              patch.object(runner, 'snapshot', return_value={'processes': []}), \
@@ -257,6 +267,30 @@ class Contracts(unittest.TestCase):
         self.assertEqual(result['processes'][0]['stdio'], {'0': '/dev/null', '1': 'pipe:[123]', '2': None})
         self.assertEqual(result['processes'][0]['session'], 100)
         self.assertEqual(result['processes'][0]['tty_device'], 0)
+
+    def test_probe_aliases_include_high_fds_without_other_prefix(self):
+        proc = self.root / 'proc'
+        proc.mkdir()
+        prefix = self.root / 'prefix'
+        prefix.mkdir()
+        for pid, owner in [('100', prefix), ('200', self.root / 'other')]:
+            path = proc / pid
+            path.mkdir()
+            (path / 'comm').write_text('fixture\n')
+            (path / 'environ').write_bytes(('__mldr_sockpath=' + str(owner) + '/.darlingserver.sock').encode()+b'\0')
+            (path / 'status').write_text('State: S\n')
+            (path / 'exe').symlink_to('/our/mldr')
+            (path / 'fd').mkdir()
+            (path / 'fdinfo').mkdir()
+            (path / 'fd/17').symlink_to('pipe:[123]')
+            (path / 'fdinfo/17').write_text('pos: 0\nflags: 02000001\n')
+            (path / 'stat').write_text(pid+' (fixture) S 1 1 1 0 0\n')
+            (path / 'task').mkdir()
+            (path / 'maps').write_text('')
+        result = snapshot(prefix, proc, pipe_targets=('pipe:[123]',))
+        self.assertEqual([p['pid'] for p in result['processes']], [100])
+        self.assertEqual(result['processes'][0]['probe_pipe_aliases'],
+                         [dict(fd=17, target='pipe:[123]', flags='02000001')])
 
     def test_fatal_control_enables_only_safe_records_and_checks_emission(self):
         for emit in (True, False):

@@ -21,7 +21,7 @@ def chunks(stream, deadline, cancelled=None):
     raise TimeoutError('pipe did not reach EOF before its deadline')
 
 
-def capture(stream, deadline, limit=1024 * 1024):
+def capture(stream, deadline, limit=1024 * 1024, close=True):
     output = bytearray()
     try:
         for data in chunks(stream, deadline):
@@ -32,4 +32,5 @@ def capture(stream, deadline, limit=1024 * 1024):
     except TimeoutError:
         return bytes(output), False
     finally:
-        stream.close()
+        if close:
+            stream.close()

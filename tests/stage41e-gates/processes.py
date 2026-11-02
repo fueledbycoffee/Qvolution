@@ -5,7 +5,7 @@ import os
 import re
 
 
-def snapshot(prefix, proc=Path('/proc')):
+def snapshot(prefix, proc=Path('/proc'), pipe_targets=(), owned_pids=()):
     prefix = Path(prefix)
     entry = ('__mldr_sockpath=' + str(prefix) + '/.darlingserver.sock').encode()
     result = {'prefix': str(prefix), 'recorded_pids': {}, 'processes': [], 'unreadable': 0}
@@ -24,7 +24,9 @@ def snapshot(prefix, proc=Path('/proc')):
             continue
         try:
             comm = (path / 'comm').read_text().strip()
-            if comm == 'darlingserver':
+            if int(path.name) in owned_pids:
+                matches = True
+            elif comm == 'darlingserver':
                 argv = (path / 'cmdline').read_bytes().split(b'\0')
                 matches = len(argv) > 1 and argv[1] == os.fsencode(prefix)
             else:
@@ -43,6 +45,19 @@ def snapshot(prefix, proc=Path('/proc')):
                     row['stdio'][fd] = os.readlink(path / 'fd' / fd)
                 except OSError:
                     row['stdio'][fd] = None
+            row['probe_pipe_aliases'] = []
+            if pipe_targets:
+                for fdpath in (path / 'fd').iterdir():
+                    try:
+                        target = os.readlink(fdpath)
+                        if target not in pipe_targets:
+                            continue
+                        flags = next((line.split(':', 1)[1].strip()
+                                      for line in (path / 'fdinfo' / fdpath.name).read_text().splitlines()
+                                      if line.startswith('flags:')), None)
+                        row['probe_pipe_aliases'].append(dict(fd=int(fdpath.name), target=target, flags=flags))
+                    except (OSError, ValueError):
+                        continue
             try:
                 fields = (path / 'stat').read_text().rsplit(')', 1)[1].split()
                 row['session'] = int(fields[3])

@@ -149,9 +149,11 @@ class Runner:
         if a.mode in ('all', 'chess'):
             require(a.fatal_probe, 'Chess diagnostics need the authored fatal control')
             yield 'fatal-origin-control', [guest + a.fatal_probe.name], [a.fatal_probe], {'expected': 134, 'fatal_probe': True}
+            require(a.segv_probe, 'Chess diagnostics need the authored SIGSEGV control')
+            yield 'segv-origin-control', [guest + a.segv_probe.name], [a.segv_probe], {'expected': 139, 'segv_probe': True}
             yield 'chess-dyld', [guest + 'Chess.app/Contents/MacOS/Chess'], [a.chess], {'desktop': 'chess', 'seconds': 20}
 
-    def case(self, label, command, files, *, expected=0, required=None, seconds=90, desktop=None, launch_variant='detached', fatal_probe=False):
+    def case(self, label, command, files, *, expected=0, required=None, seconds=90, desktop=None, launch_variant='detached', fatal_probe=False, segv_probe=False):
         a = self.args
         prefix = a.work / 'p' / ('s41eg-' + uuid.uuid4().hex[:8])
         require(not prefix.exists() and len(os.fsencode(prefix)) <= 83, 'invalid fresh prefix')
@@ -216,7 +218,7 @@ class Runner:
                 subprocess.run(['cp', '-a', str(src), str(dest / name)], check=True)
             if label == 'strong31':
                 record['work_directory'] = str(prepare_foundation_directory(prefix))
-            if desktop == 'chess' or fatal_probe:
+            if desktop == 'chess' or fatal_probe or segv_probe:
                 diagnostic = prefix / 'private/var/log/qv-terminal-boundaries.log'
                 with diagnostic.open('x'):
                     pass
@@ -256,7 +258,7 @@ class Runner:
             if used and not shutdown_failed:
                 stop()
             save('server-records.json', server_records(prefix))
-            if desktop == 'chess' or fatal_probe:
+            if desktop == 'chess' or fatal_probe or segv_probe:
                 try:
                     fatal = fatal_records(prefix)
                 except (OSError, RuntimeError) as error:
@@ -265,11 +267,14 @@ class Runner:
                 save('fatal-records.json', fatal)
                 record['fatal_origin_records'] = fatal['records']
                 record['fatal_origin_status'] = 'recorded' if fatal['records'] else 'not_observed'
-                record['fatal_origin_scope'] = 'prefix; OUR fatal entry points only; no signal PC sampling'
+                record['fatal_origin_scope'] = 'prefix; OUR fatal entries and SIGSEGV PC image only; foreign images are app'
                 if fatal_probe and not all(any(row['label'] == label and row['kind'] == 'abort' and row['value'] == value
                                               for row in fatal['records'])
                                            for label, value in [('fatal.origin', 'fatal-probe'), ('fatal.site', 'abort')]):
                     fail(record, 'fatal_control', 'authored abort did not record expected origin and site')
+                if segv_probe and not any(row['label'] == 'fatal.origin' and row['kind'] == 'signal.SIGSEGV'
+                                          and row['value'] == 'app' for row in fatal['records']):
+                    fail(record, 'segv_control', 'authored SIGSEGV did not record app origin')
             with (evidence / 'host-verify.log').open('w') as log:
                 guard = subprocess.run([str(a.work / 'dashboard/qv-host-guard'), 'verify', str(evidence / 'host-before.json')],
                                        stdout=log, stderr=subprocess.STDOUT).returncode
@@ -322,21 +327,30 @@ class Runner:
             thread.start()
             start = time.monotonic()
             probes = []
+            probe_processes = []
+            pending_probe = None
             try:
                 while time.monotonic() - start < seconds and app.poll() is None:
-                    if kind == 'terminal' and (not probes or time.monotonic() - probes[-1]['when'] >= 10):
+                    if (kind == 'terminal' and (pending_probe is None or pending_probe.poll() is not None)
+                            and (not probes or time.monotonic() - probes[-1]['when'] >= 10)):
                         probe = subprocess.Popen([str(launcher), 'shell', '/bin/ps', '-axo', 'comm='],
                                                  env=env, stdin=subprocess.DEVNULL,
                                                  stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-                        deadline = time.monotonic() + 10
-                        output, eof = capture_pipe(probe.stdout, deadline)
+                        probe_processes.append(probe)
+                        pending_probe = probe
+                        pipe = os.readlink('/proc/self/fd/' + str(probe.stdout.fileno()))
+                        deadline = min(time.monotonic() + 10, start + seconds)
+                        output, eof = capture_pipe(probe.stdout, deadline, close=False)
                         rc = wait(probe, max(0, deadline - time.monotonic()))
-                        probes.append({'when': time.monotonic(), 'exit': rc, 'eof': eof, 'shell': False})
+                        probes.append({'when': time.monotonic(), 'exit': rc, 'eof': eof, 'shell': False,
+                                       'launcher_pid': probe.pid, 'stdout_pipe': pipe})
                         if rc is None or not eof:
                             fail(record, 'shell_probe_timeout', 'prefix ps did not exit and reach EOF in 10 seconds')
-                            break
+                            save_path = evidence / f'probe-fds-{attempt}-{len(probes)}.json'
+                            save_path.write_text(json.dumps(snapshot(env['DPREFIX'], pipe_targets=(pipe,), owned_pids=(probe.pid,)), indent=2) + '\n')
+                        probe.stdout.close()
                         names = output.decode('utf8', 'replace').splitlines()
-                        probes[-1]['shell'] = any(re.fullmatch(r'-?bash', Path(n.strip()).name) for n in names)
+                        probes[-1]['shell'] = rc == 0 and eof and any(re.fullmatch(r'-?bash', Path(n.strip()).name) for n in names)
                         (evidence / f'shell-probes-{attempt}.json').write_text(json.dumps(probes, indent=2) + '\n')
                     time.sleep(.2)
             finally:
@@ -358,8 +372,8 @@ class Runner:
                     stopped = stop() == 0
                     if stopped:
                         require(wait(app, 30) is not None, 'app launcher did not exit after shutdown')
-                        if kind == 'terminal' and probes and probes[-1]['exit'] is None:
-                            require(wait(probe, 30) is not None, 'probe launcher did not exit after shutdown')
+                        for owned_probe in probe_processes:
+                            require(wait(owned_probe, 30) is not None, 'probe launcher did not exit after shutdown')
                 finally:
                     if stopped:
                         thread.join(1)
@@ -384,6 +398,7 @@ def main():
     for name in ('work', 'source', 'stage', 'fixtures', 'launcher', 'terminal', 'chess', 'evidence'):
         p.add_argument('--' + name, required=True, type=Path)
     p.add_argument('--mode', choices=('all', 'foundation', 'terminal', 'chess', 'terminal-inherited-diagnostic'), default='all')
+    p.add_argument('--segv-probe', type=Path, help='authored hardware SIGSEGV control')
     p.add_argument('--fatal-probe', type=Path, help='authored abort control for Chess diagnostics')
     p.add_argument('--patch-receipt', type=Path, help='hash-locked launcher and authored fixture patch')
     p.add_argument('--stub-forwarding', type=Path, help='authored fixture from the patch receipt')
@@ -400,7 +415,7 @@ def main():
     require(os.environ.get('QV_SLOT', '').startswith('guest-'), 'run through qv-slot guest')
     for label, command, files, options in runner.cases():
         runner.case(label, command, files, **options)
-        if label == 'fatal-origin-control':
+        if label in ('fatal-origin-control', 'segv-origin-control'):
             require(runner.rows[-1]['passed'], 'fatal control failed; stop before Chess')
     return int(any(not row['passed'] for row in runner.rows))
 
