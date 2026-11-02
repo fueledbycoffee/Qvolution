@@ -103,6 +103,7 @@ class Contracts(unittest.TestCase):
             gate.desktop(record, 'terminal', ['/Applications/Terminal.app/Contents/MacOS/Terminal'],
                          {'DPREFIX': str(self.root)}, evidence, self.root, 90, lambda: 0, launcher=control)
         self.assertEqual([c.args[0][0] for c in launch.call_args_list], [str(control), str(control)])
+        self.assertEqual(launch.call_args_list[-1].kwargs['stdin'], subprocess.DEVNULL)
         self.assertIn('shell_probe_timeout', [f['check'] for f in record['failures']])
 
     def test_terminal_exited_probe_without_eof_and_shutdown_failure_are_durable(self):
@@ -163,6 +164,36 @@ class Contracts(unittest.TestCase):
         self.assertEqual(result.returncode, 7)
         self.assertEqual(log.read_text(), 'fixture shutdown refusal\n')
 
+    def test_successful_shutdown_cannot_hide_duplicate_servers_or_survivors(self):
+        for survive in (False, True):
+            with self.subTest(survive=survive):
+                evidence = self.root / ('survive' if survive else 'duplicate')
+                evidence.mkdir()
+                args = SimpleNamespace(work=self.root, stage=self.root / 'stage',
+                                       launcher=self.root / 'launcher', evidence=evidence)
+                gate = runner.Runner(args)
+                process = SimpleNamespace(wait=lambda seconds: 0)
+                rows = [{'processes': []}, {'processes': []},
+                        {'processes': [{'pid': 101, 'comm': 'darlingserver'},
+                                       {'pid': 102, 'comm': 'darlingserver'}]},
+                        {'processes': [{'pid': 103, 'comm': 'mldr'}] if survive else []}]
+                with patch.object(runner.subprocess, 'Popen', return_value=process), \
+                     patch.object(runner.subprocess, 'run', return_value=SimpleNamespace(returncode=0)), \
+                     patch.object(runner, 'wait', return_value=0), \
+                     patch.object(runner, 'snapshot', side_effect=rows), \
+                     patch.object(runner, 'server_records', return_value={}):
+                    if survive:
+                        with self.assertRaisesRegex(RuntimeError, 'cleanup failed'):
+                            gate.case('authored', ['/Applications/authored'], [])
+                    else:
+                        gate.case('authored', ['/Applications/authored'], [])
+                row = gate.rows[0]
+                self.assertFalse(row['passed'])
+                checks = [item['check'] for item in row['failures']]
+                self.assertIn('duplicate_servers', checks)
+                self.assertEqual('shutdown_survivors' in checks, survive)
+                self.assertEqual(row['shutdown_exit'], int(survive))
+
     def test_desktop_shellspawn_timeout_retries_exactly_once(self):
         evidence = self.root / 'evidence'
         evidence.mkdir()
@@ -191,12 +222,19 @@ class Contracts(unittest.TestCase):
             (path / 'environ').write_bytes(('__mldr_sockpath=' + str(owner) + '/.darlingserver.sock').encode() + b'\0')
             (path / 'status').write_text('State:\tS\nPPid:\t1\nThreads:\t1\n')
             (path / 'exe').symlink_to('/our/mldr')
+            (path / 'fd').mkdir()
+            (path / 'fd/0').symlink_to('/dev/null')
+            (path / 'fd/1').symlink_to('pipe:[123]')
+            (path / 'stat').write_text(pid + ' (fixture (name)) S 1 100 100 0 0\n')
             (path / 'task' / pid).mkdir(parents=True)
             (path / 'task' / pid / 'wchan').write_text('futex_wait')
             (path / 'maps').write_text('dead-beef r-xp 0000 01:01 1 /our/Library.framework/Library\n')
         result = snapshot(prefix, proc)
         self.assertEqual([p['pid'] for p in result['processes']], [100])
         self.assertNotIn('dead-beef', json.dumps(result))
+        self.assertEqual(result['processes'][0]['stdio'], {'0': '/dev/null', '1': 'pipe:[123]', '2': None})
+        self.assertEqual(result['processes'][0]['session'], 100)
+        self.assertEqual(result['processes'][0]['tty_device'], 0)
 
     def test_server_records_keep_only_fixed_numeric_lifecycle(self):
         path = self.root / 'private/var/log/dserver.log'

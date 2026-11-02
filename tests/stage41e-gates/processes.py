@@ -37,6 +37,18 @@ def snapshot(prefix, proc=Path('/proc')):
                 if key in ('State', 'PPid', 'Uid', 'NSpid', 'Threads'):
                     row[key] = value.strip()
             row['exe'] = os.readlink(path / 'exe')
+            row['stdio'] = {}
+            for fd in ('0', '1', '2'):
+                try:
+                    row['stdio'][fd] = os.readlink(path / 'fd' / fd)
+                except OSError:
+                    row['stdio'][fd] = None
+            try:
+                fields = (path / 'stat').read_text().rsplit(')', 1)[1].split()
+                row['session'] = int(fields[3])
+                row['tty_device'] = int(fields[4])
+            except (OSError, ValueError, IndexError):
+                row['session'] = row['tty_device'] = None
             row['threads'] = []
             for thread in (path / 'task').iterdir():
                 try:

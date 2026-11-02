@@ -163,7 +163,11 @@ class Runner:
         def stop():
             nonlocal shutdown_failed
             number = len(record['shutdowns'])
-            save(f'processes-before-shutdown-{number}.json', snapshot(prefix))
+            before = snapshot(prefix)
+            save(f'processes-before-shutdown-{number}.json', before)
+            servers = [p['pid'] for p in before['processes'] if p['comm'] == 'darlingserver']
+            if len(servers) > 1:
+                fail(record, 'duplicate_servers', f'exact prefix has multiple servers: {servers}')
             # The helper still owns all three retries. Its launcher wrapper retains
             # only OUR shutdown output, which qv-shutdown otherwise discards.
             helper = subprocess.Popen([str(a.work / 'dashboard/qv-shutdown'),
@@ -175,7 +179,12 @@ class Runner:
             if rc is None:
                 rc = 124
             record['shutdowns'].append(rc)
-            save(f'processes-after-shutdown-{number}.json', snapshot(prefix))
+            after = snapshot(prefix)
+            save(f'processes-after-shutdown-{number}.json', after)
+            if rc == 0 and after['processes']:
+                rc = 1
+                record['shutdowns'][-1] = rc
+                fail(record, 'shutdown_survivors', 'prefix processes survived a successful shutdown')
             shutdown_failed |= rc != 0
             if rc:
                 fail(record, 'shutdown', f'qv-shutdown exit {rc}; see shutdown-{number}.log')
@@ -289,7 +298,8 @@ class Runner:
                 while time.monotonic() - start < seconds and app.poll() is None:
                     if kind == 'terminal' and (not probes or time.monotonic() - probes[-1]['when'] >= 10):
                         probe = subprocess.Popen([str(launcher), 'shell', '/bin/ps', '-axo', 'comm='],
-                                                 env=env, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                                                 env=env, stdin=subprocess.DEVNULL,
+                                                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                         deadline = time.monotonic() + 10
                         output, eof = capture_pipe(probe.stdout, deadline)
                         rc = wait(probe, max(0, deadline - time.monotonic()))

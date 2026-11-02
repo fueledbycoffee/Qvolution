@@ -123,3 +123,15 @@ then stopped by KILL after the grace period; an other-prefix PTY survives and
 exits through a test-owned control pipe. Neither test boots a container. Files
 are retained. Daemon stderr now belongs to the prefix's launcher-daemons.log;
 do not inspect it for guest applications under the clean-room boundary.
+
+## Concurrent boot and exec descriptors
+
+Round 4 adds `prefix-lock.c`: two clients enter the same cold check/boot/PID
+publication window. The directory lock permits one boot; `--without-lock`
+reproduces two boots (expected exit 1). A forked daemon closes its copy; the
+parent lock remains exclusive until explicitly unlocked and never covers the
+subsequent shell wait. No container or socket is created by this test.
+`daemon-stdio.c` now verifies usable 0–2 after setsid and exec, including
+initially closed descriptors. `shutdown-pty.c` checks TERM delivery to a
+reparented PTY leader plus login child, grace, KILL, and other-prefix survival.
+The runtime shutdown implementation and its one-second grace are retained.
