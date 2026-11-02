@@ -13,8 +13,9 @@ import time
 import uuid
 
 from contracts import (FOUNDATION_COMPLETIONS, check_terminal, fail, payload_root,
-                       prepare_foundation_directory, shell_present)
+                       prepare_foundation_directory, shell_observation)
 from processes import server_records, snapshot
+from diagnostics import fatal_records
 from pipes import capture as capture_pipe, chunks
 
 
@@ -41,7 +42,7 @@ class Runner:
         self.rows = []
         self.base = {k: v for k, v in os.environ.items()
                      if not k.startswith(('DYLD_', 'DARLING_', 'DSERVER_', '__mldr_'))
-                     and k not in ('DPREFIX', 'WAYLAND_DEBUG')}
+                     and k not in ('DPREFIX', 'WAYLAND_DEBUG', 'QV_TERMINAL_BOUNDARIES', 'QV_TERMINAL_API_TRACE', 'QV_PREVIEW_FATAL')}
         self.base.update(DARLING_ISOLATED_HOME='1', DARLING_NONROOT='1',
                          DARLING_INSTALL_PREFIX=str(args.stage / 'usr/local'),
                          DARLING_APPKIT_BACKEND='wayland', DARLING_APPKIT_RENDERER='shm',
@@ -92,9 +93,11 @@ class Runner:
                 require(sha(row[key]) == row[key + '_sha256'], 'fixture ' + key + ': ' + row[key])
         inputs = [a.work / 'dashboard/qv-host-guard', a.work / 'dashboard/qv-shutdown',
                   a.stage / 'qvolution-runtime-source.json', a.fixtures / 'receipts.json',
+                  a.stage / 'usr/local/libexec/darling/usr/bin/env',
                   Path(__file__), Path(__file__).with_name('contracts.py'),
                   Path(__file__).with_name('processes.py'), Path(__file__).with_name('shutdown-logged.py'),
-                  Path(__file__).with_name('rerun.sh'), Path(__file__).with_name('pipes.py')]
+                  Path(__file__).with_name('rerun.sh'), Path(__file__).with_name('pipes.py'),
+                  Path(__file__).with_name('diagnostics.py')]
         for helper in (a.launcher, inputs[0], inputs[1], Path(__file__).with_name('shutdown-logged.py')):
             require(os.access(helper, os.X_OK), 'helper is not executable: ' + str(helper))
         for label, command, files, options in self.cases():
@@ -137,15 +140,18 @@ class Runner:
                 source = a.source.parent / 'build/src/external/foundation/test/imports' / name
                 yield name, [guest + name], [source], {'expected': expected, 'required':
                     'NSExtensionMain: extension host lifecycle is unavailable' if expected else None}
-        if a.mode in ('all', 'chess'):
-            yield 'chess-dyld', [guest + 'Chess.app/Contents/MacOS/Chess'], [a.chess], {'desktop': 'chess', 'seconds': 20}
-        # Terminal's unresolved shutdown failure must not prevent the Chess rerun.
-        if a.mode in ('all', 'terminal'):
-            variants = [('terminal90-detached', 'detached'), ('terminal90-inherited', 'inherited')] if getattr(a, 'stdio_control_launcher', None) else [('terminal90', 'detached')]
+        if a.mode in ('all', 'terminal', 'terminal-inherited-diagnostic'):
+            diagnostic = a.mode == 'terminal-inherited-diagnostic'
+            require(not diagnostic or getattr(a, 'stdio_control_launcher', None), 'inherited diagnostic needs a control launcher')
+            variants = [('terminal90-inherited', 'inherited')] if diagnostic else [('terminal90-detached', 'detached')]
             for label, variant in variants:
                 yield label, [guest + 'Terminal.app/Contents/MacOS/Terminal'], [a.terminal], {'desktop': 'terminal', 'seconds': 90, 'launch_variant': variant}
+        if a.mode in ('all', 'chess'):
+            require(a.fatal_probe, 'Chess diagnostics need the authored fatal control')
+            yield 'fatal-origin-control', [guest + a.fatal_probe.name], [a.fatal_probe], {'expected': 134, 'fatal_probe': True}
+            yield 'chess-dyld', [guest + 'Chess.app/Contents/MacOS/Chess'], [a.chess], {'desktop': 'chess', 'seconds': 20}
 
-    def case(self, label, command, files, *, expected=0, required=None, seconds=90, desktop=None, launch_variant='detached'):
+    def case(self, label, command, files, *, expected=0, required=None, seconds=90, desktop=None, launch_variant='detached', fatal_probe=False):
         a = self.args
         prefix = a.work / 'p' / ('s41eg-' + uuid.uuid4().hex[:8])
         require(not prefix.exists() and len(os.fsencode(prefix)) <= 83, 'invalid fresh prefix')
@@ -210,6 +216,14 @@ class Runner:
                 subprocess.run(['cp', '-a', str(src), str(dest / name)], check=True)
             if label == 'strong31':
                 record['work_directory'] = str(prepare_foundation_directory(prefix))
+            if desktop == 'chess' or fatal_probe:
+                diagnostic = prefix / 'private/var/log/qv-terminal-boundaries.log'
+                with diagnostic.open('x'):
+                    pass
+                diagnostic.chmod(0o600)
+                env['QV_PREVIEW_FATAL'] = '1'
+                command = ['/usr/bin/env', 'QV_PREVIEW_FATAL=1', *command]
+                record['diagnostic_command'] = command
             if desktop:
                 if desktop == 'terminal':
                     home = prefix / 'Users' / pwd.getpwuid(os.getuid()).pw_name
@@ -242,6 +256,20 @@ class Runner:
             if used and not shutdown_failed:
                 stop()
             save('server-records.json', server_records(prefix))
+            if desktop == 'chess' or fatal_probe:
+                try:
+                    fatal = fatal_records(prefix)
+                except (OSError, RuntimeError) as error:
+                    fatal = dict(present=False, records=[], error=type(error).__name__)
+                    fail(record, 'fatal_records', 'could not read safe runtime diagnostic records')
+                save('fatal-records.json', fatal)
+                record['fatal_origin_records'] = fatal['records']
+                record['fatal_origin_status'] = 'recorded' if fatal['records'] else 'not_observed'
+                record['fatal_origin_scope'] = 'prefix; OUR fatal entry points only; no signal PC sampling'
+                if fatal_probe and not all(any(row['label'] == label and row['kind'] == 'abort' and row['value'] == value
+                                              for row in fatal['records'])
+                                           for label, value in [('fatal.origin', 'fatal-probe'), ('fatal.site', 'abort')]):
+                    fail(record, 'fatal_control', 'authored abort did not record expected origin and site')
             with (evidence / 'host-verify.log').open('w') as log:
                 guard = subprocess.run([str(a.work / 'dashboard/qv-host-guard'), 'verify', str(evidence / 'host-before.json')],
                                        stdout=log, stderr=subprocess.STDOUT).returncode
@@ -252,7 +280,7 @@ class Runner:
             self.rows.append(record)
             (a.evidence / 'results.json').write_text(json.dumps(self.rows, indent=2) + '\n')
             print(label, 'PASS' if record['passed'] else 'FAIL', json.dumps(record['failures']), flush=True)
-            if desktop:
+            if desktop and getattr(a, 'mode', 'all') != 'terminal-inherited-diagnostic':
                 app_id, milestone = ('terminal', 'stability') if desktop == 'terminal' else ('chess', 'load')
                 status = ('pass_' if record['passed'] else 'failed_') + 'stage41e_' + label.replace('-', '_')
                 print('ORCHESTRATOR ONLY:', a.work / 'dashboard/qv-milestone', app_id, milestone, status, evidence, flush=True)
@@ -318,7 +346,7 @@ class Runner:
                                                                    b'wl_surface.attach', b'wl_surface.commit')))
                 marker = dest / 'shell-marker'
                 if kind == 'terminal':
-                    observation.update(shell=shell_present(probes), shell_executed=marker.is_file() and
+                    observation.update(**shell_observation(probes, start), shell_executed=marker.is_file() and
                                        marker.read_text().strip() == 'qv-stage41e-shell-executed')
                 record.update(observation)
                 record['attempts'].append(observation)
@@ -355,7 +383,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     for name in ('work', 'source', 'stage', 'fixtures', 'launcher', 'terminal', 'chess', 'evidence'):
         p.add_argument('--' + name, required=True, type=Path)
-    p.add_argument('--mode', choices=('all', 'foundation', 'terminal', 'chess'), default='all')
+    p.add_argument('--mode', choices=('all', 'foundation', 'terminal', 'chess', 'terminal-inherited-diagnostic'), default='all')
+    p.add_argument('--fatal-probe', type=Path, help='authored abort control for Chess diagnostics')
     p.add_argument('--patch-receipt', type=Path, help='hash-locked launcher and authored fixture patch')
     p.add_argument('--stub-forwarding', type=Path, help='authored fixture from the patch receipt')
     p.add_argument('--stdio-control-launcher', type=Path, help='exact d0872f92427 reversal; shutdown always uses patched launcher')
@@ -371,6 +400,8 @@ def main():
     require(os.environ.get('QV_SLOT', '').startswith('guest-'), 'run through qv-slot guest')
     for label, command, files, options in runner.cases():
         runner.case(label, command, files, **options)
+        if label == 'fatal-origin-control':
+            require(runner.rows[-1]['passed'], 'fatal control failed; stop before Chess')
     return int(any(not row['passed'] for row in runner.rows))
 
 

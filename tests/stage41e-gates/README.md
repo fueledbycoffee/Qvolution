@@ -1,11 +1,36 @@
 # Stage41e gate rerun
 
-Round 3 uses `rerun-r3.sh`: twelve Foundation gates, Chess20 and two Terminal90
-cases. The Terminal launchers differ only by reversing d0872f92427's stdio change;
-both retain the verified shutdown fix. Init, app and ps launches use the selected
-variant, and cleanup always uses the detached launcher. The inherited-stdio case
-can fail the unchanged pipe-EOF gate; that is evidence, not a relaxed timeout.
-Run the same wrapper with `--dry-run-test-only` to validate everything before boot.
+Round 5 uses `rerun-r5.sh`. The default gate includes Foundation/import cases,
+an authored abort control, Chess20 and Terminal90-detached. Retire the deliberately regressed inherited
+stdio launcher from the gate: use `--inherited-diagnostic` explicitly to run it
+alone; its failures are still reported and it returns failure.
+
+Terminal must observe its login shell by the third completed ps probe, then on
+every remaining probe. Probes start immediately and at least 10 seconds after
+the previous completion, so the third probe is normally near 20 seconds; each
+probe still has a strict 10-second exit AND EOF deadline, including probes 1-2.
+This is a bounded startup allowance, not a retry for a lost shell. The first
+shell probe index and elapsed seconds from app-launch observation start are
+saved. Time-to-shell is a sampled upper bound, not the exact shell start time.
+The 90-second app liveness, profile execution marker, window protocol, clean
+shutdown, duplicate/survivor checks and host-folder guard are unchanged.
+
+Chess enables `QV_PREVIEW_FATAL=1` only after initializing and shutting down its
+fresh prefix. A newly created regular diagnostic file receives only OUR fatal
+entry-point records. The collector retains fatal kind, fixed source site and
+image basename; it discards all other fields and never reads app streams.
+The authored abort control must exit 134 and record `fatal-probe` / `abort`
+before Chess is allowed to run. A missing Chess fatal record means unknown
+origin: these hooks cover libc abort/report and kernel abort/simple-abort,
+not arbitrary SIGSEGV PCs. Records are prefix-scoped, not a guessed app stack.
+
+The overlay includes committed libc 28ce039 and xnu 63ef64b diagnostics, linked
+against Stage41e's unchanged objects. Both full dynamic libraries and the full
+static dyld link contain i386 and x86_64. Optional static-loader records are off
+because that loader cannot use dynamic TLS/clock services before bootstrap;
+its abort behavior remains intact. The prior inodes are preserved in evidence.
+Server warning summaries count only known source formats and fixed call names;
+unknown warnings are counted without retaining bodies or addresses.
 
 The three changed framework payloads replace only this lane's files, preserving
 the original hardlinks as evidence. Their full universal links include i386 and

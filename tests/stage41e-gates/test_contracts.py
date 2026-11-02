@@ -14,6 +14,7 @@ from unittest.mock import patch
 from contracts import (FOUNDATION_COMPLETIONS, check_terminal, payload_root,
                        prepare_foundation_directory, shell_present)
 from processes import server_records, snapshot
+from diagnostics import fatal_records
 
 spec = importlib.util.spec_from_file_location('gate_runner', Path(__file__).with_name('run.py'))
 runner = importlib.util.module_from_spec(spec)
@@ -64,7 +65,7 @@ class Contracts(unittest.TestCase):
         self.assertNotEqual(suffix, root + suffix)
 
     def test_terminal_first_probe_race_and_later_failure(self):
-        probes = [{'exit': 0, 'shell': False}, {'exit': 0, 'shell': True}, {'exit': 0, 'shell': True}]
+        probes = [{'exit': 0, 'eof': True, 'shell': v} for v in (False, False, True, True)]
         self.assertTrue(shell_present(probes))
         self.assertFalse(shell_present([]))
         self.assertFalse(shell_present([{'exit': 0, 'shell': False}]))
@@ -79,14 +80,35 @@ class Contracts(unittest.TestCase):
             self.assertFalse(failed['passed'])
             self.assertTrue(all(f['detail'] for f in failed['failures']))
 
-    def test_terminal_ab_cases_differ_only_in_launcher_variant(self):
+    def test_terminal_startup_boundary_and_continuous_presence(self):
+        def probes(values):
+            return [dict(exit=0, eof=True, shell=v, when=100 + 10*i)
+                    for i, v in enumerate(values)]
+        for values in ((True, True, True), (False, True, True), (False, False, True, True)):
+            self.assertTrue(shell_present(probes(values)))
+        for values in ((False, False, False, True), (True, False, True), (False, True, False)):
+            self.assertFalse(shell_present(probes(values)))
+        for key, value in (('exit', 1), ('exit', None), ('eof', False)):
+            for index in (0, 2):
+                rows = probes((False, False, True, True))
+                rows[index][key] = value
+                self.assertFalse(shell_present(rows))
+        result = runner.shell_observation(probes((False, False, True, True)), 100)
+        self.assertEqual(result, dict(shell=True, shell_startup_allowance_probes=3,
+                                     shell_first_probe=3, time_to_shell_seconds=20))
+        self.assertIsNone(runner.shell_observation(probes((False, False)), 100)['time_to_shell_seconds'])
+
+    def test_terminal_default_retires_inherited_to_explicit_diagnostic(self):
         args = SimpleNamespace(mode='terminal', stage=self.root, terminal=self.root / 'Terminal.app',
                                stdio_control_launcher=self.root / 'inherited')
         cases = list(runner.Runner(args).cases())
-        self.assertEqual([c[0] for c in cases], ['terminal90-detached', 'terminal90-inherited'])
-        self.assertEqual(cases[0][1:3], cases[1][1:3])
+        self.assertEqual([c[0] for c in cases], ['terminal90-detached'])
+        args.mode = 'terminal-inherited-diagnostic'
+        diagnostic = list(runner.Runner(args).cases())
+        self.assertEqual([c[0] for c in diagnostic], ['terminal90-inherited'])
+        self.assertEqual(cases[0][1:3], diagnostic[0][1:3])
         self.assertEqual(cases[0][3], dict(desktop='terminal', seconds=90, launch_variant='detached'))
-        self.assertEqual(cases[1][3], dict(desktop='terminal', seconds=90, launch_variant='inherited'))
+        self.assertEqual(diagnostic[0][3], dict(desktop='terminal', seconds=90, launch_variant='inherited'))
 
     def test_terminal_control_launches_and_probes_with_control_launcher(self):
         evidence = self.root / 'control-evidence'
@@ -235,6 +257,80 @@ class Contracts(unittest.TestCase):
         self.assertEqual(result['processes'][0]['stdio'], {'0': '/dev/null', '1': 'pipe:[123]', '2': None})
         self.assertEqual(result['processes'][0]['session'], 100)
         self.assertEqual(result['processes'][0]['tty_device'], 0)
+
+    def test_fatal_control_enables_only_safe_records_and_checks_emission(self):
+        for emit in (True, False):
+            evidence = self.root / ('emitted' if emit else 'missing')
+            evidence.mkdir()
+            args = SimpleNamespace(work=self.root, stage=self.root / 'stage',
+                                   launcher=self.root / 'launcher', evidence=evidence)
+            gate = runner.Runner(args)
+            self.assertNotIn('QV_PREVIEW_FATAL', gate.base)
+            def launch(command, **kw):
+                prefix = Path(kw['env']['DPREFIX'])
+                if command[-1] == '/usr/bin/true':
+                    (prefix / 'private/var/log').mkdir(parents=True)
+                if command[-1] == '/Applications/Stage41e/fatal-probe':
+                    self.assertEqual(kw['env']['QV_PREVIEW_FATAL'], '1')
+                    if emit:
+                        path = prefix / 'private/var/log/qv-terminal-boundaries.log'
+                        path.write_text('QV2 fatal.origin 1 61626f7274 666174616c2d70726f6265\n'
+                                        'QV2 fatal.site 2 61626f7274 61626f7274\n')
+                return SimpleNamespace(wait=lambda seconds: 0)
+            with patch.object(runner.subprocess, 'Popen', side_effect=launch), \
+                 patch.object(runner.subprocess, 'run', return_value=SimpleNamespace(returncode=0)), \
+                 patch.object(runner, 'wait', side_effect=[0, 0, 134, 0]), \
+                 patch.object(runner, 'snapshot', return_value={'processes': []}), \
+                 patch.object(runner, 'server_records', return_value={}):
+                gate.case('fatal-origin-control', ['/Applications/Stage41e/fatal-probe'], [],
+                          expected=134, fatal_probe=True)
+            self.assertEqual(gate.rows[-1]['passed'], emit)
+            self.assertEqual(gate.rows[-1]['host_guard_exit'], 0)
+            self.assertEqual('fatal_control' in [f['check'] for f in gate.rows[-1]['failures']], not emit)
+
+    def test_fatal_records_accept_only_fixed_sites_and_image_basenames(self):
+        self.assertFalse(fatal_records(self.root)['present'])
+        path = self.root / 'private/var/log/qv-terminal-boundaries.log'
+        path.parent.mkdir(parents=True)
+        def row(label, kind, value):
+            return f'QV2 {label} 123 {kind.encode().hex()} {value.encode().hex()}\n'
+        path.write_text(row('fatal.origin', 'abort', 'fatal-probe') +
+                        row('fatal.site', 'abort', 'abort') +
+                        row('fatal.message', 'abort', 'arbitrary text') +
+                        row('fatal.origin', 'abort', '/private/foreign') +
+                        row('fatal.site', 'abort', 'foreign_function') +
+                        row('fatal.origin', 'foreign-kind', 'Chess') +
+                        row('fatal.origin', 'abort', '0xdeadbeef') +
+                        'arbitrary guest text\n')
+        result = fatal_records(self.root)
+        self.assertEqual(len(result['records']), 2)
+        self.assertEqual(result['rejected_records'], 4)
+        self.assertNotIn('arbitrary', json.dumps(result))
+        self.assertNotIn('foreign', json.dumps(result))
+        linked = self.root / 'linked'
+        (linked / 'private/var/log').mkdir(parents=True)
+        (linked / 'private/var/log/qv-terminal-boundaries.log').symlink_to(path)
+        with self.assertRaisesRegex(RuntimeError, 'symlink'):
+            fatal_records(linked)
+
+    def test_warning_counts_keep_source_names_without_message_bodies(self):
+        path = self.root / 'private/var/log/dserver.log'
+        path.parent.mkdir(parents=True)
+        path.write_text('[1.0](calls, Warning)[P:10(10)][T:11(11)] TODO: virtual void DarlingServer::Call::PthreadCanceled::processCall()\n'
+                        '[2.0](dtape, Warning) -1(-1):-1(-1): Trying to lock mutex without an active thread!\n'
+                        '[3.0](dtape, Warning) -1(-1):-1(-1): stub: proc_get_effective_thread_policy:unimplemented flavor\n'
+                        '[4.0](dtape, Warning) stub: thread_guard_violation\n'
+                        '[5.0](dtape, Warning) stub: kmem_suballoc\n'
+                        '[6.0](dtape, Warning) -1(-1):-1(-1): Trying to unlock mutex without an active thread!\n'
+                        '[7.0](dtape, Warning) arbitrary 0xdeadbeef\n'
+                        '[8.0](kprintf, Info) guest supplied text\n')
+        result = server_records(self.root)
+        self.assertEqual(sum(result['warning_calls'].values()), 6)
+        self.assertEqual(result['warning_calls']['calls:PthreadCanceled:unimplemented'], 1)
+        self.assertEqual(result['unclassified_warnings'], {'dtape': 1})
+        self.assertNotIn('arbitrary', json.dumps(result))
+        self.assertNotIn('deadbeef', json.dumps(result))
+        self.assertNotIn('guest supplied', json.dumps(result))
 
     def test_server_records_keep_only_fixed_numeric_lifecycle(self):
         path = self.root / 'private/var/log/dserver.log'

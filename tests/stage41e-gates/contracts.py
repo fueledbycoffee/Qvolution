@@ -37,7 +37,23 @@ def check_terminal(record, seconds):
         fail(record, 'observation_budget', f'Terminal did not complete {seconds} seconds')
 
 
+SHELL_STARTUP_PROBES = 3
+
+
 def shell_present(probes):
-    # The first probe races login-shell startup; subsequent probes must all pass.
-    return bool(probes) and probes[-1]['shell'] and all(
-        p['exit'] == 0 and p['shell'] for p in probes[1:])
+    """Login startup may occupy probes 1-2; from first presence none may fail.
+
+    Every probe must still exit successfully and reach EOF within the runner's
+    unchanged 10s deadline. The third completed probe is the startup boundary.
+    """
+    first = next((i for i, p in enumerate(probes) if p['shell']), None)
+    return (first is not None and first < SHELL_STARTUP_PROBES
+            and all(p['exit'] == 0 and p.get('eof', False) for p in probes)
+            and all(p['shell'] for p in probes[first:]))
+
+
+def shell_observation(probes, start):
+    first = next((i for i, p in enumerate(probes) if p['shell']), None)
+    return dict(shell=shell_present(probes), shell_startup_allowance_probes=SHELL_STARTUP_PROBES,
+                shell_first_probe=None if first is None else first + 1,
+                time_to_shell_seconds=None if first is None else probes[first]['when'] - start)
