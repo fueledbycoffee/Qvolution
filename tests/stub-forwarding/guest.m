@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include "payload-image.h"
 
 struct LargeResult { unsigned long long words[8]; };
 /* Deliberately absent selectors with distinct caller ABIs. No Apple behavior is inferred. */
@@ -54,13 +55,7 @@ static int requirePayloadImage(Class cls, const char *className, const char *exp
     const char *mapped = class_getImageName(cls);
     printf("PAYLOAD class=%s expected=%s mapped=%s\n", className, expected, mapped ? mapped : "(none)");
     fflush(stdout);
-    char expectedPath[PATH_MAX], mappedPath[PATH_MAX];
-    printf("CHECK realpath expected\n"); fflush(stdout);
-    char *expectedResult = mapped ? realpath(expected, expectedPath) : NULL;
-    printf("CHECK realpath mapped\n"); fflush(stdout);
-    char *mappedResult = expectedResult ? realpath(mapped, mappedPath) : NULL;
-    printf("CHECK compare paths\n"); fflush(stdout);
-    if (!mapped || !expectedResult || !mappedResult || strcmp(expectedPath, mappedPath)) {
+    if (!qvSamePayloadImage(expected, mapped)) {
         fprintf(stderr, "FAIL payload image mismatch for %s; no selector calls sent\n", className);
         return 0;
     }
