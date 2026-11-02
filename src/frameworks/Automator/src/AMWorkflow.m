@@ -96,6 +96,4 @@
     [_metaData setPersonality: personality];
 }
 
-AM_STUB_FORWARDING
-
 @end

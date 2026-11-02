@@ -10,6 +10,13 @@
 struct LargeResult { unsigned long long words[8]; };
 /* Deliberately absent selectors with distinct caller ABIs. No Apple behavior is inferred. */
 @interface NSObject (StubAuditCalls)
+- (BOOL)isEnabled;
+- (void)setEnabled:(BOOL)value;
+- (BOOL)hasUnsavedChanges;
+- (void)setHasUnsavedChanges:(BOOL)value;
+- (id)playCommand;
+- (id)pauseCommand;
+- (id)skipForwardCommand;
 - (id)qvAuditObject;
 - (long long)qvAuditInteger;
 - (double)qvAuditDouble;
@@ -60,6 +67,37 @@ static int requirePayloadImage(Class cls, const char *className, const char *exp
         return 0;
     }
     return 1;
+}
+static int auditImplementedState(id object, const char *name) {
+    int failures = 0;
+#define CHECK_STATE(condition) do { if (!(condition)) { \
+    fprintf(stderr, "FAIL typed state %s: %s\n", name, #condition); failures++; } } while (0)
+    if (!strcmp(name, "MPRemoteCommand")) {
+        CHECK_STATE([object isEnabled] == YES);
+        [object setEnabled:NO];
+        CHECK_STATE([object isEnabled] == NO);
+        [object setEnabled:YES];
+        CHECK_STATE([object isEnabled] == YES);
+        NSMethodSignature *signature = [object methodSignatureForSelector:@selector(setEnabled:)];
+        CHECK_STATE(signature && [signature numberOfArguments] == 3 &&
+                    !strcmp([signature methodReturnType], @encode(void)) &&
+                    !strcmp([signature getArgumentTypeAtIndex:2], @encode(BOOL)));
+    } else if (!strcmp(name, "MPRemoteCommandCenter")) {
+        id play = [object playCommand];
+        CHECK_STATE(play && play == [object playCommand]);
+        CHECK_STATE([object pauseCommand] && play != [object pauseCommand]);
+        CHECK_STATE([[object skipForwardCommand] isKindOfClass:objc_getClass("MPSkipIntervalCommand")]);
+        [play setEnabled:NO];
+        CHECK_STATE([[object playCommand] isEnabled] == NO);
+    } else if (!strcmp(name, "AMWorkflow")) {
+        CHECK_STATE([object hasUnsavedChanges] == NO);
+        [object setHasUnsavedChanges:YES];
+        CHECK_STATE([object hasUnsavedChanges] == YES);
+        [object setHasUnsavedChanges:NO];
+        CHECK_STATE([object hasUnsavedChanges] == NO);
+    }
+#undef CHECK_STATE
+    return failures;
 }
 static int auditUnknownSelectors(id object) {
     int failures = 0;
@@ -115,6 +153,7 @@ int main(int argc, const char **argv) {
             id object = [[cls alloc] init];
             if (!object) { fprintf(stderr, "FAIL init %s\n", cases[i].className); return 1; }
             printf("CHECK instance selectors %s\n", cases[i].className); fflush(stdout);
+            failures += auditImplementedState(object, cases[i].className);
             failures += auditUnknownSelectors(object);
             printf("CHECK class selectors %s\n", cases[i].className); fflush(stdout);
             failures += auditUnknownSelectors(cls);

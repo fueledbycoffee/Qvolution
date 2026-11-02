@@ -107,27 +107,6 @@ static MPNowPlayingInfoCenter *s_defaultCenter = nil;
     return self;
 }
 
-- (NSMethodSignature *) methodSignatureForSelector: (SEL) aSelector {
-    NSMethodSignature *sig = [super methodSignatureForSelector: aSelector];
-    if (sig) return sig;
-    const char *selName = sel_getName(aSelector);
-    if (strcmp(selName, "setEnabled:") == 0) {
-        return [NSMethodSignature signatureWithObjCTypes: "v@:c"];
-    }
-    if (strncmp(selName, "set", 3) == 0) {
-        return [NSMethodSignature signatureWithObjCTypes: "v@:@"];
-    }
-    return [NSMethodSignature signatureWithObjCTypes: "@@:"];
-}
-
-- (void) forwardInvocation: (NSInvocation *) anInvocation {
-    const char *selName = sel_getName([anInvocation selector]);
-    if (strncmp(selName, "set", 3) != 0) {
-        id nilRet = nil;
-        [anInvocation setReturnValue: &nilRet];
-    }
-}
-
 - (void) invokeWithEvent: (MPRemoteCommandEvent *) event {
     if (_enabled && _target && _action && [_target respondsToSelector: _action]) {
         [_target performSelector: _action withObject: event];
@@ -209,38 +188,6 @@ static MPRemoteCommandCenter *s_sharedCommandCenter = nil;
         _seekBackwardCommand = [[MPRemoteCommand alloc] init];
     }
     return self;
-}
-
-- (NSMethodSignature *) methodSignatureForSelector: (SEL) aSelector {
-    NSString *selName = NSStringFromSelector(aSelector);
-    if ([selName hasSuffix: @"Command"]) {
-        return [NSMethodSignature signatureWithObjCTypes: "@@:"];
-    }
-    return [super methodSignatureForSelector: aSelector];
-}
-
-- (void) forwardInvocation: (NSInvocation *) anInvocation {
-    NSString *selName = NSStringFromSelector([anInvocation selector]);
-    if ([selName hasSuffix: @"Command"]) {
-        MPRemoteCommand *cmd = nil;
-        @synchronized(self) {
-            if (!_commands) _commands = [NSMutableDictionary new];
-            cmd = [_commands objectForKey: selName];
-            if (!cmd) {
-                if ([selName isEqualToString: @"skipForwardCommand"] || [selName isEqualToString: @"skipBackwardCommand"]) {
-                    cmd = [[MPSkipIntervalCommand alloc] init];
-                } else {
-                    cmd = [[MPRemoteCommand alloc] init];
-                }
-                [_commands setObject: cmd forKey: selName];
-                [cmd release];
-            }
-            cmd = [[cmd retain] autorelease];
-        }
-        [anInvocation setReturnValue: &cmd];
-        return;
-    }
-    [super forwardInvocation: anInvocation];
 }
 
 - (void) dealloc {

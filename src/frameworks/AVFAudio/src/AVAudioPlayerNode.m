@@ -18,18 +18,7 @@
 */
 
 #import <AVFAudio/AVAudioPlayerNode.h>
-#import "AVFAudioStub.h"
 
 @implementation AVAudioPlayerNode
-
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
-{
-    return AVAudioStubSignature(aSelector);
-}
-
-- (void)forwardInvocation:(NSInvocation *)anInvocation
-{
-    NSLog(@"Stub called: %@ in %@", NSStringFromSelector([anInvocation selector]), [self class]);
-}
 
 @end
