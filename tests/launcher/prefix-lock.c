@@ -9,8 +9,9 @@
 int main(int argc, char **argv)
 {
  (void)argv;
- char root[] = "/tmp/qv-prefix-lock-XXXXXX"; assert(mkdtemp(root));
- char state[256]; snprintf(state, sizeof(state), "%s/pid-record", root);
+ char base[] = "/tmp/qv-prefix-lock-XXXXXX"; assert(mkdtemp(base));
+ char root[256]; snprintf(root, sizeof(root), "%s/prefix", base);
+ char state[512]; snprintf(state, sizeof(state), "%s/pid-record", root);
  int ready[2], start[2], seen[2]; assert(!pipe(ready) && !pipe(start) && !pipe(seen));
  pid_t children[2];
  for (int i = 0; i < 2; ++i) {

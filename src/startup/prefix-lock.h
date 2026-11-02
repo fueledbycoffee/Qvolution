@@ -3,12 +3,17 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 /* Lock the directory inode: no lock file makes an empty prefix non-empty. */
 static int darlingLockPrefix(const char *path)
 {
  int fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+ if (fd < 0 && errno == ENOENT) {
+  if (mkdir(path, 0755) < 0 && errno != EEXIST) return -1;
+  fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+ }
  if (fd < 0) return -1;
  while (flock(fd, LOCK_EX) < 0) {
   if (errno == EINTR) continue;

@@ -1957,13 +1957,6 @@ int main(int argc, char ** argv)
 	unsetenv("DARLING_PROFILE");
 	getcwd(g_workingDirectory, sizeof(g_workingDirectory));
 
-	if (!checkPrefixDir())
-	{
-		checkPrefixCreatable();
-		setupPrefix();
-		g_fixPermissions = true;
-	}
-	checkPrefixOwner();
 	useOriginalIds();
 	g_prefixLock = darlingLockPrefix(prefix);
 	restoreRootIds();
@@ -1971,6 +1964,13 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "Cannot lock prefix lifecycle: %s\n", strerror(errno));
 		return 1;
 	}
+	if (!checkPrefixDir())
+	{
+		checkPrefixCreatable();
+		setupPrefix();
+		g_fixPermissions = true;
+	}
+	checkPrefixOwner();
 
 	// These only act on the invoking user's prefix, through paths the user
 	// controls, so run them with the user's ids (as setupPrefix() does).
