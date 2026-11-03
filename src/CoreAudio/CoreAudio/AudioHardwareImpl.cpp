@@ -63,7 +63,7 @@ OSStatus AudioHardwareImpl::createIOProcID(AudioDeviceIOProc inProc, void* inCli
 	if (!inProc)
 		return paramErr;
 	
-	AudioDeviceIOProcID procId;
+	AudioDeviceIOProcID procId = nullptr;
 	if (outIOProcID)
 		*outIOProcID = procId = reinterpret_cast<AudioDeviceIOProcID>(m_nextProcId++);
 	else
@@ -299,6 +299,42 @@ OSStatus AudioHardwareImpl::getPropertyData(const AudioObjectPropertyAddress* in
 			*ioDataSize = 0;
 			return kAudioHardwareNoError;
 		}
+		case kAudioStreamPropertyIsActive:
+		{
+			if (UInt32* act = static_cast<UInt32*>(outData); act && *ioDataSize >= sizeof(UInt32))
+				*act = 1;
+			*ioDataSize = sizeof(UInt32);
+			return kAudioHardwareNoError;
+		}
+		case kAudioStreamPropertyDirection:
+		{
+			if (UInt32* dir = static_cast<UInt32*>(outData); dir && *ioDataSize >= sizeof(UInt32))
+				*dir = isInput() ? 1 : 0;
+			*ioDataSize = sizeof(UInt32);
+			return kAudioHardwareNoError;
+		}
+		case kAudioStreamPropertyPhysicalFormat:
+		{
+			if (AudioStreamBasicDescription* asbd = static_cast<AudioStreamBasicDescription*>(outData); asbd && *ioDataSize >= sizeof(AudioStreamBasicDescription))
+			{
+				memcpy(asbd, &m_asbd, sizeof(m_asbd));
+			}
+			*ioDataSize = sizeof(AudioStreamBasicDescription);
+			return kAudioHardwareNoError;
+		}
+		case kAudioStreamPropertyAvailablePhysicalFormats:
+		case kAudioStreamPropertyAvailableVirtualFormats:
+		{
+			size_t size = sizeof(AudioStreamRangedDescription);
+			if (AudioStreamRangedDescription* asrd = static_cast<AudioStreamRangedDescription*>(outData); asrd && *ioDataSize >= size)
+			{
+				memcpy(&asrd->mFormat, &m_asbd, sizeof(m_asbd));
+				asrd->mSampleRateRange.mMinimum = m_asbd.mSampleRate ? m_asbd.mSampleRate : 44100.0;
+				asrd->mSampleRateRange.mMaximum = asrd->mSampleRateRange.mMinimum;
+			}
+			*ioDataSize = size;
+			return kAudioHardwareNoError;
+		}
 	}
 	return kAudioHardwareUnknownPropertyError;
 }
@@ -315,10 +351,23 @@ OSStatus AudioHardwareImpl::getPropertyCFString(CFStringRef str, UInt32* ioDataS
 
 OSStatus AudioHardwareImpl::getPropertyString(CFStringRef str, UInt32* ioDataSize, void* outData)
 {
+	if (!str)
+	{
+		*ioDataSize = 0;
+		return kAudioHardwareBadObjectError;
+	}
+	char buf[256];
 	const char* cstr = CFStringGetCStringPtr(str, kCFStringEncodingUTF8);
-	if (char* target = static_cast<char*>(outData))
+	if (!cstr)
+	{
+		if (CFStringGetCString(str, buf, sizeof(buf), kCFStringEncodingUTF8))
+			cstr = buf;
+		else
+			cstr = "";
+	}
+	if (char* target = static_cast<char*>(outData); target && *ioDataSize > 0)
 		strlcpy(target, cstr, *ioDataSize);
-	*ioDataSize = strlen(cstr) + 1;
+	*ioDataSize = (UInt32)strlen(cstr) + 1;
 	return noErr;
 }
 
@@ -433,7 +482,7 @@ OSStatus AudioHardwareImpl::removePropertyListenerBlock(const AudioObjectPropert
 
 OSStatus AudioHardwareImpl::setBufferSize(uint32_t bufferSize)
 {
-	m_bufferSize = bufferSize;
+	m_bufferSize.store(bufferSize, std::memory_order_release);
 	return noErr;
 }
 
