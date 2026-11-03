@@ -63,7 +63,7 @@ static int default_swap_interval = 1;
 // interval is kept in software (swap_pacing.h) and EGL stays at interval 0.
 static int default_paced = 0;
 static pthread_mutex_t registration_lock = PTHREAD_MUTEX_INITIALIZER;
-static EGLContext default_share_context = EGL_NO_CONTEXT;
+static EGLDisplay offscreen_display = EGL_NO_DISPLAY;
 
 static EGLBoolean choose_registered_config(EGLDisplay dpy, EGLConfig *out_config, int *out_count) {
     static EGLint const attrs_24[] = {
@@ -165,6 +165,8 @@ static inline int attribute_has_argument(CGLPixelFormatAttribute attr) {
     case kCGLPFARendererID:
     case kCGLPFADisplayMask:
     case kCGLPFAOpenGLProfile:
+    case kCGLPFASampleBuffers:
+    case kCGLPFASamples:
         return 1;
     default:
         return 0;
@@ -537,23 +539,7 @@ CGLError CGLSetCurrentContext(CGLContextObj context) {
                 } else {
                     if (pbuf != EGL_NO_SURFACE)
                         eglDestroySurface(context->egl_display, pbuf);
-                    EGLint pbufConfAttrs[] = { EGL_SURFACE_TYPE, EGL_PBUFFER_BIT, EGL_RED_SIZE, 1, EGL_NONE };
-                    EGLConfig pbufConfig = NULL;
-                    EGLint numPbuf = 0;
-                    if (eglChooseConfig(context->egl_display, pbufConfAttrs, &pbufConfig, 1, &numPbuf) && numPbuf > 0) {
-                        pbuf = eglCreatePbufferSurface(context->egl_display, pbufConfig, pbufferAttribs);
-                        if (pbuf != EGL_NO_SURFACE && eglMakeCurrent(context->egl_display, pbuf, pbuf, context->egl_context)) {
-                            context->fallback_pbuffer = pbuf;
-                            atomic_store_explicit(&context->egl_surface, pbuf, memory_order_release);
-                            surface = pbuf;
-                        } else {
-                            if (pbuf != EGL_NO_SURFACE)
-                                eglDestroySurface(context->egl_display, pbuf);
-                            return kCGLBadContext;
-                        }
-                    } else {
-                        return kCGLBadContext;
-                    }
+                    return kCGLBadContext;
                 }
             }
         } else {
@@ -638,26 +624,101 @@ CGLError CGLChoosePixelFormat(
     CGLPixelFormatObj *result,
     GLint *number_of_screens
 ) {
-    if (!attrs) {
-        return kCGLBadAttribute;
-    }
-    if (!result) {
+    if (!result)
         return kCGLBadAddress;
-    }
-
-    CGLPixelFormatObj format = malloc(sizeof(struct _CGLPixelFormatObj));
-    if (!format) {
-        return kCGLBadAlloc;
-    }
-
+    *result = NULL;
+    if (number_of_screens)
+        *number_of_screens = 0;
+    if (!attrs)
+        return kCGLBadAttribute;
     int count = attributes_count(attrs);
+    EGLint egl_attrs[32] = { EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT };
+    int n = 2;
+    GLint color_size = 0;
+    for (int i = 0; i < count; ++i) {
+        CGLPixelFormatAttribute attr = attrs[i];
+        GLint value = attribute_has_argument(attr) ? (GLint)attrs[++i] : 1;
+        EGLint egl_attr = EGL_NONE;
+        switch (attr) {
+        case kCGLPFAColorSize: color_size = value; break;
+        case kCGLPFAAlphaSize: egl_attr = EGL_ALPHA_SIZE; break;
+        case kCGLPFADepthSize: egl_attr = EGL_DEPTH_SIZE; break;
+        case kCGLPFAStencilSize: egl_attr = EGL_STENCIL_SIZE; break;
+        case kCGLPFASampleBuffers: egl_attr = EGL_SAMPLE_BUFFERS; break;
+        case kCGLPFASamples: egl_attr = EGL_SAMPLES; break;
+        case kCGLPFAAccelerated: egl_attr = EGL_CONFIG_CAVEAT; value = EGL_NONE; break;
+        case kCGLPFAOpenGLProfile:
+            if (value != kCGLOGLPVersion_Legacy && value != kCGLOGLPVersion_3_2_Core &&
+                    value != kCGLOGLPVersion_GL4_Core)
+                return kCGLBadAttribute;
+            break;
+        default: break;
+        }
+        if (value < 0)
+            return kCGLBadAttribute;
+        if (egl_attr != EGL_NONE) {
+            if (n + 2 >= (int)(sizeof(egl_attrs) / sizeof(egl_attrs[0])) - 2)
+                return kCGLBadAttribute;
+            egl_attrs[n++] = egl_attr;
+            egl_attrs[n++] = value;
+        }
+    }
 
     pthread_mutex_lock(&registration_lock);
-    format->egl_display = display;
-    format->egl_config = config;
-    format->swap_interval = default_swap_interval;
-    format->paced = default_paced;
+    EGLDisplay owner = display;
+    int interval = default_swap_interval;
+    int paced = default_paced;
+    if (owner == EGL_NO_DISPLAY) {
+        if (offscreen_display == EGL_NO_DISPLAY) {
+            EGLDisplay candidate = eglGetPlatformDisplay(EGL_PLATFORM_SURFACELESS_MESA,
+                                                         EGL_DEFAULT_DISPLAY, NULL);
+            if (candidate != EGL_NO_DISPLAY && eglInitialize(candidate, NULL, NULL))
+                offscreen_display = candidate;
+        }
+        owner = offscreen_display;
+    }
     pthread_mutex_unlock(&registration_lock);
+    if (owner == EGL_NO_DISPLAY)
+        return kCGLBadConnection;
+
+    // Window-capable configs remain attachable; a headless display needs only
+    // pbuffer support for drivers that cannot make a surfaceless context current.
+    egl_attrs[n++] = EGL_SURFACE_TYPE;
+    egl_attrs[n++] = owner == offscreen_display ? EGL_PBUFFER_BIT : EGL_WINDOW_BIT;
+    egl_attrs[n] = EGL_NONE;
+    EGLint available = 0;
+    if (!eglChooseConfig(owner, egl_attrs, NULL, 0, &available) || available == 0)
+        return kCGLBadPixelFormat;
+    EGLConfig *configs = calloc((size_t)available, sizeof(*configs));
+    if (!configs)
+        return kCGLBadAlloc;
+    EGLConfig selected = NULL;
+    if (eglChooseConfig(owner, egl_attrs, configs, available, &available)) {
+        for (EGLint i = 0; i < available; ++i) {
+            EGLint red, green, blue, minimum_interval;
+            if (paced && (!eglGetConfigAttrib(owner, configs[i], EGL_MIN_SWAP_INTERVAL, &minimum_interval) ||
+                    minimum_interval != 0))
+                continue;
+            if (eglGetConfigAttrib(owner, configs[i], EGL_RED_SIZE, &red) &&
+                    eglGetConfigAttrib(owner, configs[i], EGL_GREEN_SIZE, &green) &&
+                    eglGetConfigAttrib(owner, configs[i], EGL_BLUE_SIZE, &blue) &&
+                    red + green + blue >= color_size) {
+                selected = configs[i];
+                break;
+            }
+        }
+    }
+    free(configs);
+    if (!selected)
+        return kCGLBadPixelFormat;
+
+    CGLPixelFormatObj format = malloc(sizeof(struct _CGLPixelFormatObj));
+    if (!format)
+        return kCGLBadAlloc;
+    format->egl_display = owner;
+    format->egl_config = selected;
+    format->swap_interval = interval;
+    format->paced = paced;
     format->retain_count = 1;
     format->attributes = malloc(sizeof(CGLPixelFormatAttribute) * (count + 1));
     if (!format->attributes) {
@@ -719,6 +780,37 @@ CGLError CGLDescribePixelFormat(
     if (!value) {
         return kCGLBadAddress;
     }
+    if (sreen_num != 0)
+        return kCGLBadValue;
+    EGLint egl_attr = EGL_NONE;
+    switch (attr) {
+    case kCGLPFAColorSize: {
+        EGLint red, green, blue;
+        if (!eglGetConfigAttrib(format->egl_display, format->egl_config, EGL_RED_SIZE, &red) ||
+                !eglGetConfigAttrib(format->egl_display, format->egl_config, EGL_GREEN_SIZE, &green) ||
+                !eglGetConfigAttrib(format->egl_display, format->egl_config, EGL_BLUE_SIZE, &blue))
+            return kCGLBadPixelFormat;
+        *value = red + green + blue;
+        return kCGLNoError;
+    }
+    case kCGLPFAAccelerated: {
+        EGLint caveat;
+        if (!eglGetConfigAttrib(format->egl_display, format->egl_config, EGL_CONFIG_CAVEAT, &caveat))
+            return kCGLBadPixelFormat;
+        *value = caveat == EGL_NONE;
+        return kCGLNoError;
+    }
+    case kCGLPFAAlphaSize: egl_attr = EGL_ALPHA_SIZE; break;
+    case kCGLPFADepthSize: egl_attr = EGL_DEPTH_SIZE; break;
+    case kCGLPFAStencilSize: egl_attr = EGL_STENCIL_SIZE; break;
+    case kCGLPFASampleBuffers: egl_attr = EGL_SAMPLE_BUFFERS; break;
+    case kCGLPFASamples: egl_attr = EGL_SAMPLES; break;
+    case kCGLPFAVirtualScreenCount: *value = 1; return kCGLNoError;
+    default: break;
+    }
+    if (egl_attr != EGL_NONE)
+        return eglGetConfigAttrib(format->egl_display, format->egl_config, egl_attr, value)
+            ? kCGLNoError : kCGLBadPixelFormat;
 
     for (int i = 0; format->attributes[i] != 0; i++) {
         int has_arg = attribute_has_argument(format->attributes[i]);
@@ -776,22 +868,19 @@ CGLError CGLCreateContext(CGLPixelFormatObj pixelFormat, CGLContextObj share, CG
         return kCGLBadAddress;
     *resultp = NULL;
 
-    pthread_mutex_lock(&registration_lock);
-    EGLDisplay owner = share ? share->egl_display : (pixelFormat ? pixelFormat->egl_display : display);
-    EGLConfig owner_config = share ? share->egl_config : (pixelFormat ? pixelFormat->egl_config : config);
-    int interval = share ? share->swap_interval : (pixelFormat ? pixelFormat->swap_interval : default_swap_interval);
-    int paced = share ? share->paced : (pixelFormat ? pixelFormat->paced : default_paced);
-    pthread_mutex_unlock(&registration_lock);
+    if (!pixelFormat && share)
+        pixelFormat = share->pixel_format;
+    if (!pixelFormat)
+        return kCGLBadPixelFormat;
+    EGLDisplay owner = pixelFormat->egl_display;
+    EGLConfig owner_config = pixelFormat->egl_config;
+    int interval = pixelFormat->swap_interval;
+    int paced = pixelFormat->paced;
+    if (share && share->egl_display != owner)
+        return kCGLBadMatch;
     if (!eglBindAPI(EGL_OPENGL_API))
         return kCGLBadState;
-    EGLContext egl_share = EGL_NO_CONTEXT;
-    if (share != NULL) {
-        egl_share = share->egl_context;
-    } else {
-        pthread_mutex_lock(&registration_lock);
-        egl_share = default_share_context;
-        pthread_mutex_unlock(&registration_lock);
-    }
+    EGLContext egl_share = share ? share->egl_context : EGL_NO_CONTEXT;
     EGLint context_attribs[16] = { EGL_NONE };
     int attr_idx = 0;
     GLint profile = 0;
@@ -815,24 +904,8 @@ CGLError CGLCreateContext(CGLPixelFormatObj pixelFormat, CGLContextObj share, CG
     }
     context_attribs[attr_idx] = EGL_NONE;
     EGLContext egl_context = eglCreateContext(owner, owner_config, egl_share, attr_idx > 0 ? context_attribs : NULL);
-    if (egl_context == EGL_NO_CONTEXT && egl_share != EGL_NO_CONTEXT) {
-        egl_context = eglCreateContext(owner, owner_config, EGL_NO_CONTEXT, attr_idx > 0 ? context_attribs : NULL);
-    }
-    if (egl_context == EGL_NO_CONTEXT && attr_idx > 0) {
-        /* Core Profile creation failed on host driver; log warning and attempt best-effort fallback to compatibility context */
-        fprintf(stderr, "CGLCreateContext: Core Profile request failed, falling back to compatibility context\n");
-        egl_context = eglCreateContext(owner, owner_config, EGL_NO_CONTEXT, NULL);
-    }
-
-    if (egl_context == EGL_NO_CONTEXT) {
-        return kCGLBadContext;
-    }
-
-    pthread_mutex_lock(&registration_lock);
-    if (default_share_context == EGL_NO_CONTEXT && attr_idx == 0) {
-        default_share_context = egl_context;
-    }
-    pthread_mutex_unlock(&registration_lock);
+    if (egl_context == EGL_NO_CONTEXT)
+        return share && eglGetError() == EGL_BAD_MATCH ? kCGLBadMatch : kCGLBadContext;
 
     CGLContextObj context = malloc(sizeof(struct _CGLContextObj));
 
@@ -907,12 +980,6 @@ void CGLReleaseContext(CGLContextObj context) {
     if (CGLGetCurrentContext() == context) {
         CGLSetCurrentContext(NULL);
     }
-
-    pthread_mutex_lock(&registration_lock);
-    if (default_share_context == context->egl_context) {
-        default_share_context = EGL_NO_CONTEXT;
-    }
-    pthread_mutex_unlock(&registration_lock);
 
     if (context->fallback_pbuffer != EGL_NO_SURFACE) {
         eglDestroySurface(context->egl_display, context->fallback_pbuffer);
@@ -997,6 +1064,8 @@ CGLError CGLSetDrawableRefreshRate(CGLContextObj context, uint32_t millihertz) {
 CGLError CGLSetParameter(CGLContextObj context, CGLContextParameter parameter, const GLint *value) {
     if (!value)
         return kCGLBadAddress;
+    if (!context)
+        return kCGLBadContext;
 
     if (parameter == kCGLCPSwapInterval)
     {
@@ -1010,21 +1079,21 @@ CGLError CGLSetParameter(CGLContextObj context, CGLContextParameter parameter, c
             context->swap_interval = v;
         return success ? kCGLNoError : kCGLBadValue;
     }
-    fprintf(stderr, "CGLSetParameter unimplemented for parameter %d\n", parameter);
-    return kCGLNoError;
+    return kCGLBadEnumeration;
 }
 
 CGLError CGLGetParameter(CGLContextObj context, CGLContextParameter parameter, GLint *value) {
     if (!value)
         return kCGLBadAddress;
+    if (!context)
+        return kCGLBadContext;
 
     if (parameter == kCGLCPSwapInterval)
     {
         *value = context->swap_interval;
         return kCGLNoError;
     }
-    fprintf(stderr, "CGLGetParameter unimplemented for parameter %d\n", parameter);
-    return kCGLNoError;
+    return kCGLBadEnumeration;
 }
 
 CGLError CGLDescribeRenderer(CGLRendererInfoObj rend, long rend_num, CGLRendererProperty prop, long *value) {
