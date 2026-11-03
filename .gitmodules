@@ -27,7 +27,7 @@
 	url = https://github.com/fueledbycoffee/Qvolution-foundation.git
 [submodule "src/external/corefoundation"]
 	path = src/external/corefoundation
-	url = ../darling-corefoundation.git
+	url = https://github.com/fueledbycoffee/Qvolution-corefoundation.git
 [submodule "src/external/icu"]
 	path = src/external/icu
 	url = ../darling-icu.git
@@ -51,7 +51,7 @@
 	url = ../darling-bash.git
 [submodule "src/external/darling-dmg"]
 	path = src/external/darling-dmg
-	url = ../darling-dmg.git
+	url = https://github.com/fueledbycoffee/Qvolution-darling-dmg.git
 [submodule "src/external/bomutils"]
 	path = src/external/bomutils
 	url = ../bomutils.git
@@ -64,7 +64,7 @@
 	url = ../darling-liblzma.git
 [submodule "src/external/cfnetwork"]
 	path = src/external/cfnetwork
-	url = ../darling-cfnetwork.git
+	url = https://github.com/fueledbycoffee/Qvolution-cfnetwork.git
 [submodule "src/external/text_cmds"]
 	path = src/external/text_cmds
 	url = ../darling-text_cmds.git
@@ -175,7 +175,7 @@
 	url = ../cctools-port.git
 [submodule "src/external/objc4"]
 	path = src/external/objc4
-	url = ../darling-objc4.git
+	url = https://github.com/fueledbycoffee/Qvolution-objc4.git
 [submodule "src/external/libplatform"]
 	path = src/external/libplatform
 	url = ../darling-libplatform.git
@@ -190,7 +190,7 @@
 	url = ../darling-libclosure.git
 [submodule "src/external/configd"]
 	path = src/external/configd
-	url = ../darling-configd.git
+	url = https://github.com/fueledbycoffee/Qvolution-configd.git
 [submodule "src/external/IONetworkingFamily"]
 	path = src/external/IONetworkingFamily
 	url = ../darling-IONetworkingFamily.git
@@ -330,7 +330,7 @@
 	url = ../fmdb.git
 [submodule "src/external/swift"]
 	path = src/external/swift
-	url = ../darling-swift.git
+	url = https://github.com/fueledbycoffee/Qvolution-swift.git
 [submodule "src/external/glut"]
 	path = src/external/glut
 	url = ../darling-glut.git
@@ -391,10 +391,10 @@
 	url = ../darling-Libc.git
 [submodule "src/external/libsystem"]
 	path = src/external/libsystem
-	url = ../darling-Libsystem.git
+	url = https://github.com/fueledbycoffee/Qvolution-libsystem.git
 [submodule "src/external/dyld"]
 	path = src/external/dyld
-	url = ../darling-dyld.git
+	url = https://github.com/fueledbycoffee/Qvolution-dyld.git
 [submodule "src/external/AvailabilityVersions"]
 	path = src/external/AvailabilityVersions
 	url = ../darling-AvailabilityVersions
