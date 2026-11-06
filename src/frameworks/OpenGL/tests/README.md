@@ -13,6 +13,13 @@ pbuffer fallback, pixel-format lifetime across later native registration, and
 swap-interval queries. The original source fails the first initialization-error
 assertion. Build this test under the host's build slot convention.
 
+Run the same executable with `--display-list-context` to exercise the two
+pixel-format requests from oracle-render's opengl-display-list.m: RGB 24,
+alpha 8, with and without kCGLPFAAccelerated, before any native display is
+registered. Both formats must create a context that can be made current and
+released. This mode checks only context setup; the differential check still
+needs real GL rendering and six PPM image comparisons.
+
 cgl-offscreen.m is an authored public-API differential check for macOS and Darling.
 Build with -framework OpenGL (the batch runner adds Foundation for .m). It checks
 64x64 texture-backed FBO rendering and readback, replacement of a display list,

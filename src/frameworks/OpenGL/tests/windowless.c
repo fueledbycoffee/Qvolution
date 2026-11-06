@@ -211,7 +211,35 @@ static void selection_policy(void) {
     multi_configs = 0;
 }
 
+static void display_list_contexts(void) {
+    for (int accelerated = 0; accelerated <= 1; ++accelerated) {
+        CGLPixelFormatAttribute attrs[6];
+        int i = 0;
+        if (accelerated) attrs[i++] = kCGLPFAAccelerated;
+        attrs[i++] = kCGLPFAColorSize; attrs[i++] = 24;
+        attrs[i++] = kCGLPFAAlphaSize; attrs[i++] = 8;
+        attrs[i] = 0;
+        CGLPixelFormatObj format = NULL;
+        CGLContextObj context = NULL;
+        GLint count = 0;
+        assert(CGLChoosePixelFormat(attrs, &format, &count) == kCGLNoError);
+        assert(format && count > 0);
+        assert(CGLCreateContext(format, NULL, &context) == kCGLNoError);
+        assert(context);
+        assert(CGLSetCurrentContext(context) == kCGLNoError);
+        assert(CGLGetCurrentContext() == context);
+        assert(CGLSetCurrentContext(NULL) == kCGLNoError);
+        assert(CGLDestroyContext(context) == kCGLNoError);
+        assert(CGLDestroyPixelFormat(format) == kCGLNoError);
+    }
+    puts("display-list context regression: PASS");
+}
+
 int main(int argc, char **argv) {
+    if (argc == 2 && !strcmp(argv[1], "--display-list-context")) {
+        display_list_contexts();
+        return 0;
+    }
     if (argc == 2) {
         if (!strcmp(argv[1], "selection")) {
             selection_policy();
