@@ -388,7 +388,10 @@ static FSEventStreamRef g_eventStream;
 		if (![self setupBundleID:&needsProcessing]) return NO;
 		if (needsProcessing) {
 			NSDictionary* infoDict = (NSDictionary*) CFBundleGetInfoDictionary(_bundle);
-			NSArray* utis = [infoDict objectForKey:(NSString*) kUTExportedTypeDeclarationsKey];
+			NSArray* utis = [infoDict objectForKey:(NSString*) kUTImportedTypeDeclarationsKey];
+			NSArray* exported = [infoDict objectForKey:(NSString*) kUTExportedTypeDeclarationsKey];
+			if (exported)
+				utis = utis ? [utis arrayByAddingObjectsFromArray:exported] : exported;
 			if (![self processUTIs:utis] || ![self processFileAssociations] || ![self processURLTypes])
 				return NO;
 		}

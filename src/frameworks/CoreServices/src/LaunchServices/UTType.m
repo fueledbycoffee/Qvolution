@@ -155,13 +155,20 @@ UTTypeConformsTo(
   CFStringRef inUTI,
   CFStringRef inConformsToUTI)
 {
+	if (UTTypeEqual(inUTI, inConformsToUTI))
+		return TRUE;
+
 	FMDatabaseQueue* dq = getDatabaseQueue();
 	if (!dq)
 		return FALSE;
 
 	__block Boolean retval;
 	[dq inDatabase:^(FMDatabase* db) {
-		FMResultSet* rs = [db executeQuery:@"select UC.conforms_to from uti inner join uti_conforms UC on UC.uti=uti.id where type_identifier=? and UC.conforms_to=?",
+		FMResultSet* rs = [db executeQuery:@"with recursive ancestors(identifier) as ("
+			@"select ? collate nocase union "
+			@"select UC.conforms_to from ancestors A join uti on uti.type_identifier=A.identifier "
+			@"join uti_conforms UC on UC.uti=uti.id) "
+			@"select 1 from ancestors where identifier=? collate nocase limit 1",
 			inUTI, inConformsToUTI];
 
 		retval = [rs next];
