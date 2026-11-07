@@ -934,8 +934,6 @@ CGLError CGLCreateContext(CGLPixelFormatObj pixelFormat, CGLContextObj share, CG
         return kCGLBadAddress;
     *resultp = NULL;
 
-    if (!pixelFormat && share)
-        pixelFormat = share->pixel_format;
     if (!pixelFormat)
         return kCGLBadPixelFormat;
     EGLDisplay owner = pixelFormat->egl_display;

@@ -162,7 +162,11 @@ int main(void) {
     assert(CGLGetParameter(a, kCGLCPSwapInterval, &interval) == kCGLNoError && interval == 0);
     assert(CGLGetParameter(NULL, kCGLCPSwapInterval, &interval) == kCGLBadContext);
     assert(CGLGetParameter(a, (CGLContextParameter)-1, &interval) == kCGLBadEnumeration);
-    assert(CGLCreateContext(NULL, a, &b) == kCGLNoError && last_share == a->egl_context);
+    int before_share = create_calls;
+    b = a;
+    assert(CGLCreateContext(NULL, a, &b) == kCGLBadPixelFormat && !b);
+    assert(create_calls == before_share);
+    assert(CGLCreateContext(pf, a, &b) == kCGLNoError && last_share == a->egl_context);
     assert(CGLCreateContext(pf, NULL, &independent) == kCGLNoError && !last_share);
     fail_create = 1; int attempts = create_calls; CGLContextObj failed = a;
     assert(CGLCreateContext(pf, a, &failed) == kCGLBadMatch && !failed);
@@ -192,7 +196,7 @@ int main(void) {
     assert(last_major == 3 && last_minor == 2 && last_profile == EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
     assert(CGLSetCurrentContext(b) == kCGLNoError); version(3, 2);
     CGLContextObj core_share = NULL;
-    assert(CGLCreateContext(NULL, b, &core_share) == kCGLNoError && last_share == b->egl_context);
+    assert(CGLCreateContext(second, b, &core_share) == kCGLNoError && last_share == b->egl_context);
     assert(CGLSetCurrentContext(core_share) == kCGLNoError); version(3, 2);
     CGLReleaseContext(core_share); CGLReleaseContext(b); CGLReleasePixelFormat(second);
     attrs[3] = kCGLOGLPVersion_GL4_Core;
