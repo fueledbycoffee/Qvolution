@@ -1,6 +1,7 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
+#include "gl_queries.h"
 #include <dlfcn.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -60,7 +61,7 @@ static int list_is_idle(void) {
 
 // A rejected scalar mode query must not overwrite the caller's output.
 #define QUERY(name, type) \
-    void name(GLenum pname, type *params) { \
+    void cgl_##name(GLenum pname, type *params) { \
         pthread_once(&queries_once, initialize_queries); \
         if (pname != GL_LIST_MODE) { \
             host_##name(pname, params); \

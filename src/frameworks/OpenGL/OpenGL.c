@@ -9,6 +9,7 @@
 
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/glext.h>
+#include "gl_queries.h"
 #include <OpenGL/CGLInternal.h>
 #include <CoreFoundation/CFDictionary.h>
 #include <pthread.h>
@@ -562,9 +563,6 @@ static int cgl_version_query(GLenum name, GLint *value) {
 }
 
 #define CGL_VERSION_GETTER(function, type, convert) \
-    static void (*native_##function)(GLenum, type *); \
-    static pthread_once_t function##_once = PTHREAD_ONCE_INIT; \
-    static void resolve_##function(void) { native_##function = cgl_native_gl_symbol(#function); } \
     void function(GLenum name, type *value) { \
         GLint version; \
         int query = cgl_version_query(name, &version); \
@@ -572,8 +570,7 @@ static int cgl_version_query(GLenum name, GLint *value) {
             if (query > 0) *value = convert; \
             return; \
         } \
-        pthread_once(&function##_once, resolve_##function); \
-        native_##function(name, value); \
+        cgl_##function(name, value); \
     }
 
 CGL_VERSION_GETTER(glGetIntegerv, GLint, version)

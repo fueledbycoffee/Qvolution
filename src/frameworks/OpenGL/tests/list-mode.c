@@ -1,6 +1,14 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
+#include "../gl_queries.h"
+#ifndef CGL_TEST_PUBLIC_GETTERS
+#define glGetBooleanv cgl_glGetBooleanv
+#define glGetDoublev cgl_glGetDoublev
+#define glGetFloatv cgl_glGetFloatv
+#define glGetIntegerv cgl_glGetIntegerv
+#define glGetInteger64v cgl_glGetInteger64v
+#endif
 #include <assert.h>
 #include <pthread.h>
 #include <stdio.h>

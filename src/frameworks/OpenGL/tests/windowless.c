@@ -7,9 +7,15 @@
 #endif
 #define dlopen mock_dlopen
 #define dlsym mock_dlsym
+#define dlclose mock_dlclose
 #include CGL_TEST_SOURCE
+#ifndef CGL_TEST_QUERIES
+#define CGL_TEST_QUERIES "../gl_queries.c"
+#endif
+#include CGL_TEST_QUERIES
 #undef dlopen
 #undef dlsym
+#undef dlclose
 
 static int platform_calls, make_calls, create_calls, destroy_surfaces;
 static int fail_init, fail_choose, fail_create, fail_current, require_pbuffer, minimum_interval;
@@ -17,6 +23,7 @@ static EGLContext last_share, current_egl;
 static EGLint last_major, last_minor, last_profile, last_depth, last_alpha;
 static int reject_gl4, multi_configs;
 static GLenum backend_error;
+static GLint backend_index, backend_mode = GL_COMPILE;
 #define CONFIG_LARGE ((EGLConfig)(uintptr_t)5)
 static EGLint create_error = EGL_BAD_MATCH;
 static EGLSurface current_surface;
@@ -32,13 +39,24 @@ static const GLubyte *backend_string(GLenum name) {
     return NULL;
 }
 #define BACKEND_GETTER(name, type) \
-    static void backend_##name(GLenum name, type *value) { *value = 77; }
+    static void backend_##name(GLenum name, type *value) { \
+        if (name == GL_LIST_INDEX || name == GL_LIST_MODE) { \
+            CGLContextObj context = CGLGetCurrentContext(); \
+            if (context && context->version_major >= 3) { \
+                backend_error = GL_INVALID_ENUM; \
+                return; \
+            } \
+            GLint result = name == GL_LIST_INDEX ? backend_index : backend_mode; \
+            *value = sizeof(type) == sizeof(GLboolean) ? result != 0 : result; \
+        } else *value = 77; \
+    }
 BACKEND_GETTER(glGetIntegerv, GLint)
 BACKEND_GETTER(glGetInteger64v, GLint64)
 BACKEND_GETTER(glGetFloatv, GLfloat)
 BACKEND_GETTER(glGetDoublev, GLdouble)
 BACKEND_GETTER(glGetBooleanv, GLboolean)
 #undef BACKEND_GETTER
+int mock_dlclose(void *handle) { assert(handle == (void *)1); return 0; }
 void *mock_dlopen(const char *path, int flags) {
     assert(!strcmp(path, "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"));
     return (void *)1;
@@ -82,6 +100,22 @@ static void legacy_errors(void) {
     }
 }
 
+static void list_queries(GLint expected, int invalid) {
+#define CHECK(function, type, initial, convert) \
+    do { \
+        type value = initial; \
+        function(GL_LIST_MODE, &value); \
+        assert(value == (invalid ? initial : (convert))); \
+        assert(glGetError() == (invalid ? GL_INVALID_ENUM : GL_NO_ERROR)); \
+    } while (0)
+    CHECK(glGetIntegerv, GLint, -7, expected);
+    CHECK(glGetInteger64v, GLint64, -7, expected);
+    CHECK(glGetFloatv, GLfloat, -7, expected);
+    CHECK(glGetDoublev, GLdouble, -7, expected);
+    CHECK(glGetBooleanv, GLboolean, 17, expected != 0);
+#undef CHECK
+}
+
 static void version(GLint major, GLint minor) {
     char prefix[16];
     snprintf(prefix, sizeof(prefix), "%d.%d ", major, minor);
@@ -98,6 +132,21 @@ static void version(GLint major, GLint minor) {
     glGetDoublev(GL_MAJOR_VERSION, &d); assert(d == major);
     glGetBooleanv(GL_MAJOR_VERSION, &b); assert(b == GL_TRUE);
     assert(glGetError() == GL_NO_ERROR);
+    }
+    if (major == 2) {
+        backend_index = 0;
+        list_queries(0, 0);
+        backend_index = 42;
+        backend_mode = GL_COMPILE;
+        list_queries(GL_COMPILE, 0);
+        backend_mode = GL_COMPILE_AND_EXECUTE;
+        list_queries(GL_COMPILE_AND_EXECUTE, 0);
+        backend_index = 0;
+        list_queries(0, 0);
+        legacy_errors();
+    } else {
+        list_queries(0, 1);
+        glGetIntegerv(GL_MAJOR_VERSION, &i); assert(i == major);
     }
     assert(!strcmp((const char *)glGetString(GL_VENDOR), "Mock vendor"));
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &i); assert(i == 77);

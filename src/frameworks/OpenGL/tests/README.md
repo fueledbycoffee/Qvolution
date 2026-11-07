@@ -39,7 +39,8 @@ and errors for invalid queries. No GPU or host GL context is used:
       -pthread -ldl -o "$lane_native/list-mode"
     "$lane_native/list-mode"
 
-Omit gl_queries.c from the second command to exercise plain driver forwarding;
+Omit gl_queries.c and add -DCGL_TEST_PUBLIC_GETTERS to the second command
+to exercise plain driver forwarding;
 the first completed-list assertion must fail. Build under the host build slot.
 
 cgl-offscreen.m is an authored public-API differential check for macOS and Darling.
@@ -126,3 +127,13 @@ These contracts do not prescribe one renderer's exact changed-pixel counts,
 and ignoring a hint does not mean ignoring the smoothing enable state.
 The observed polygon no-effect is a renderer observation, not a public
 platform-wide promise. This control supplies no new rendering override.
+
+Review integration: OpenGL.c owns the five public numeric getter exports and
+routes non-version requests through the hidden cgl_glGet*v helpers in
+gl_queries.c. windowless.c includes both production files: each selected
+legacy/core context tests version queries interleaved with idle, compile and
+compile-and-execute list-mode requests through all five public getters, including
+unchanged output/error behavior for rejected core-profile list queries. The
+standalone list-mode suite calls the same helpers and retains thread/context,
+vector-forwarding and invalid-query coverage. Both translation units must be
+linked into the framework for every architecture.
