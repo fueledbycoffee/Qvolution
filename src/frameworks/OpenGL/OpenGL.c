@@ -551,6 +551,12 @@ static int cgl_version_query(GLenum name, GLint *value) {
     CGLContextObj context = CGLGetCurrentContext();
     if (!context || (name != GL_MAJOR_VERSION && name != GL_MINOR_VERSION))
         return 0;
+    if (context->version_major == 2) {
+        // These enums are also invalid string queries on every backend version.
+        pthread_once(&native_string_once, cgl_resolve_string);
+        native_glGetString(name);
+        return -1;
+    }
     *value = name == GL_MAJOR_VERSION ? context->version_major : context->version_minor;
     return 1;
 }
@@ -561,8 +567,9 @@ static int cgl_version_query(GLenum name, GLint *value) {
     static void resolve_##function(void) { native_##function = cgl_native_gl_symbol(#function); } \
     void function(GLenum name, type *value) { \
         GLint version; \
-        if (cgl_version_query(name, &version)) { \
-            *value = convert; \
+        int query = cgl_version_query(name, &version); \
+        if (query) { \
+            if (query > 0) *value = convert; \
             return; \
         } \
         pthread_once(&function##_once, resolve_##function); \

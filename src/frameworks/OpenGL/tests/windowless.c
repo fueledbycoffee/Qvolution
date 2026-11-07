@@ -16,6 +16,7 @@ static int fail_init, fail_choose, fail_create, fail_current, require_pbuffer, m
 static EGLContext last_share, current_egl;
 static EGLint last_major, last_minor, last_profile, last_depth, last_alpha;
 static int reject_gl4, multi_configs;
+static GLenum backend_error;
 #define CONFIG_LARGE ((EGLConfig)(uintptr_t)5)
 static EGLint create_error = EGL_BAD_MATCH;
 static EGLSurface current_surface;
@@ -25,7 +26,10 @@ static EGLSurface current_surface;
 #define PBUFFER ((EGLSurface)(uintptr_t)4)
 
 static const GLubyte *backend_string(GLenum name) {
-    return (const GLubyte *)(name == GL_VERSION ? "4.6 Mock" : "Mock vendor");
+    if (name == GL_VERSION) return (const GLubyte *)"4.6 Mock";
+    if (name == GL_VENDOR) return (const GLubyte *)"Mock vendor";
+    backend_error = GL_INVALID_ENUM;
+    return NULL;
 }
 #define BACKEND_GETTER(name, type) \
     static void backend_##name(GLenum name, type *value) { *value = 77; }
@@ -52,18 +56,49 @@ void *mock_dlsym(void *handle, const char *name) {
     assert(0); return NULL;
 }
 
+GLenum glGetError(void) {
+    GLenum error = backend_error;
+    backend_error = GL_NO_ERROR;
+    return error;
+}
+
+static void legacy_errors(void) {
+    const GLenum names[] = { GL_MAJOR_VERSION, GL_MINOR_VERSION };
+    for (unsigned q = 0; q < 2; ++q) {
+#define CHECK(function, type, initial) \
+        do { \
+            type value = initial; \
+            function(names[q], &value); \
+            assert(value == initial); \
+            assert(glGetError() == GL_INVALID_ENUM); \
+            assert(glGetError() == GL_NO_ERROR); \
+        } while (0)
+        CHECK(glGetIntegerv, GLint, -7);
+        CHECK(glGetInteger64v, GLint64, -7);
+        CHECK(glGetFloatv, GLfloat, -7);
+        CHECK(glGetDoublev, GLdouble, -7);
+        CHECK(glGetBooleanv, GLboolean, 17);
+#undef CHECK
+    }
+}
+
 static void version(GLint major, GLint minor) {
     char prefix[16];
     snprintf(prefix, sizeof(prefix), "%d.%d ", major, minor);
     const char *reported = (const char *)glGetString(GL_VERSION);
     assert(reported && !strncmp(reported, prefix, strlen(prefix)));
     GLint i = -1; GLint64 i64 = -1; GLfloat f = -1; GLdouble d = -1; GLboolean b = 0;
+    if (major == 2) {
+        legacy_errors();
+    } else {
     glGetIntegerv(GL_MAJOR_VERSION, &i); assert(i == major);
     glGetIntegerv(GL_MINOR_VERSION, &i); assert(i == minor);
     glGetInteger64v(GL_MAJOR_VERSION, &i64); assert(i64 == major);
     glGetFloatv(GL_MINOR_VERSION, &f); assert(f == minor);
     glGetDoublev(GL_MAJOR_VERSION, &d); assert(d == major);
     glGetBooleanv(GL_MAJOR_VERSION, &b); assert(b == GL_TRUE);
+    assert(glGetError() == GL_NO_ERROR);
+    }
     assert(!strcmp((const char *)glGetString(GL_VENDOR), "Mock vendor"));
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &i); assert(i == 77);
     glGetInteger64v(GL_MAX_TEXTURE_SIZE, &i64); assert(i64 == 77);
@@ -176,7 +211,30 @@ static void selection_policy(void) {
     multi_configs = 0;
 }
 
-int main(void) {
+int main(int argc, char **argv) {
+    if (argc == 2) {
+        if (!strcmp(argv[1], "selection")) {
+            selection_policy();
+        } else {
+            CGLPixelFormatAttribute attrs[] = { 0 };
+            CGLPixelFormatObj pf = NULL;
+            CGLContextObj ctx = NULL, shared = NULL;
+            assert(CGLChoosePixelFormat(attrs, &pf, NULL) == kCGLNoError);
+            assert(CGLCreateContext(pf, NULL, &ctx) == kCGLNoError);
+            if (!strcmp(argv[1], "legacy")) {
+                assert(CGLSetCurrentContext(ctx) == kCGLNoError);
+                legacy_errors();
+            } else {
+                assert(!strcmp(argv[1], "null-format"));
+                int attempts = create_calls;
+                assert(CGLCreateContext(NULL, ctx, &shared) == kCGLBadPixelFormat && !shared);
+                assert(create_calls == attempts);
+            }
+            CGLReleaseContext(ctx); CGLReleasePixelFormat(pf);
+        }
+        puts("review regression: PASS");
+        return 0;
+    }
     CGLPixelFormatAttribute attrs[] = { kCGLPFAAccelerated, kCGLPFAAllowOfflineRenderers,
         kCGLPFAOpenGLProfile, kCGLOGLPVersion_Legacy, kCGLPFAColorSize, 24,
         kCGLPFADepthSize, 24, kCGLPFAAlphaSize, 8, 0 };
