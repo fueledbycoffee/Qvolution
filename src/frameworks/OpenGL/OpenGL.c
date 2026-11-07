@@ -128,6 +128,8 @@ struct _CGLContextObj {
     EGLDisplay egl_display;
     EGLConfig egl_config;
     EGLContext egl_context;
+    GLint version_major;
+    GLint version_minor;
     _Atomic EGLSurface egl_surface;
     EGLSurface fallback_pbuffer;
     int native_framebuffer_initialized;
@@ -438,8 +440,32 @@ static int cgl_has_extension(const char *extensions, const char *name) {
     return 0;
 }
 
+static void *cgl_native_gl_symbol(const char *name) {
+    // Resolve within the native bridge, bypassing this framework's query exports.
+    static void *library;
+    static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock(&lock);
+    if (!library)
+        library = dlopen("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
+                         RTLD_LAZY | RTLD_LOCAL);
+    void *symbol = library ? dlsym(library, name) : NULL;
+    pthread_mutex_unlock(&lock);
+    if (!symbol) {
+        fprintf(stderr, "OpenGL: cannot resolve native %s\n", name);
+        abort();
+    }
+    return symbol;
+}
+
+static const GLubyte *(*native_glGetString)(GLenum);
+static pthread_once_t native_string_once = PTHREAD_ONCE_INIT;
+static void cgl_resolve_string(void) {
+    native_glGetString = cgl_native_gl_symbol("glGetString");
+}
+
 static void cgl_initialize_native_framebuffer(GLenum buffer) {
-    const char *version = (const char *)glGetString(GL_VERSION);
+    pthread_once(&native_string_once, cgl_resolve_string);
+    const char *version = (const char *)native_glGetString(GL_VERSION);
     long major = version ? strtol(version, NULL, 10) : 0;
     const char *extensions = major < 3 ? (const char *)glGetString(GL_EXTENSIONS) : NULL;
     if (major >= 3 || cgl_has_extension(extensions, "GL_ARB_framebuffer_object")) {
@@ -509,6 +535,46 @@ CGLContextObj CGLGetCurrentContext(void) {
     pthread_key_t key = get_current_context_key();
     return pthread_getspecific(key);
 }
+
+const GLubyte *glGetString(GLenum name) {
+    CGLContextObj context = CGLGetCurrentContext();
+    if (context && name == GL_VERSION) {
+        if (context->version_major == 2)
+            return (const GLubyte *)"2.1 Darling";
+        return (const GLubyte *)(context->version_major == 4 ? "4.1 Darling" : "3.2 Darling");
+    }
+    pthread_once(&native_string_once, cgl_resolve_string);
+    return native_glGetString(name);
+}
+
+static int cgl_version_query(GLenum name, GLint *value) {
+    CGLContextObj context = CGLGetCurrentContext();
+    if (!context || (name != GL_MAJOR_VERSION && name != GL_MINOR_VERSION))
+        return 0;
+    *value = name == GL_MAJOR_VERSION ? context->version_major : context->version_minor;
+    return 1;
+}
+
+#define CGL_VERSION_GETTER(function, type, convert) \
+    static void (*native_##function)(GLenum, type *); \
+    static pthread_once_t function##_once = PTHREAD_ONCE_INIT; \
+    static void resolve_##function(void) { native_##function = cgl_native_gl_symbol(#function); } \
+    void function(GLenum name, type *value) { \
+        GLint version; \
+        if (cgl_version_query(name, &version)) { \
+            *value = convert; \
+            return; \
+        } \
+        pthread_once(&function##_once, resolve_##function); \
+        native_##function(name, value); \
+    }
+
+CGL_VERSION_GETTER(glGetIntegerv, GLint, version)
+CGL_VERSION_GETTER(glGetInteger64v, GLint64, version)
+CGL_VERSION_GETTER(glGetFloatv, GLfloat, version)
+CGL_VERSION_GETTER(glGetDoublev, GLdouble, version)
+CGL_VERSION_GETTER(glGetBooleanv, GLboolean, version != 0)
+#undef CGL_VERSION_GETTER
 
 CGLError CGLSetCurrentContext(CGLContextObj context) {
     if (!eglBindAPI(EGL_OPENGL_API))
@@ -881,31 +947,37 @@ CGLError CGLCreateContext(CGLPixelFormatObj pixelFormat, CGLContextObj share, CG
     if (!eglBindAPI(EGL_OPENGL_API))
         return kCGLBadState;
     EGLContext egl_share = share ? share->egl_context : EGL_NO_CONTEXT;
-    EGLint context_attribs[16] = { EGL_NONE };
-    int attr_idx = 0;
     GLint profile = 0;
-    if (pixelFormat && CGLDescribePixelFormat(pixelFormat, 0, kCGLPFAOpenGLProfile, &profile) == kCGLNoError) {
-        if (profile == kCGLOGLPVersion_3_2_Core) {
-            context_attribs[attr_idx++] = EGL_CONTEXT_MAJOR_VERSION;
-            context_attribs[attr_idx++] = 3;
-            context_attribs[attr_idx++] = EGL_CONTEXT_MINOR_VERSION;
-            context_attribs[attr_idx++] = 2;
-            context_attribs[attr_idx++] = EGL_CONTEXT_OPENGL_PROFILE_MASK;
-            context_attribs[attr_idx++] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT;
-        } else if (profile == kCGLOGLPVersion_GL4_Core) {
-            context_attribs[attr_idx++] = EGL_CONTEXT_MAJOR_VERSION;
-            context_attribs[attr_idx++] = 4;
-            context_attribs[attr_idx++] = EGL_CONTEXT_MINOR_VERSION;
-            context_attribs[attr_idx++] = 1;
-            context_attribs[attr_idx++] = EGL_CONTEXT_OPENGL_PROFILE_MASK;
-            context_attribs[attr_idx++] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT;
-        }
-        /* Note: kCGLOGLPVersion_Legacy (0x1000) passes NULL attributes to request a compatibility context */
+    CGLDescribePixelFormat(pixelFormat, 0, kCGLPFAOpenGLProfile, &profile);
+    GLint major = 2, minor = 1;
+    int core = profile == kCGLOGLPVersion_3_2_Core || profile == kCGLOGLPVersion_GL4_Core;
+    if (core) {
+        major = 4;
+        minor = 1;
     }
-    context_attribs[attr_idx] = EGL_NONE;
-    EGLContext egl_context = eglCreateContext(owner, owner_config, egl_share, attr_idx > 0 ? context_attribs : NULL);
+    EGLint context_attribs[] = {
+        EGL_CONTEXT_MAJOR_VERSION, major,
+        EGL_CONTEXT_MINOR_VERSION, minor,
+        EGL_NONE, EGL_NONE,
+        EGL_NONE
+    };
+    if (core) {
+        context_attribs[4] = EGL_CONTEXT_OPENGL_PROFILE_MASK;
+        context_attribs[5] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT;
+    }
+    // Preserve the backend default compatibility context for legacy clients.
+    EGLContext egl_context = eglCreateContext(owner, owner_config, egl_share, core ? context_attribs : NULL);
+    EGLint creation_error = egl_context == EGL_NO_CONTEXT ? eglGetError() : EGL_SUCCESS;
+    // The 3.2 profile accepts newer core contexts, but must still work on 3.2 hardware.
+    if (egl_context == EGL_NO_CONTEXT && creation_error == EGL_BAD_MATCH &&
+            profile == kCGLOGLPVersion_3_2_Core) {
+        context_attribs[1] = major = 3;
+        context_attribs[3] = minor = 2;
+        egl_context = eglCreateContext(owner, owner_config, egl_share, context_attribs);
+        creation_error = egl_context == EGL_NO_CONTEXT ? eglGetError() : EGL_SUCCESS;
+    }
     if (egl_context == EGL_NO_CONTEXT)
-        return share && eglGetError() == EGL_BAD_MATCH ? kCGLBadMatch : kCGLBadContext;
+        return share && creation_error == EGL_BAD_MATCH ? kCGLBadMatch : kCGLBadContext;
 
     CGLContextObj context = malloc(sizeof(struct _CGLContextObj));
 
@@ -923,6 +995,8 @@ CGLError CGLCreateContext(CGLPixelFormatObj pixelFormat, CGLContextObj share, CG
     context->egl_display = owner;
     context->egl_config = owner_config;
     context->egl_context = egl_context;
+    context->version_major = major;
+    context->version_minor = minor;
     atomic_init(&context->egl_surface, (EGLSurface)EGL_NO_SURFACE);
     context->fallback_pbuffer = EGL_NO_SURFACE;
     context->native_framebuffer_initialized = 0;
