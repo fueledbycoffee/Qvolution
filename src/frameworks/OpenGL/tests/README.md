@@ -20,6 +20,28 @@ registered. Both formats must create a context that can be made current and
 released. This mode checks only context setup; the differential check still
 needs real GL rendering and six PPM image comparisons.
 
+The list-mode CPU regression uses an authored shared-library driver that keeps
+GL_COMPILE after glEndList, reproducing the differential failure. It verifies
+idle mode through all five query types, active compile and compile-and-execute,
+context/thread isolation, unrelated scalar/vector queries, and unchanged output
+and errors for invalid queries. No GPU or host GL context is used:
+
+    lane_native=/tmp/cgl-query-test
+    mkdir -p "$lane_native"
+    inc="$PWD/src/frameworks/OpenGL/include"
+    tests="$PWD/src/frameworks/OpenGL/tests"
+    cc -std=gnu11 -fPIC -shared -I"$inc" "$tests/query-driver.c" \
+      -o "$lane_native/libquery-driver.so"
+    cc -std=gnu11 -I"$inc" \
+      -DCGL_NATIVE_GL_LIBRARY="\"$lane_native/libquery-driver.so\"" \
+      "$tests/list-mode.c" src/frameworks/OpenGL/gl_queries.c \
+      -L"$lane_native" -lquery-driver -Wl,-rpath,"$lane_native" \
+      -pthread -ldl -o "$lane_native/list-mode"
+    "$lane_native/list-mode"
+
+Omit gl_queries.c from the second command to exercise plain driver forwarding;
+the first completed-list assertion must fail. Build under the host build slot.
+
 cgl-offscreen.m is an authored public-API differential check for macOS and Darling.
 Build with -framework OpenGL (the batch runner adds Foundation for .m). It checks
 64x64 texture-backed FBO rendering and readback, replacement of a display list,
