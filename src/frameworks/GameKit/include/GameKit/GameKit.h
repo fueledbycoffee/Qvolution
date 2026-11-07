@@ -100,8 +100,12 @@ typedef NS_ENUM(NSInteger, GKGameCenterViewControllerState) {
 // Always nil, but omitting it would raise doesNotRecognizeSelector:.
 @property (readonly, retain) GKPlayer *player;
 - (instancetype)initWithIdentifier:(NSString *)identifier;
+@property (readonly, getter=isCompleted) BOOL completed;
 + (void)loadAchievementsWithCompletionHandler:(void (^)(NSArray<GKAchievement *> *achievements, NSError *error))completionHandler;
 + (void)reportAchievements:(NSArray<GKAchievement *> *)achievements withCompletionHandler:(void (^)(NSError *error))completionHandler;
++ (void)resetAchievementsWithCompletionHandler:(void (^)(NSError *error))completionHandler;
+// Deprecated in macOS 10.10 in favour of +reportAchievements:withCompletionHandler:; Chess still sends it.
+- (void)reportAchievementWithCompletionHandler:(void (^)(NSError *error))completionHandler;
 @end
 
 @interface GKMatchRequest : NSObject {

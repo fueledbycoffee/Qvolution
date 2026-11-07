@@ -160,6 +160,24 @@ static void completeErrorLater(void (^handler)(NSError *))
 	completeErrorLater(completionHandler);
 }
 
+// Like +reportAchievements:withCompletionHandler: for this one achievement: Game Center is not
+// available, so the progress is not recorded and the handler gets that error.
+- (void)reportAchievementWithCompletionHandler:(void (^)(NSError *))completionHandler
+{
+	completeErrorLater(completionHandler);
+}
+
++ (void)resetAchievementsWithCompletionHandler:(void (^)(NSError *))completionHandler
+{
+	completeErrorLater(completionHandler);
+}
+
+// "YES if the percentComplete property is equal to 100.0" (Apple, GKAchievement isCompleted).
+- (BOOL)isCompleted
+{
+	return _percentComplete == 100.0;
+}
+
 - (void)dealloc
 {
 	[_identifier release];
