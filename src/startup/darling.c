@@ -1920,7 +1920,7 @@ int main(int argc, char ** argv)
 	// permissions at all. The container runs without any namespace
 	// isolation: the prefix is a plain directory and /proc is the real
 	// (shared) procfs, exposed to the container via a symlink.
-	g_nonroot = (getenv("DARLING_NONROOT") != NULL || geteuid() != 0);
+	g_nonroot = (getenvTrusted("DARLING_NONROOT") != NULL || geteuid() != 0);
 	if (g_nonroot)
 	{
 		g_rootless = true;
@@ -1941,8 +1941,11 @@ int main(int argc, char ** argv)
 	}
 	else
 	{
-		setuid(0);
-		setgid(0);
+		if (setuid(0) != 0 || setgid(0) != 0)
+		{
+			fprintf(stderr, "Failed to acquire root ids: %s\n", strerror(errno));
+			return 1;
+		}
 		g_rootless = (geteuid() != 0);
 	}
 
@@ -2245,7 +2248,12 @@ int main(int argc, char ** argv)
 		joinNamespace(pidInit, CLONE_NEWNS, "mnt");
 #endif
 
-	useOriginalIds();
+	// Nothing below needs root: the client only talks to the shellspawn socket.
+	if (!g_nonroot && !dropPrivilegesPermanently(g_originalUid, g_originalGid))
+	{
+		fprintf(stderr, "Failed to drop privileges.\n");
+		return 1;
+	}
 
 	if (strcmp(argv[1], "toolchain") == 0)
 	{
@@ -2740,8 +2748,13 @@ int connectToShellspawn(void)
 #if USE_LINUX_4_11_HACK
 	addr.sun_path[0] = '\0';
 	
-	strcpy(addr.sun_path, prefix);
-	strcat(addr.sun_path, SHELLSPAWN_SOCKPATH);
+	int pathLen = snprintf(addr.sun_path, sizeof(addr.sun_path), "%s" SHELLSPAWN_SOCKPATH, prefix);
+	if (pathLen < 0 || (size_t) pathLen >= sizeof(addr.sun_path))
+	{
+		fprintf(stderr, "Prefix path is too long for the shellspawn socket (max %zu bytes): %s\n",
+			sizeof(addr.sun_path) - sizeof(SHELLSPAWN_SOCKPATH), prefix);
+		exit(1);
+	}
 #else
 	snprintf(addr.sun_path, sizeof(addr.sun_path), "%s"  SHELLSPAWN_SOCKPATH, prefix);
 #endif
@@ -3090,7 +3103,7 @@ void showHelp(const char* argv0)
 	fprintf(stderr, "\t%s shutdown\n", argv0);
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Environment variables:\n"
-		"DPREFIX - specifies the location of the Darling prefix, defaults to ~/.darling\n"
+		"DPREFIX - specifies the absolute path of the Darling prefix, defaults to ~/.darling\n"
 		"DARLING_PROFILE - selects an isolated named prefix at ~/.darling.<name>\n"
 		"DARLING_OS_VERSION - specifies the advertised macOS version (e.g. 11.7.4, 12.7.4, 26.0)\n");
 }
@@ -3487,7 +3500,16 @@ void setupPrefix()
 
 	useOriginalIds();
 
+	// The server socket lives in the prefix root, so a prefix created here is
+	// private to its owner whatever the umask. An existing directory keeps its mode.
+	struct stat st;
+	bool prefixExisted = lstat(prefix, &st) == 0;
 	createDir(prefix);
+	if (!prefixExisted && chmod(prefix, 0700) != 0)
+	{
+		fprintf(stderr, "Cannot set the mode of %s: %s\n", prefix, strerror(errno));
+		exit(1);
+	}
 	strcpy(path, prefix);
 	strcat(path, "/");
 	plen = strlen(path);
@@ -3701,6 +3723,12 @@ void checkPrefixOwner()
 		if (g_originalUid != 0 && st.st_uid != g_originalUid)
 		{
 			fprintf(stderr, "You do not own the prefix directory.\n");
+			exit(1);
+		}
+		// The prefix root holds the server socket; only its owner may write it.
+		if (st.st_mode & S_IWOTH)
+		{
+			fprintf(stderr, "The prefix directory %s is writable by other users. Run: chmod o-w %s\n", prefix, prefix);
 			exit(1);
 		}
 	}

@@ -24,9 +24,22 @@ cc -Wall -Wextra -Werror -O2 tests/launcher/profile-prefix.c -o /tmp/darling-pro
 ```
 
 This tests the launcher's pure prefix selector. `DPREFIX` remains the explicit
-path interface. `DARLING_PROFILE=<name>` selects the isolated sibling prefix
+path interface and must be absolute; an empty or relative value is rejected. `DARLING_PROFILE=<name>` selects the isolated sibling prefix
 `~/.darling.<name>`; using both selectors or a name containing path separators
 is rejected. The harness does not create or access any prefix.
+
+## Shellspawn socket path
+
+Run without root or any Darling container:
+
+```sh
+sh tests/launcher/shellspawn-sockpath.sh /tmp/darling-shellspawn-sockpath-test
+```
+
+Extracts the path construction of `connectToShellspawn()` from `darling.c` and
+checks that a prefix too long for `sun_path` is refused with an error instead of
+overflowing it. The launcher accepts a `DPREFIX` of up to 255 bytes; `sun_path`
+holds 107.
 
 ## Root-mode /proc
 
@@ -151,3 +164,33 @@ subsequent shell wait. No container or socket is created by this test.
 initially closed descriptors. `shutdown-pty.c` checks TERM delivery to a
 reparented PTY leader plus login child, grace, KILL, and other-prefix survival.
 The runtime shutdown implementation and its one-second grace are retained.
+
+## Missing init pid file
+
+Run without root or any Darling container:
+
+```sh
+python3 tests/launcher/test-missing-init.py src/startup/darling.c --run
+```
+
+The script extracts the launcher's "start the prefix's init" branch from the
+given source, compiles it with mocked process and filesystem helpers in a
+temporary directory, and runs three cases. A live darlingserver with a missing
+or invalid `.init.pid` and a failed server inspection must both refuse with
+exit 1 and no unlink, setup, spawn or pid write. A verified absence of a server
+must proceed with setup. The script fails if the branch's shape changes.
+
+## Shellspawn accept loop
+
+Run without root or any Darling container:
+
+```sh
+python3 tests/launcher/test-shellspawn-accept.py src/shellspawn/shellspawn.c --run
+```
+
+The script extracts `listenForConnections()` from the given source, compiles it
+with mocked `accept`, `usleep`, `perror` and `fork` in a temporary directory, and
+runs scripted accept results. `EINTR`, `EAGAIN` and `ECONNABORTED` retry without
+sleeping. `EMFILE`, `ENFILE`, `ENOBUFS` and `ENOMEM` sleep on every retry but log
+once per streak, and a successful accept resets the streak. `EINVAL` and
+`ENOTSOCK` log once and return -1. The script fails if the function's shape changes.

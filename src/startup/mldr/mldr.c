@@ -678,18 +678,18 @@ static void process_special_env(struct load_results* lr) {
 		sscanf(str, "%x,%x,%x,%x", &lr->bprefs[0], &lr->bprefs[1], &lr->bprefs[2], &lr->bprefs[3]);
 	}
 
+	// Without a path the static address would name an abstract socket, which is not where
+	// darlingserver listens.
 	str = getenv("__mldr_sockpath");
 
-	if (str != NULL) {
-		if (strlen(str) > sizeof(__dserver_socket_address_data.sun_path) - 1) {
-			fprintf(stderr, "darlingserver socket path is too long\n");
-			exit(1);
-		}
-		strncpy(__dserver_socket_address_data.sun_path, str, sizeof(__dserver_socket_address_data.sun_path) - 1);
-		__dserver_socket_address_data.sun_path[sizeof(__dserver_socket_address_data.sun_path) - 1] = '\0';
-
-		lr->socket_path = __dserver_socket_address_data.sun_path;
+	if (str == NULL || str[0] == '\0' || strlen(str) > sizeof(__dserver_socket_address_data.sun_path) - 1) {
+		fprintf(stderr, "mldr: __mldr_sockpath is missing, empty or too long; start programs through darling\n");
+		exit(1);
 	}
+	strncpy(__dserver_socket_address_data.sun_path, str, sizeof(__dserver_socket_address_data.sun_path) - 1);
+	__dserver_socket_address_data.sun_path[sizeof(__dserver_socket_address_data.sun_path) - 1] = '\0';
+
+	lr->socket_path = __dserver_socket_address_data.sun_path;
 
 	lr->lifetime_pipe = -1;
 	str = getenv("__mldr_lifetime_pipe");
@@ -875,6 +875,11 @@ static void socket_bitmap_put(socket_bitmap_t* bitmap, int socket) {
 
 	pthread_mutex_lock(&bitmap->mutex);
 
+	// a socket that could not be placed on a slot (see socket_bitmap_place) has no bit to clear
+	if (socket > bitmap->highest || (size_t)(bitmap->highest - socket) >= bitmap->bit_length) {
+		goto out;
+	}
+
 	index = bitmap->highest - socket;
 
 	bitmap->bits[index / 8] &= ~(1 << (index % 8));
@@ -931,6 +936,28 @@ out:
 	pthread_mutex_unlock(&bitmap->mutex);
 };
 
+/**
+ * Move `fd` to the next free slot. dup2() would silently close whatever already holds that number, which is not
+ * necessarily ours: the slots are only reserved in the bitmap, so a native library or the guest can be holding one
+ * (the kernel hands out the lowest free number, and a process with many descriptors reaches the slot range), and
+ * its owner would later close our socket. F_DUPFD never replaces a descriptor: if the slot is taken, it returns the
+ * lowest free number above it instead, and the slot goes back to the bitmap.
+ *
+ * Returns `fd` itself if it is already on the slot, otherwise the new descriptor or -1; `fd` is left open.
+ */
+static int socket_bitmap_place(int fd) {
+	int slot = socket_bitmap_get(&socket_bitmap);
+	if (slot < 0 || slot == fd) {
+		return slot;
+	}
+
+	int placed = fcntl(fd, F_DUPFD, slot);
+	if (placed != slot) {
+		socket_bitmap_put(&socket_bitmap, slot);
+	}
+	return placed;
+}
+
 int __mldr_create_rpc_socket(void) {
 	int pre_fd = -1;
 	int fd = -1;
@@ -940,21 +967,16 @@ int __mldr_create_rpc_socket(void) {
 		goto err_out;
 	}
 
-	fd = socket_bitmap_get(&socket_bitmap);
+	fd = socket_bitmap_place(pre_fd);
 	if (fd < 0) {
-		goto err_out;
-	}
-
-	if (dup2(pre_fd, fd) < 0) {
-		socket_bitmap_put(&socket_bitmap, fd);
+		// it could not be moved; keep it where it is
 		fd = pre_fd;
-		pre_fd = -1;
-	} else {
+	} else if (fd != pre_fd) {
 		close(pre_fd);
-		pre_fd = -1;
 	}
+	pre_fd = -1;
 
-	// `fd` now contains the socket with the desired FD number returned by `socket_bitmap_get`
+	// `fd` now contains the socket, normally on the slot returned by `socket_bitmap_get`
 
 	int fd_flags = fcntl(fd, F_GETFD);
 	if (fd_flags < 0) {
@@ -998,24 +1020,21 @@ int __mldr_create_process_lifetime_pipe(int* fds) {
 		return 0;
 	}
 
-	int pre_fds[2];
+	int pre_fds[2] = { -1, -1 };
+	fds[0] = fds[1] = -1;
 	if (pipe(pre_fds) == -1) {
 		goto err_out;
 	}
 
 	for (int i = 0; i < 2; ++i) {
-		fds[i] = socket_bitmap_get(&socket_bitmap);
+		fds[i] = socket_bitmap_place(pre_fds[i]);
 		if (fds[i] < 0) {
 			goto err_out;
 		}
 
-		if (dup2(pre_fds[i], fds[i]) < 0) {
-			socket_bitmap_put(&socket_bitmap, fds[i]);
-			fds[i] = -1;
-			goto err_out;
+		if (fds[i] != pre_fds[i]) {
+			close(pre_fds[i]);
 		}
-
-		close(pre_fds[i]);
 		pre_fds[i] = -1;
 	}
 
@@ -1099,16 +1118,14 @@ static void setup_space(struct load_results* lr, bool is_64_bit) {
 	// darlingserver should already have the read pipe, so we don't need
 	// to check that in.
 	if (lr->lifetime_pipe != -1) {
-		lifetime_pipe[1] = socket_bitmap_get(&socket_bitmap);
-
-		if (lr->lifetime_pipe != lifetime_pipe[1]) {
-			// move the existing pipe to a higher fd number, and invalidate
-			// the old fd to prevent interfering with fds provided by
-			// socket_bitmap_get
-			if (dup2(lr->lifetime_pipe, lifetime_pipe[1]) == -1) {
-				fprintf(stderr, "Failed to dup process lifetime pipe: %d (%s)\n", errno, strerror(errno));
-				exit(1);
-			}
+		// move the existing pipe to a higher fd number, and invalidate
+		// the old fd to prevent interfering with fds provided by
+		// socket_bitmap_get
+		lifetime_pipe[1] = socket_bitmap_place(lr->lifetime_pipe);
+		if (lifetime_pipe[1] < 0) {
+			// it could not be moved; keep it where it is
+			lifetime_pipe[1] = lr->lifetime_pipe;
+		} else if (lifetime_pipe[1] != lr->lifetime_pipe) {
 			close(lr->lifetime_pipe);
 		}
 
@@ -1266,6 +1283,10 @@ static void vchroot_unexpand_interpreter(struct load_results* lr) {
 		length = strlen(lr->argv[0]);
 
 		if (strncmp(lr->argv[0], lr->root_path, lr->root_path_length) == 0) {
+			if (length - lr->root_path_length >= sizeof(unexpanded)) {
+				fprintf(stderr, "Interpreter path is too long (%zu bytes, limit %zu)\n", length - lr->root_path_length, sizeof(unexpanded) - 1);
+				exit(1);
+			}
 			memmove(unexpanded, lr->argv[0] + lr->root_path_length, length - lr->root_path_length + 1);
 			lr->argv[0] = unexpanded;
 		} else if (strncmp(lr->argv[0], SYSTEM_ROOT, sizeof(SYSTEM_ROOT) - 1) == 0 ||
