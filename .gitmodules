@@ -9,7 +9,7 @@
 	url = ../darling-libcxxabi.git
 [submodule "src/external/libkqueue"]
 	path = src/external/libkqueue
-	url = ../darling-libkqueue.git
+	url = https://github.com/fueledbycoffee/Qvolution-libkqueue.git
 [submodule "src/external/zlib"]
 	path = src/external/zlib
 	url = ../darling-zlib.git
@@ -27,7 +27,7 @@
 	url = https://github.com/fueledbycoffee/Qvolution-foundation.git
 [submodule "src/external/corefoundation"]
 	path = src/external/corefoundation
-	url = ../darling-corefoundation.git
+	url = https://github.com/fueledbycoffee/Qvolution-corefoundation.git
 [submodule "src/external/icu"]
 	path = src/external/icu
 	url = ../darling-icu.git
@@ -64,7 +64,7 @@
 	url = ../darling-liblzma.git
 [submodule "src/external/cfnetwork"]
 	path = src/external/cfnetwork
-	url = ../darling-cfnetwork.git
+	url = https://github.com/fueledbycoffee/Qvolution-cfnetwork.git
 [submodule "src/external/text_cmds"]
 	path = src/external/text_cmds
 	url = ../darling-text_cmds.git
@@ -106,10 +106,10 @@
 	url = ../darling-coretls.git
 [submodule "src/external/security"]
 	path = src/external/security
-	url = ../darling-security.git
+	url = https://github.com/fueledbycoffee/Qvolution-security.git
 [submodule "src/external/libxpc"]
 	path = src/external/libxpc
-	url = ../darling-libxpc.git
+	url = https://github.com/fueledbycoffee/Qvolution-libxpc.git
 [submodule "src/external/gnutar"]
 	path = src/external/gnutar
 	url = ../darling-gnutar.git
@@ -130,7 +130,7 @@
 	url = ../darling-file.git
 [submodule "src/external/corecrypto"]
 	path = src/external/corecrypto
-	url = ../darling-corecrypto.git
+	url = https://github.com/fueledbycoffee/Qvolution-corecrypto.git
 [submodule "src/external/ruby"]
 	path = src/external/ruby
 	url = ../darling-ruby.git
@@ -172,10 +172,10 @@
 	url = ../darling-perl.git
 [submodule "src/external/cctools-port"]
 	path = src/external/cctools-port
-	url = ../cctools-port.git
+	url = https://github.com/fueledbycoffee/Qvolution-cctools-port.git
 [submodule "src/external/objc4"]
 	path = src/external/objc4
-	url = ../darling-objc4.git
+	url = https://github.com/fueledbycoffee/Qvolution-objc4.git
 [submodule "src/external/libplatform"]
 	path = src/external/libplatform
 	url = ../darling-libplatform.git
@@ -190,7 +190,7 @@
 	url = ../darling-libclosure.git
 [submodule "src/external/configd"]
 	path = src/external/configd
-	url = ../darling-configd.git
+	url = https://github.com/fueledbycoffee/Qvolution-configd.git
 [submodule "src/external/IONetworkingFamily"]
 	path = src/external/IONetworkingFamily
 	url = ../darling-IONetworkingFamily.git
@@ -199,7 +199,7 @@
 	url = ../darling-tcsh.git
 [submodule "src/external/system_cmds"]
 	path = src/external/system_cmds
-	url = ../darling-system_cmds.git
+	url = https://github.com/fueledbycoffee/Qvolution-system_cmds.git
 [submodule "src/external/zsh"]
 	path = src/external/zsh
 	url = ../darling-zsh.git
@@ -309,7 +309,7 @@
 	url = ../darling-usertemplate.git
 [submodule "src/external/libtrace"]
 	path = src/external/libtrace
-	url = ../darling-libtrace.git
+	url = https://github.com/fueledbycoffee/Qvolution-libtrace.git
 [submodule "src/external/rsync"]
 	path = src/external/rsync
 	url = ../darling-rsync.git
@@ -385,7 +385,7 @@
 	url = https://github.com/fueledbycoffee/Qvolution-darlingserver.git
 [submodule "src/external/libmalloc"]
 	path = src/external/libmalloc
-	url = ../darling-libmalloc.git
+	url = https://github.com/fueledbycoffee/Qvolution-libmalloc.git
 [submodule "src/external/libc"]
 	path = src/external/libc
 	url = ../darling-Libc.git
@@ -430,7 +430,7 @@
 	url = ../darling-libiconv.git
 [submodule "src/external/libresolv"]
 	path = src/external/libresolv
-	url = ../darling-libresolv.git
+	url = https://github.com/fueledbycoffee/Qvolution-libresolv.git
 [submodule "src/external/libstdcxx"]
 	path = src/external/libstdcxx
 	url = ../darling-libstdcxx.git
