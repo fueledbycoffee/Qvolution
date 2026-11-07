@@ -365,6 +365,26 @@ void generate_wrapper(std::ofstream& output, const char* soname, const std::set<
 				"\\tret\\n\");\n"
 				"#endif\n";
 		}
+		// x86_64: the resolver also runs on a first call through the dylib's own resolver stub
+		// (dlsym and other lookups that return the stub). That stub helper keeps the integer
+		// argument registers only, and the lookup below runs host code that uses xmm0-7, so the
+		// float/double arguments of that first call would arrive clobbered. Keep them.
+		output << "#if defined(__x86_64__)\n"
+			"__attribute__((visibility(\"hidden\"), used))\n"
+			"void* __elf_resolve_" << sym << "(void) {\n"
+			"\topen_library();\n"
+			"\treturn _elfcalls->dlsym_fatal(lib_handle, \"" << sym << "\");\n"
+			"}\n"
+			"__asm__(\".text\\n.globl _" << sym << "\\n.p2align 4\\n_" << sym << ":\\n"
+			".symbol_resolver _" << sym << "\\n"
+			"\\tpushq %rbp\\n\\tmovq %rsp, %rbp\\n\\tsubq $128, %rsp\\n\\tandq $-16, %rsp\\n";
+		for (int i = 0; i < 8; i++)
+			output << "\\tmovdqa %xmm" << i << ", " << i * 16 << "(%rsp)\\n";
+		output << "\\tcall ___elf_resolve_" << sym << "\\n";
+		for (int i = 0; i < 8; i++)
+			output << "\\tmovdqa " << i * 16 << "(%rsp), %xmm" << i << "\\n";
+		output << "\\tmovq %rbp, %rsp\\n\\tpopq %rbp\\n\\tret\\n\");\n"
+			"#else\n";
 		output << "void* " << sym << "() {\n"
 			"\t__asm__(\".symbol_resolver _" << sym << "\");\n"
 			"#if defined(__arm64__)\n";
@@ -376,7 +396,8 @@ void generate_wrapper(std::ofstream& output, const char* soname, const std::set<
 			"#endif\n"
 			"\topen_library();\n"
 			"\treturn _elfcalls->dlsym_fatal(lib_handle, \"" << sym << "\");\n"
-			"}\n\n";
+			"}\n"
+			"#endif\n\n";
 	}
 	output << "asm(\".section __TEXT,__elfname\\n"
 		".private_extern ___elfname\\n"
