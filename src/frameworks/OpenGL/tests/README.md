@@ -95,3 +95,34 @@ mac/opengl-smoothing-scope.txt and darling/opengl-smoothing-scope.txt.
 These observations do not specify a platform-wide polygon-smoothing no-op or
 an exact line rasterization algorithm. These checks neither inspect Apple
 images nor invoke tools on framework binaries.
+
+rasterizer-control.c separates the original display-list scene's polygon
+smoothing from line filtering. It writes the same white-composited RGB scene
+frames as opengl-display-list.m, plus alpha images; its line controls write raw
+RGB and alpha separately for all three hints and blend modes. Build with
+`clang rasterizer-control.c -framework OpenGL -o rasterizer-control` and set
+QV_OUT_DIR to an existing output directory. Renderer strings are diagnostic
+metadata (lines prefixed ##), not equality assertions. Allocation/setup/image
+failures make the program fail. The existing four checks remain unchanged.
+
+Rung 4: fx-render-4/oracle/20261107T134741Z-controls_-1284108, compared with
+20261107T134530Z-checks_-1275760. Both executions exit 0 and control text
+matches. All twelve original RGB outputs (six on each platform) are reproduced
+byte-for-byte. Disabling polygon smoothing eliminates all six original image
+differences. All 36 line-off RGB/alpha controls match; line-on has 30 differing
+and six matching images. Scene-off RGB/alpha has twelve matches, scene-on
+has twelve differences. The two default/accelerated requests select the same
+renderer on each platform.
+
+Rung 3: Apple's OpenGL Programming Guide for Mac, "Techniques for Scene
+Antialiasing", delegates point/line antialiasing to the OpenGL specification:
+https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_fsaa/opengl_fsaa.html
+OpenGL 2.1 sections 3.2 and 5.6 allow approximate coverage, alternate filters,
+and implementation-dependent hints; section 3.5.3 describes polygon coverage:
+https://registry.khronos.org/OpenGL/specs/gl/glspec21.pdf
+The command reference also specifies implementation-dependent hint behavior:
+https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glHint.xml
+These contracts do not prescribe one renderer's exact changed-pixel counts,
+and ignoring a hint does not mean ignoring the smoothing enable state.
+The observed polygon no-effect is a renderer observation, not a public
+platform-wide promise. This control supplies no new rendering override.
