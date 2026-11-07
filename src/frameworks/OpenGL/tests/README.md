@@ -73,15 +73,25 @@ OpenGL -o <executable>` on macOS; polygon-smooth.c writes PPMs to QV_OUT_DIR):
   images matched within tolerance; smoothing changed 0 pixels on macOS and
   140/206 pixels on Darling. This remains an unresolved rasterization
   difference, not evidence that queries should report smoothing disabled.
-- smoothing-scope.c is a follow-up probe, not yet observed on macOS. It compares
+- smoothing-scope.c compares
   RGB8/RGBA8 texture/renderbuffer targets, default/accelerated context requests,
   three hints, disabled/source-alpha/saturate blending, and a line-smoothing
   control. It also reports enable queries, attribute-stack restoration and
   display-list compile/replay state. It makes no assertion about renderer
   capabilities or expected pixel counts. Counts cover RGB and alpha separately.
+  On macOS 12.7.6 versus Darling r7, all 72 polygon and 72 line toggle counts
+  differed. On macOS, polygon smoothing changed neither RGB nor alpha in any
+  case. Line smoothing changed pixels on both platforms, with different counts.
+  Target setup, enable queries, attribute-stack restoration and display-list
+  compile/replay state matched. Default/accelerated requests do not establish
+  that distinct renderers were selected. The probe records aggregate counts,
+  not the per-pixel coverage needed to specify a line antialiasing filter.
 
 Rung 4 observations: fx-render-4/oracle/20261107T084032Z-checks_-587056,
 mac/opengl-list-mode.txt, mac/opengl-polygon-smooth.txt, and the corresponding
-Darling output and authored PPMs. The scope probe needs the same differential
-run before a rasterization policy can be inferred. These checks neither inspect
-Apple images nor invoke tools on framework binaries.
+Darling output and authored PPMs. The scope observation is in
+fx-render-4/oracle/20261107T104311Z-checks_-837649,
+mac/opengl-smoothing-scope.txt and darling/opengl-smoothing-scope.txt.
+These observations do not specify a platform-wide polygon-smoothing no-op or
+an exact line rasterization algorithm. These checks neither inspect Apple
+images nor invoke tools on framework binaries.
