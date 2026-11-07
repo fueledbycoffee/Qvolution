@@ -23,6 +23,7 @@ static EGLContext last_share, current_egl;
 static EGLint last_major, last_minor, last_profile, last_depth, last_alpha;
 static int reject_gl4, multi_configs;
 static GLenum backend_error;
+static int backend_begin;
 static GLint backend_index, backend_mode = GL_COMPILE;
 #define CONFIG_LARGE ((EGLConfig)(uintptr_t)5)
 static EGLint create_error = EGL_BAD_MATCH;
@@ -33,6 +34,10 @@ static EGLSurface current_surface;
 #define PBUFFER ((EGLSurface)(uintptr_t)4)
 
 static const GLubyte *backend_string(GLenum name) {
+    if (backend_begin) {
+        backend_error = GL_INVALID_OPERATION;
+        return NULL;
+    }
     if (name == GL_VERSION) return (const GLubyte *)"4.6 Mock";
     if (name == GL_VENDOR) return (const GLubyte *)"Mock vendor";
     backend_error = GL_INVALID_ENUM;
@@ -123,6 +128,15 @@ static void version(GLint major, GLint minor) {
     assert(reported && !strncmp(reported, prefix, strlen(prefix)));
     GLint i = -1; GLint64 i64 = -1; GLfloat f = -1; GLdouble d = -1; GLboolean b = 0;
     if (major == 2) {
+        backend_begin = 1;
+        assert(glGetString(GL_VERSION) == NULL);
+        backend_begin = 0;
+        assert(glGetError() == GL_INVALID_OPERATION);
+        assert(glGetError() == GL_NO_ERROR);
+        assert(glGetString(GL_VERSION) == reported);
+        backend_error = GL_INVALID_ENUM;
+        assert(glGetString(GL_VERSION) == reported);
+        assert(glGetError() == GL_INVALID_ENUM);
         legacy_errors();
     } else {
     glGetIntegerv(GL_MAJOR_VERSION, &i); assert(i == major);

@@ -137,3 +137,11 @@ unchanged output/error behavior for rejected core-profile list queries. The
 standalone list-mode suite calls the same helpers and retains thread/context,
 vector-forwarding and invalid-query coverage. Both translation units must be
 linked into the framework for every architecture.
+
+`gl-begin.c` preserves the reviewer's complete 1x1 texture-FBO reproducer.
+On a legacy context, GL_VERSION inside glBegin/glEnd must return NULL and
+leave GL_INVALID_OPERATION; the numeric legacy-version query must also keep
+its native error behavior. Run through qv-diff-batch with -framework OpenGL.
+The combined windowless CPU fixture additionally checks that failed native
+string queries remain NULL, successful version queries recover afterward,
+and a preexisting error survives a successful query.

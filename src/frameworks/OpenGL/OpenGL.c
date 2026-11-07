@@ -538,14 +538,17 @@ CGLContextObj CGLGetCurrentContext(void) {
 }
 
 const GLubyte *glGetString(GLenum name) {
+    pthread_once(&native_string_once, cgl_resolve_string);
+    const GLubyte *result = native_glGetString(name);
+    if (!result)
+        return NULL;
     CGLContextObj context = CGLGetCurrentContext();
     if (context && name == GL_VERSION) {
         if (context->version_major == 2)
             return (const GLubyte *)"2.1 Darling";
         return (const GLubyte *)(context->version_major == 4 ? "4.1 Darling" : "3.2 Darling");
     }
-    pthread_once(&native_string_once, cgl_resolve_string);
-    return native_glGetString(name);
+    return result;
 }
 
 static int cgl_version_query(GLenum name, GLint *value) {
