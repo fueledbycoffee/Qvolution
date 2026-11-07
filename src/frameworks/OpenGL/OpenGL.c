@@ -700,15 +700,25 @@ CGLError CGLChoosePixelFormat(
     int count = attributes_count(attrs);
     EGLint egl_attrs[32] = { EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT };
     int n = 2;
-    GLint color_size = 0;
+    enum { COLOR, ALPHA, DEPTH, SIZE_COUNT };
+    GLint sizes[SIZE_COUNT] = { -1, -1, -1 };
+    int minimum = 0, maximum = 0;
     for (int i = 0; i < count; ++i) {
         CGLPixelFormatAttribute attr = attrs[i];
         GLint value = attribute_has_argument(attr) ? (GLint)attrs[++i] : 1;
         EGLint egl_attr = EGL_NONE;
         switch (attr) {
-        case kCGLPFAColorSize: color_size = value; break;
-        case kCGLPFAAlphaSize: egl_attr = EGL_ALPHA_SIZE; break;
-        case kCGLPFADepthSize: egl_attr = EGL_DEPTH_SIZE; break;
+        case kCGLPFAColorSize:
+            if (value > 128) return kCGLBadPixelFormat;
+            sizes[COLOR] = value;
+            break;
+        case kCGLPFAAlphaSize:
+            if (value > 32) return kCGLBadPixelFormat;
+            sizes[ALPHA] = value;
+            break;
+        case kCGLPFADepthSize: sizes[DEPTH] = value; break;
+        case kCGLPFAMinimumPolicy: minimum = 1; break;
+        case kCGLPFAMaximumPolicy: maximum = 1; break;
         case kCGLPFAStencilSize: egl_attr = EGL_STENCIL_SIZE; break;
         case kCGLPFASampleBuffers: egl_attr = EGL_SAMPLE_BUFFERS; break;
         case kCGLPFASamples: egl_attr = EGL_SAMPLES; break;
@@ -759,18 +769,36 @@ CGLError CGLChoosePixelFormat(
     if (!configs)
         return kCGLBadAlloc;
     EGLConfig selected = NULL;
+    int64_t best_score = INT64_MAX;
     if (eglChooseConfig(owner, egl_attrs, configs, available, &available)) {
         for (EGLint i = 0; i < available; ++i) {
-            EGLint red, green, blue, minimum_interval;
+            EGLint minimum_interval;
             if (paced && (!eglGetConfigAttrib(owner, configs[i], EGL_MIN_SWAP_INTERVAL, &minimum_interval) ||
                     minimum_interval != 0))
                 continue;
-            if (eglGetConfigAttrib(owner, configs[i], EGL_RED_SIZE, &red) &&
-                    eglGetConfigAttrib(owner, configs[i], EGL_GREEN_SIZE, &green) &&
-                    eglGetConfigAttrib(owner, configs[i], EGL_BLUE_SIZE, &blue) &&
-                    red + green + blue >= color_size) {
+            int64_t score = 0;
+            int matches = 1;
+            for (int size = 0; size < SIZE_COUNT; ++size) {
+                if (sizes[size] < 0)
+                    continue;
+                EGLint actual = 0;
+                const EGLint egl_size[] = { EGL_BUFFER_SIZE, EGL_ALPHA_SIZE, EGL_DEPTH_SIZE };
+                if (!eglGetConfigAttrib(owner, configs[i], egl_size[size], &actual)) {
+                    matches = 0;
+                    break;
+                }
+                if (minimum && actual < sizes[size]) {
+                    matches = 0;
+                    break;
+                }
+                if (maximum && sizes[size] != 0)
+                    score -= actual;
+                else
+                    score += llabs((int64_t)actual - sizes[size]);
+            }
+            if (matches && (!selected || score < best_score)) {
                 selected = configs[i];
-                break;
+                best_score = score;
             }
         }
     }
@@ -850,15 +878,7 @@ CGLError CGLDescribePixelFormat(
         return kCGLBadValue;
     EGLint egl_attr = EGL_NONE;
     switch (attr) {
-    case kCGLPFAColorSize: {
-        EGLint red, green, blue;
-        if (!eglGetConfigAttrib(format->egl_display, format->egl_config, EGL_RED_SIZE, &red) ||
-                !eglGetConfigAttrib(format->egl_display, format->egl_config, EGL_GREEN_SIZE, &green) ||
-                !eglGetConfigAttrib(format->egl_display, format->egl_config, EGL_BLUE_SIZE, &blue))
-            return kCGLBadPixelFormat;
-        *value = red + green + blue;
-        return kCGLNoError;
-    }
+    case kCGLPFAColorSize: egl_attr = EGL_BUFFER_SIZE; break;
     case kCGLPFAAccelerated: {
         EGLint caveat;
         if (!eglGetConfigAttrib(format->egl_display, format->egl_config, EGL_CONFIG_CAVEAT, &caveat))

@@ -15,7 +15,8 @@ static int platform_calls, make_calls, create_calls, destroy_surfaces;
 static int fail_init, fail_choose, fail_create, fail_current, require_pbuffer, minimum_interval;
 static EGLContext last_share, current_egl;
 static EGLint last_major, last_minor, last_profile, last_depth, last_alpha;
-static int reject_gl4;
+static int reject_gl4, multi_configs;
+#define CONFIG_LARGE ((EGLConfig)(uintptr_t)5)
 static EGLint create_error = EGL_BAD_MATCH;
 static EGLSurface current_surface;
 #define HEADLESS ((EGLDisplay)(uintptr_t)1)
@@ -86,21 +87,35 @@ EGLBoolean eglTerminate(EGLDisplay d) { assert(0); return EGL_FALSE; }
 EGLBoolean eglBindAPI(EGLenum api) { assert(api == EGL_OPENGL_API); return EGL_TRUE; }
 EGLBoolean eglChooseConfig(EGLDisplay d, const EGLint *attrs, EGLConfig *out, EGLint cap, EGLint *count) {
     assert(d == HEADLESS || d == WINDOWED);
-    for (int i = 0; attrs[i] != EGL_NONE; i += 2) {
-        if (attrs[i] == EGL_DEPTH_SIZE) last_depth = attrs[i+1];
-        if (attrs[i] == EGL_ALPHA_SIZE) last_alpha = attrs[i+1];
+    *count = 0;
+    for (int c = 0; c < (multi_configs ? 2 : 1) && !fail_choose; ++c) {
+        EGLConfig candidate = c == 0 ? CONFIG : CONFIG_LARGE;
+        int matches = 1;
+        for (int i = 0; attrs[i] != EGL_NONE; i += 2) {
+            if (attrs[i] == EGL_DEPTH_SIZE) last_depth = attrs[i+1];
+            if (attrs[i] == EGL_ALPHA_SIZE) last_alpha = attrs[i+1];
+            if (attrs[i] == EGL_DEPTH_SIZE || attrs[i] == EGL_ALPHA_SIZE || attrs[i] == EGL_STENCIL_SIZE) {
+                EGLint bits;
+                eglGetConfigAttrib(d, candidate, attrs[i], &bits);
+                if (bits < attrs[i+1]) matches = 0;
+            }
+        }
+        if (matches) {
+            if (out && *count < cap) out[*count] = candidate;
+            ++*count;
+        }
     }
-    *count = fail_choose ? 0 : 1;
-    if (out && !fail_choose) *out = CONFIG;
     return EGL_TRUE;
 }
 EGLBoolean eglGetConfigAttrib(EGLDisplay d, EGLConfig c, EGLint attr, EGLint *out) {
     *out = attr == EGL_MIN_SWAP_INTERVAL ? minimum_interval :
-        attr == EGL_CONFIG_CAVEAT ? EGL_NONE : attr == EGL_DEPTH_SIZE ? 24 : 8;
+        attr == EGL_CONFIG_CAVEAT ? EGL_NONE :
+        attr == EGL_BUFFER_SIZE ? (c == CONFIG_LARGE ? 64 : 32) :
+        attr == EGL_DEPTH_SIZE ? (c == CONFIG_LARGE ? 32 : 24) : (c == CONFIG_LARGE ? 16 : 8);
     return EGL_TRUE;
 }
 EGLContext eglCreateContext(EGLDisplay d, EGLConfig c, EGLContext share, const EGLint *attrs) {
-    assert(c == CONFIG); ++create_calls; last_share = share; last_major = 0;
+    assert(c == CONFIG || c == CONFIG_LARGE); ++create_calls; last_share = share; last_major = 0;
     last_minor = last_profile = 0;
     if (attrs) for (int i = 0; attrs[i] != EGL_NONE; i += 2) {
         if (attrs[i] == EGL_CONTEXT_MAJOR_VERSION) last_major = attrs[i+1];
@@ -123,6 +138,44 @@ EGLBoolean eglQuerySurface(EGLDisplay d, EGLSurface s, EGLint a, EGLint *v) { re
 EGLBoolean eglSwapInterval(EGLDisplay d, EGLint i) { return EGL_TRUE; }
 EGLBoolean eglSwapBuffers(EGLDisplay d, EGLSurface s) { return EGL_TRUE; }
 
+static void selection_policy(void) {
+    multi_configs = 1;
+    const CGLPixelFormatAttribute sizes[] = { kCGLPFAColorSize, kCGLPFADepthSize, kCGLPFAAlphaSize };
+    for (unsigned i = 0; i < 3; ++i) {
+        CGLPixelFormatAttribute attrs[] = { sizes[i], i == 2 ? 32 : 128, 0, 0 };
+        CGLPixelFormatObj pf = NULL;
+        assert(CGLChoosePixelFormat(attrs, &pf, NULL) == kCGLNoError && pf);
+        assert(pf->egl_config == CONFIG_LARGE);
+        CGLReleasePixelFormat(pf);
+        attrs[2] = kCGLPFAMinimumPolicy;
+        assert(CGLChoosePixelFormat(attrs, &pf, NULL) == kCGLBadPixelFormat && !pf);
+        attrs[1] = 1; attrs[2] = kCGLPFAMaximumPolicy;
+        assert(CGLChoosePixelFormat(attrs, &pf, NULL) == kCGLNoError && pf);
+        assert(pf->egl_config == CONFIG_LARGE);
+        CGLReleasePixelFormat(pf);
+        attrs[1] = 0;
+        assert(CGLChoosePixelFormat(attrs, &pf, NULL) == kCGLNoError && pf->egl_config == CONFIG);
+        CGLReleasePixelFormat(pf);
+    }
+    CGLPixelFormatAttribute attrs[] = { kCGLPFAColorSize, 24, kCGLPFADepthSize, 24, 0, 0 };
+    CGLPixelFormatObj pf = NULL;
+    assert(CGLChoosePixelFormat(attrs, &pf, NULL) == kCGLNoError && pf->egl_config == CONFIG);
+    CGLReleasePixelFormat(pf);
+    attrs[3] = 25; attrs[4] = kCGLPFAMinimumPolicy;
+    assert(CGLChoosePixelFormat(attrs, &pf, NULL) == kCGLNoError && pf->egl_config == CONFIG_LARGE);
+    CGLReleasePixelFormat(pf);
+    CGLPixelFormatAttribute alpha[] = { kCGLPFAAlphaSize, 33, 0 };
+    assert(CGLChoosePixelFormat(alpha, &pf, NULL) == kCGLBadPixelFormat && !pf);
+    alpha[0] = kCGLPFAColorSize; alpha[1] = 129;
+    assert(CGLChoosePixelFormat(alpha, &pf, NULL) == kCGLBadPixelFormat && !pf);
+    CGLPixelFormatAttribute color32[] = { kCGLPFAColorSize, 32, kCGLPFAMinimumPolicy, 0 };
+    assert(CGLChoosePixelFormat(color32, &pf, NULL) == kCGLNoError && pf->egl_config == CONFIG);
+    GLint bits = 0;
+    assert(CGLDescribePixelFormat(pf, 0, kCGLPFAColorSize, &bits) == kCGLNoError && bits == 32);
+    CGLReleasePixelFormat(pf);
+    multi_configs = 0;
+}
+
 int main(void) {
     CGLPixelFormatAttribute attrs[] = { kCGLPFAAccelerated, kCGLPFAAllowOfflineRenderers,
         kCGLPFAOpenGLProfile, kCGLOGLPVersion_Legacy, kCGLPFAColorSize, 24,
@@ -133,18 +186,20 @@ int main(void) {
     assert(!pf && screens == 0);
     fail_init = 0;
     assert(CGLChoosePixelFormat(attrs, &pf, &screens) == kCGLNoError && pf && screens == 1);
-    assert(pf->egl_display == HEADLESS && last_depth == 24 && last_alpha == 8);
+    assert(pf->egl_display == HEADLESS);
     GLint bits = 0;
     assert(CGLDescribePixelFormat(pf, 0, kCGLPFADepthSize, &bits) == kCGLNoError && bits >= 24);
     assert(CGLDescribePixelFormat(pf, 0, kCGLPFAColorSize, &bits) == kCGLNoError && bits >= 24);
     assert(CGLDescribePixelFormat(pf, 0, kCGLPFAAccelerated, &bits) == kCGLNoError && bits == 1);
+    selection_policy();
     int probes = platform_calls;
     CGLPixelFormatObj second = NULL;
     assert(CGLChoosePixelFormat(attrs, &second, NULL) == kCGLNoError);
     assert(platform_calls == probes);
     CGLReleasePixelFormat(second);
     attrs[5] = 128;
-    assert(CGLChoosePixelFormat(attrs, &second, NULL) == kCGLBadPixelFormat && !second);
+    assert(CGLChoosePixelFormat(attrs, &second, NULL) == kCGLNoError && second);
+    CGLReleasePixelFormat(second);
     attrs[5] = 24;
     attrs[3] = 0x7fff;
     assert(CGLChoosePixelFormat(attrs, &second, NULL) == kCGLBadAttribute && !second);
