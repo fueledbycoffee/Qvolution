@@ -29,7 +29,7 @@ static NSError *gameCenterUnavailableError(void)
 	                       userInfo:@{ NSLocalizedDescriptionKey: @"Game Center is not available in Darling" }];
 }
 
-static void authenticateLater(void (^handler)(NSError *))
+static void completeErrorOnMainQueue(void (^handler)(NSError *))
 {
 	if (handler == nil)
 		return;
@@ -99,7 +99,7 @@ static void completeErrorLater(void (^handler)(NSError *))
 
 - (void)authenticateWithCompletionHandler:(void (^)(NSError *))completionHandler
 {
-	authenticateLater(completionHandler);
+	completeErrorOnMainQueue(completionHandler);
 }
 
 - (void (^)(NSViewController *, NSError *))authenticateHandler
@@ -122,7 +122,7 @@ static void completeErrorLater(void (^handler)(NSError *))
 		return;
 
 	void (^storedHandler)(NSViewController *, NSError *) = _authenticateHandler;
-	authenticateLater(^(NSError *error) {
+	completeErrorOnMainQueue(^(NSError *error) {
 		storedHandler(nil, error);
 	});
 }
@@ -157,19 +157,19 @@ static void completeErrorLater(void (^handler)(NSError *))
 
 + (void)reportAchievements:(NSArray<GKAchievement *> *)achievements withCompletionHandler:(void (^)(NSError *))completionHandler
 {
-	completeErrorLater(completionHandler);
+	completeErrorOnMainQueue(completionHandler);
 }
 
 // Like +reportAchievements:withCompletionHandler: for this one achievement: Game Center is not
 // available, so the progress is not recorded and the handler gets that error.
 - (void)reportAchievementWithCompletionHandler:(void (^)(NSError *))completionHandler
 {
-	completeErrorLater(completionHandler);
+	completeErrorOnMainQueue(completionHandler);
 }
 
 + (void)resetAchievementsWithCompletionHandler:(void (^)(NSError *))completionHandler
 {
-	completeErrorLater(completionHandler);
+	completeErrorOnMainQueue(completionHandler);
 }
 
 // "YES if the percentComplete property is equal to 100.0" (Apple, GKAchievement isCompleted).

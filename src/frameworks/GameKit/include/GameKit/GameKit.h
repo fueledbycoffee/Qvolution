@@ -24,8 +24,8 @@
 #import <AppKit/AppKit.h>
 
 // Stub of GameKit. Darling has no Game Center service: the local player is
-// never authenticated and every request fails with GKErrorNotSupported, as on
-// macOS when Game Center is unavailable.
+// never authenticated and every request fails with GKErrorNotSupported. This
+// is an unsupported-runtime policy, not a claim about macOS without an account.
 //
 // Scoped to what a measured consumer binds against (2026-09-20: Chess.app, both
 // slices), not to Apple's full API -- every entry point here fails, so an
