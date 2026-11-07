@@ -60,3 +60,28 @@ Build both with -framework OpenGL through qv-diff-batch. The selection check
 compares success/error contracts instead of hardware-dependent buffer sizes.
 The CPU test also offers individual legacy, selection and null-format arguments
 for reproducing each review failure independently.
+
+Public query/rasterization probes (each builds with `clang <file> -framework
+OpenGL -o <executable>` on macOS; polygon-smooth.c writes PPMs to QV_OUT_DIR):
+
+- list-mode-oracle.c exercises all five scalar query types while idle,
+  compiling, redefining, replaying and deleting lists. The same authored binary
+  matched on macOS 12.7.6 and Darling r7 with the list-mode fix.
+- polygon-smooth.c compares direct and display-list triangle/quad rendering,
+  toggling GL_POLYGON_SMOOTH on a single-sample RGBA8 renderbuffer. The r7 run
+  retained requested enable state on both platforms. All four smoothing-off
+  images matched within tolerance; smoothing changed 0 pixels on macOS and
+  140/206 pixels on Darling. This remains an unresolved rasterization
+  difference, not evidence that queries should report smoothing disabled.
+- smoothing-scope.c is a follow-up probe, not yet observed on macOS. It compares
+  RGB8/RGBA8 texture/renderbuffer targets, default/accelerated context requests,
+  three hints, disabled/source-alpha/saturate blending, and a line-smoothing
+  control. It also reports enable queries, attribute-stack restoration and
+  display-list compile/replay state. It makes no assertion about renderer
+  capabilities or expected pixel counts. Counts cover RGB and alpha separately.
+
+Rung 4 observations: fx-render-4/oracle/20261107T084032Z-checks_-587056,
+mac/opengl-list-mode.txt, mac/opengl-polygon-smooth.txt, and the corresponding
+Darling output and authored PPMs. The scope probe needs the same differential
+run before a rasterization policy can be inferred. These checks neither inspect
+Apple images nor invoke tools on framework binaries.
